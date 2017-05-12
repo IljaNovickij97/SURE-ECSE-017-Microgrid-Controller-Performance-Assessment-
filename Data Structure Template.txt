@@ -1,0 +1,29 @@
+Data Description
+Controller blha blah
+Sampling Rate 1Hz
+Sampling Period 2 weeks
+###
+System Description
+Bus No.
+DER No. 
+###
+Bus Data
+Bus 1
+Voltage 220 212 
+Frequency 60 61 62 60
+Bus 2
+Voltage 220 212 
+Frequency 60 61 62 60
+###
+DER Data
+DER 1
+Type *Diesel/*Gas/PV/Wind/Hydro/Battery
+Generation Capacity 100
+Power Output 458 456 998
+*Consumption
+###
+Load Data
+Load 1
+Type Dump/Critical/Priority/Interuptible/Thermal
+Power Demand 468 786 0 4568
+###
