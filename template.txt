@@ -1,9 +1,10 @@
 Controller blah blah
 Sampling Rate 1
-Sampling Period 2 weeks
+Sampling Period 2
 ###
-Bus No.
-DER No. 
+Bus No. 2
+DER No. 2
+Load No. 2
 ###
 Voltage 220 212 456 487 980.549 487.67 65.123 4679.564 #
 Frequency 60 61 62 60
@@ -25,5 +26,5 @@ Type Dump/Critical/Priority/Interruptable/Thermal
 Power Demand 468 786 0 4568
 #
 Type Dump/Critical/Priority/Interruptable/Thermal
-Power Demand 468 786 0 4568
+Power Demand 432 786 0 4568
 ###
