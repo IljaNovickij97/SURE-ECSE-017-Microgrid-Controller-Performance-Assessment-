@@ -14,6 +14,7 @@ class Data(object):
         self.read_data()
 
     def read_data(self):
+        #### This whole method needs work. Add in checks for errors etc.
         f = open(self.filename, 'r', 1)
 
         # Skips Controller identifier
@@ -50,6 +51,14 @@ class Data(object):
             self.busList.append(self.read_bus(f))
             f.readline()
 
+        for i in range(self.nDer):
+            self.derList.append(self.read_der(f))
+            f.readline()
+
+        for i in range(self.nLoad):
+            self.loadList.append(self.read_load(f))
+            f.readline()
+
     def read_bus(self, f):
         # Skips Voltage identifier
         f.read(len('Voltage '))
@@ -64,7 +73,7 @@ class Data(object):
     def read_der(self, f):
         # Skips Type identifier
         f.read(len('Type '))
-        energy_type = f.readline(f)
+        energy_type = f.readline()
 
         # Skips Power Output identifier
         f.read(len('Power Output '))
@@ -72,7 +81,7 @@ class Data(object):
 
         # Skips Capacity identifier
         f.read(len('Generation Capacity '))
-        capacity = int(f.readline(f))
+        capacity = int(f.readline())
 
         # Skips Capacity identifier
         f.read(len('Consumption '))
@@ -83,7 +92,7 @@ class Data(object):
     def read_load(self, f):
         # Skips Type identifier
         f.read(len('Type '))
-        load_type = f.readline(f)
+        load_type = f.readline()
 
         # Skips Power Output identifier
         f.read(len('Power Demand '))

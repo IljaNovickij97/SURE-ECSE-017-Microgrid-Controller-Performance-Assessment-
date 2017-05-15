@@ -4,7 +4,7 @@ Sampling Period 4
 ### System info
 Bus No. 2
 DER No. 2
-Load No. 2
+Load No. 10
 ### Bus Info
 Voltage 220 212 456 487
 Frequency 60 61 62 60
@@ -24,6 +24,30 @@ Consumption 235 9583 232 21
 ### Load Info
 Type Dump
 Power Demand 432 786 0 4568
+# next load
+Type Priority
+Power Demand 432 786 0 4268
+# next load
+Type Priority
+Power Demand 432 786 0 4268
+# next load
+Type Priority
+Power Demand 432 786 0 4268
+# next load
+Type Priority
+Power Demand 432 786 0 4268
+# next load
+Type Priority
+Power Demand 432 786 0 4268
+# next load
+Type Priority
+Power Demand 432 786 0 4268
+# next load
+Type Interruptable
+Power Demand 432 786 0 4268
+# next load
+Type Critical
+Power Demand 432 786 0 4268
 # next load
 Type Priority
 Power Demand 432 786 0 4268

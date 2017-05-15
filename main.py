@@ -22,6 +22,7 @@
 
 import data
 
-Data = data.Data('sample.txt')
+Data = data.Data('template.txt')
 
-print(Data.samplingPeriod)
+
+print(Data.loadList[1].load_type)
