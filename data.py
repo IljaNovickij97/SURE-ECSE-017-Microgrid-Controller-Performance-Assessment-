@@ -1,9 +1,24 @@
+from __future__ import division
+
+
+def linspace(start, stop, n):
+    space = []
+    if n == 1:
+        return
+    h = (stop - start) / (n - 1)
+    for i in range(int(n)):
+        space.append(start + h * i)
+
+    return space
+
+
 class Data(object):
     def __init__(self, filename):
         self.filename = filename
         self.busList = []
         self.derList = []
         self.loadList = []
+        self.timeList = []
         self.samplingRate = 0
         self.samplingPeriod = 0
         self.controllerName = ''
@@ -58,6 +73,8 @@ class Data(object):
         for i in range(self.nLoad):
             self.loadList.append(self.read_load(f))
             f.readline()
+
+        self.timeList = linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
 
     def read_bus(self, f):
         # Skips Voltage identifier
@@ -115,11 +132,6 @@ class Bus(object):
         self.voltage = voltage
         self.frequency = frequency
 
-    def get_voltage(self):
-        return self.voltage
-
-    def get_frequency(self):
-        return self.frequency
 
 
 class Der(object):
@@ -129,17 +141,6 @@ class Der(object):
         self.capacity = capacity
         self.consumption = consumption
 
-    def get_energy_type(self):
-        return self.energy_type
-
-    def get_output(self):
-        return self.output
-
-    def get_capacity(self):
-        return self.capacity
-
-    def get_consumption(self):
-        return self.consumption
 
 
 class Load(object):
@@ -147,8 +148,3 @@ class Load(object):
         self.load_type = load_type
         self.demand = demand
 
-    def get_type(self):
-        return self.load_type
-
-    def get_demand(self):
-        return self.demand

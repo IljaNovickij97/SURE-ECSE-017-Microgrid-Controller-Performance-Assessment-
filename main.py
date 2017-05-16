@@ -22,7 +22,6 @@
 
 import data
 
-Data = data.Data('template.txt')
+Data = data.Data('sample.txt')
 
-
-print(Data.loadList[1].load_type)
+print(Data.timeList)
