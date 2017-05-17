@@ -1,27 +1,12 @@
-# def read_values(f):
-#     string = f.readline()
-#     string = string.split(' ')
-#     string.pop()
-#
-#     for i in range(len(string)):
-#         string[i] = float(string[i])
-#     return string
-#
-#
-# f = open('template.txt', 'r', 1)
-#
-#
-#
-#
-# for i in range(7):
-#     f.readline()
-# f.read(8)
-#
-# voltage = read_values(f)
-# print(voltage)
+import gui
+import sys
+from PyQt5 import QtCore, QtWidgets
 
-import data
+progname = 'Microgrid Controller Assessment Tool'
 
-Data = data.Data('sample.txt')
-
-print(Data.timeList)
+qApp = QtWidgets.QApplication(sys.argv)
+aw = gui.ApplicationWindow()
+aw.setWindowTitle("%s" % progname)
+aw.show()
+sys.exit(qApp.exec_())
+#qApp.exec_()

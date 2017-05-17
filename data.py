@@ -29,7 +29,7 @@ class Data(object):
         self.read_data()
 
     def read_data(self):
-        #### This whole method needs work. Add in checks for errors etc.
+        # This whole method needs work. Add in checks for errors etc.
         f = open(self.filename, 'r', 1)
 
         # Skips Controller identifier
@@ -75,6 +75,8 @@ class Data(object):
             f.readline()
 
         self.timeList = linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
+
+        f.close()
 
     def read_bus(self, f):
         # Skips Voltage identifier

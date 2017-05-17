@@ -6,7 +6,7 @@ Bus No. 2
 DER No. 2
 Load No. 10
 ### Bus Info
-Voltage 220 212 456 487
+Voltage 220 100 120 100
 Frequency 60 61 62 60
 # next bus
 Voltage 220 212 235.221 2321
