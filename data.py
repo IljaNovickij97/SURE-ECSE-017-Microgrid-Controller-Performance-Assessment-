@@ -1,15 +1,5 @@
 from __future__ import division
-
-
-def linspace(start, stop, n):
-    space = []
-    if n == 1:
-        return
-    h = (stop - start) / (n - 1)
-    for i in range(int(n)):
-        space.append(start + h * i)
-
-    return space
+import numpy as np
 
 
 class Data(object):
@@ -74,7 +64,7 @@ class Data(object):
             self.loadList.append(self.read_load(f))
             f.readline()
 
-        self.timeList = linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
+        self.timeList = np.linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
 
         f.close()
 
@@ -135,14 +125,12 @@ class Bus(object):
         self.frequency = frequency
 
 
-
 class Der(object):
     def __init__(self, energy_type, output, capacity, consumption):
         self.energy_type = energy_type
         self.output = output
         self.capacity = capacity
         self.consumption = consumption
-
 
 
 class Load(object):
