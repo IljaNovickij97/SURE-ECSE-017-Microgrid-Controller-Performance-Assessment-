@@ -4,9 +4,11 @@
 # Add more arguements to __init__ to do fancy stuff like decide what kind of calculations to do etc.
 
 class TemplateMetric(object):
-    def __init__(self, data, canvas):
-        # Call calculation and plot methods here
+    def __init__(self):
+        # Put stuff here if using variables throughout the class i.e. something that's calculated for all of the methods
+        # below
 
-    def template_calculation_plot(self, data, canvas):
+    @staticmethod
+    def template_calculation_plot(data, canvas):
         # Do calculations here
-        #canvas.plot(x,y)
+        #canvas.axes.plot(x,y)

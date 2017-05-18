@@ -5,21 +5,22 @@ import numpy as np
 class Data(object):
     def __init__(self, filename):
         self.filename = filename
-        self.busList = []
-        self.derList = []
-        self.loadList = []
-        self.timeList = []
-        self.samplingRate = 0
-        self.samplingPeriod = 0
-        self.controllerName = ''
-        self.nBus = 0
-        self.nDer = 0
-        self.nLoad = 0
+        self.busList = []           # Contains the bus objects
+        self.derList = []           # Contains the DER objects
+        self.loadList = []          # Contains the load objects
+        self.timeList = []          # An array of time points. Might be redundant once sampling period/rate is variable
+        self.samplingRate = 0       # Sampling rate of data. Might be redundant once sampling period/rate is variable
+        self.samplingPeriod = 0     # Sampling period of data. Might be redundant once sampling period/rate is variable
+        self.controllerName = ''    # The name of the microgrid controller tested
+        self.nBus = 0               # Number of buses in the system
+        self.nDer = 0               # Number of DERs in the system
+        self.nLoad = 0              # Number of loads in the system
 
         self.read_data()
 
-    def read_data(self):
-        # This whole method needs work. Add in checks for errors etc.
+    def read_data(self):            # This method parses the file and arranges the data.
+                                    # At the moment the parsing is very simplistic. Relies heavily on making sure that
+                                    # the file is correct. Might be worth adding redundancy later on.
         f = open(self.filename, 'r', 1)
 
         # Skips Controller identifier
@@ -64,11 +65,12 @@ class Data(object):
             self.loadList.append(self.read_load(f))
             f.readline()
 
+        # Very simple placeholder for timeList. Will have to be modified later.
         self.timeList = np.linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
 
         f.close()
 
-    def read_bus(self, f):
+    def read_bus(self, f):          # Method used to read in all the necessary values for a bus
         # Skips Voltage identifier
         f.read(len('Voltage '))
         voltage = self.read_values(f)
@@ -79,7 +81,7 @@ class Data(object):
 
         return Bus(voltage, frequency)
 
-    def read_der(self, f):
+    def read_der(self, f):          # Method used to read in all the necessary values for a DER
         # Skips Type identifier
         f.read(len('Type '))
         energy_type = f.readline()
@@ -98,7 +100,7 @@ class Data(object):
 
         return Der(energy_type, output, capacity, consumption)
 
-    def read_load(self, f):
+    def read_load(self, f):         # Method used to read in all the necessary values for a load
         # Skips Type identifier
         f.read(len('Type '))
         load_type = f.readline()
@@ -110,7 +112,7 @@ class Data(object):
         return Load(load_type, demand)
 
     @staticmethod
-    def read_values(f):
+    def read_values(f):             # Method used to read in an array of values and convert them to floats
         string = f.readline()
         string = string.split(' ')
 
