@@ -66,7 +66,7 @@ class Data(object):
             f.readline()
 
         # Very simple placeholder for timeList. Will have to be modified later.
-        self.timeList = np.linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
+        self.timeList = np.linspace(0, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
 
         f.close()
 
