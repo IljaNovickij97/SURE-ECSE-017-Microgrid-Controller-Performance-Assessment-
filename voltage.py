@@ -6,9 +6,10 @@ class VoltageAndFrequency(object):
     @staticmethod
     def voltage_time_plot(data, canvas, busNo):
         voltageList = data.busList[busNo].voltage
-        timeList =
+        timeList = data.timeList
         canvas.axes.plot(timeList, voltageList)
         canvas.axes.axis([0, max(timeList) + 1, min(voltageList) - 1, max(voltageList) + 1])
+        canvas.axes.set_xlabel('Hi')
         return
 
     @staticmethod

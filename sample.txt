@@ -1,12 +1,12 @@
 Controller blah blah
 Sampling Rate 1
-Sampling Period 4
+Sampling Period 20
 ### System info
 Bus No. 2
 DER No. 2
 Load No. 10
 ### Bus Info
-Voltage 220 100 120 100
+Voltage 220 100 120 100 134 120 100 134 120 100 134 120 100 134 257 100 134 120 100 134
 Frequency 60 61 62 60
 # next bus
 Voltage 220 212 235.221 2321
