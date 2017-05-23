@@ -27,7 +27,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         self.vf_button = QtWidgets.QPushButton('Voltage\n and\n Frequency')
         self.vf_button.setFixedSize(100, 100)
-        self.vf_button.clicked.connect(self.voltagew)
+        self.vf_button.clicked.connect(self.vf)
         hbox.addWidget(self.vf_button)
 
         gr_button = QtWidgets.QPushButton('Generation\n Rejection')
@@ -61,8 +61,15 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         self.Data = data.Data(filename[0])
         self.statusBar().showMessage("Data Loaded!")
 
-    def voltagew(self):
-        newWindow(self.Data, parent=self, title='Voltage and Frequency')
+    def vf(self):
+        window = newWindow(parent=self, title='Voltage and Frequency')
+        sc = Canvas(self.main_widget, width=5, height=4, dpi=100)
+        cc = Canvas(self.main_widget, width=5, height=4, dpi=100)
+        graphs = QtWidgets.QVBoxLayout(window.main_widget)
+        voltage.VoltageAndFrequency.voltage_hist(self.Data, sc, 0, 20)
+        voltage.VoltageAndFrequency.voltage_time_plot(self.Data, cc, 0)
+        graphs.addWidget(sc)
+        graphs.addWidget(cc)
 
 
 class Canvas(FigureCanvas):         # Class used to contain graphs as widget in the PyQt framework
@@ -79,25 +86,13 @@ class Canvas(FigureCanvas):         # Class used to contain graphs as widget in 
 
 
 class newWindow(QtWidgets.QMainWindow):
-    def __init__(self, Data, parent=None, title='New Window'):
+    def __init__(self, parent=None, title='New Window'):
         super(newWindow, self).__init__(parent)
 
         self.setMinimumSize(400, 600)
         self.main_widget = QtWidgets.QWidget(self)
         self.setWindowTitle(title)
         self.show()
-        sc = Canvas(self.main_widget, width=5, height=4, dpi=100)
-        cc = Canvas(self.main_widget, width=5, height=4, dpi=100)
-
-        graphs = QtWidgets.QVBoxLayout(self.main_widget)
-        # graphs.setStretch(1)
-
-        voltage.VoltageAndFrequency.voltage_hist(Data, sc, 0, 20)
-        voltage.VoltageAndFrequency.voltage_time_plot(Data, cc, 0)
-
-        graphs.addWidget(sc)
-        graphs.addWidget(cc)
-        
         self.setCentralWidget(self.main_widget)
 
 
