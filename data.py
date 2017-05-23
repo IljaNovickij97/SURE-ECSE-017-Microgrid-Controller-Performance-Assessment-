@@ -21,6 +21,7 @@ class Data(object):
     def read_data(self):            # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
                                     # the file is correct. Might be worth adding redundancy later on.
+
         f = open(self.filename, 'r', 1)
 
         # Skips Controller identifier
