@@ -27,6 +27,11 @@ class VoltageAndFrequency(object):
         canvas.axes.set_ylabel('Number of Occurrences')
         canvas.draw()
 
+    @staticmethod
+    def voltage_stats(data, busNo):
+        stats = [np.std(data.busList[busNo].voltage), np.mean(data.busList[busNo].voltage)]
+        return stats
+
     def test(self, data):
         timeList = data.timeList
         self.voltageGraph(0, timeList)
