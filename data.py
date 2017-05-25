@@ -27,6 +27,9 @@ class Data(object):
         # Skips Controller identifier
         f.read(len('Controller '))
         self.controllerName = f.readline()
+        self.controllerName = list(self.controllerName)
+        self.controllerName.pop()
+        self.controllerName = "".join(self.controllerName)
 
         # Skips Sampling Rate identifier
         f.read(len('Sampling Rate '))

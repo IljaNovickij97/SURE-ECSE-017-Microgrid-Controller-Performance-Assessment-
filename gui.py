@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 import matplotlib
 from PyQt5 import QtCore, QtWidgets, QtGui
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import voltage
 import data
@@ -11,10 +10,11 @@ import data
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
+        self.Data = None
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle("application main window")
-        self.setFixedSize(540, 170)
-        self.move(0, 0)
+        self.setMinimumSize(540, 250)
+        self.setGeometry(0,50,540,220)
         self.main_widget = QtWidgets.QWidget(self)
         self.ui_setup()
         self.main_widget.setFocus()
@@ -30,9 +30,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         file_menu = main_menu.addMenu('&File')
         file_menu.addAction(file_open_action)
 
-        # Horizontal layout for buttons
+        # Layout
+        v_box = QtWidgets.QVBoxLayout(self.main_widget)
         h_box = QtWidgets.QHBoxLayout(self.main_widget)
-        h_box.addStretch(1)
+        v_box.addLayout(h_box)
+        v_box.addStretch()
 
         # Voltage and Frequency button
         vf_button = QtWidgets.QPushButton('Voltage\n and\n Frequency')
@@ -60,13 +62,33 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         su_button.setFixedSize(100, 100)
         h_box.addWidget(su_button)
 
+        # Data Table
+        self.headers = ['Controller Name', '# Buses', '# DERs', '# Loads']
+        tm = DataTableModel([['', '', '', '']], self.headers, self.main_widget)
+        self.tv = QtWidgets.QTableView()
+        self.tv.setModel(tm)
+        v_box.addWidget(self.tv)
+        hh = self.tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = self.tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addStretch()
+
+        self.statusBar()
+        self.tv.setColumnWidth(0, 340)
+        self.tv.setColumnWidth(1, 60)
+        self.tv.setColumnWidth(2, 60)
+        self.tv.setColumnWidth(3, 60)
+
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
-        self.statusBar().showMessage("Loading!", 3000)
         self.Data = data.Data(filename[0])
-        self.statusBar().showMessage("Data Loaded!")
+        self.update_table()
 
     def vf(self):
+        if self.Data is None:
+            self.statusBar().showMessage("No data loaded.", 1000)
+            return
         window = NewWindow(parent=self, title='Voltage and Frequency')
 
         # Layout
@@ -104,6 +126,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         text_box.addWidget(mean_val)
         text_box.addStretch()
 
+    def update_table(self):
+        table_data = [[self.Data.controllerName, self.Data.nBus, self.Data.nDer, self.Data.nLoad]]
+        print(self.Data.controllerName)
+        tm = DataTableModel(table_data, self.headers, self.main_widget)
+        self.tv.setModel(tm)
 
     def fileQuit(self):
         self.close()
@@ -135,5 +162,31 @@ class NewWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(title)
         self.show()
         self.setCentralWidget(self.main_widget)
+
+
+class DataTableModel(QtCore.QAbstractTableModel):
+    def __init__(self, datain, headerdata, parent=None):
+        super().__init__(parent)
+        self.arraydata = datain
+        self.headerdata = headerdata
+
+    def rowCount(self, parent):
+        return len(self.arraydata)
+
+    def columnCount(self, parent):
+        return len(self.arraydata[0])
+
+    def data(self, index, role):
+        if not index.isValid():
+            return QtCore.QVariant()
+        elif role != QtCore.Qt.DisplayRole:
+            return QtCore.QVariant()
+        return QtCore.QVariant(self.arraydata[index.row()][index.column()])
+
+    def headerData(self, col, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return QtCore.QVariant(self.headerdata[col])
+        return QtCore.QVariant()
+
 
 

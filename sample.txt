@@ -1,4 +1,4 @@
-Controller blah blah
+Controller ABB MGC600
 Sampling Rate 1
 Sampling Period 20
 ### System info

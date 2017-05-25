@@ -13,7 +13,6 @@ class VoltageAndFrequency(object):
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Voltage (V)')
         canvas.draw()
-        return
 
     @staticmethod
     def voltage_hist(data, canvas, busNo, step):
