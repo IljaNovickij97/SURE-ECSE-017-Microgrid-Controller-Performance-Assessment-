@@ -6,7 +6,7 @@ class renewables(object):
         # Put stuff here if using variables throughout the class i.e. something that's calculated for all of the methods
         # below
         pass
-
+#hi
     @staticmethod
     def renewableGen(data, canvas):
         # assume all possible DER types are Deisel, Gas, Wind, Hydro, PV
