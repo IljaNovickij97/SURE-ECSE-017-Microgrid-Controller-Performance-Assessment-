@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
-import voltage
-import data
+from voltage import *
+from data import *
 from gui_backend import *
 
 
@@ -85,7 +85,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
         if filename[0] == '':
             return
-        self.Data = data.Data(filename[0])
+        self.Data = Data(filename[0])
         self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
 
@@ -102,14 +102,14 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         hist = Canvas(self.main_widget)
         time_plot = Canvas(self.main_widget)
-        voltage.VoltageAndFrequency.voltage_hist(self.Data, hist, 0, 20)
-        voltage.VoltageAndFrequency.voltage_time_plot(self.Data, time_plot, 0)
+        VoltageAndFrequency.voltage_hist(self.Data, hist, 0, 20)
+        VoltageAndFrequency.voltage_time_plot(self.Data, time_plot, 0)
         v_box.addWidget(hist)
         v_box.addWidget(time_plot)
 
         # Table
         headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        stats = voltage.VoltageAndFrequency.voltage_stats(self.Data, 0)
+        stats = VoltageAndFrequency.voltage_stats(self.Data, 0)
         tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
                             self.main_widget)
         tv = QtWidgets.QTableView()
