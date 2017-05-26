@@ -20,7 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # name = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
         # print(name[0])
         # Data = data.Data(name[0])
-        Data = data.Data('sample.txt')
+        Data = data.Data('renewable_ex.txt')
         l = QtWidgets.QVBoxLayout(self.main_widget)
         l.setAlignment(QtCore.Qt.AlignTop)
         sc = Canvas(self.main_widget, width=5, height=4, dpi=100)

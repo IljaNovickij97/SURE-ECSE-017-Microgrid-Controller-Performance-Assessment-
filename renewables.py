@@ -1,6 +1,6 @@
 from pylab import *
 import data
-# **assume all possible DER types are Deisel, Gas, Wind, Hydro, PV**
+# **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV**
 
 class Renewables(object):
     Data = data.Data('sample.txt')
@@ -17,10 +17,10 @@ class Renewables(object):
             typeList[i] = data.derList[i].energy_type
 
         #pie chart:
-        labels = 'Deisel', 'Gas', 'Wind', 'Hydro', 'PV'
+        labels = 'Diesel', 'Gas', 'Wind', 'Hydro', 'PV'
         chartList = np.array([0]*5)
         for i in range (0, data.nDer):
-            if typeList[i] == 'Deisel\n':
+            if typeList[i] == 'Diesel\n':
                 chartList[0] += genList[i]
             elif typeList[i] == 'Gas\n':
                 chartList[1] += genList[i]
