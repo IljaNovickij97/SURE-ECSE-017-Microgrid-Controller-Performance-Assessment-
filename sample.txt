@@ -13,14 +13,14 @@ Voltage 220 212 235.221 2321
 Frequency 60 61 62 60
 ### Der Info
 Type Hydro
-Power Output 458 456 998 212
+Power Output 458 456 998 212 45 56 67 36 63 32 92 121 45 0 65 46 45 89 255 360
 Generation Capacity 1000
 Consumption 0
 # next der
 Type Gas
-Power Output 456.32 458 456 998
+Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
-Consumption 235 9583 232 21
+Consumption 235 953 232 21
 ### Load Info
 Type Dump
 Power Demand 432 786 0 4568

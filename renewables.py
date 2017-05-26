@@ -1,11 +1,8 @@
-import numpy as np
 from pylab import *
-import matplotlib.pyplot as plt
-
 import data
 # **assume all possible DER types are Deisel, Gas, Wind, Hydro, PV**
 
-class renewables(object):
+class Renewables(object):
     Data = data.Data('sample.txt')
 
     @staticmethod
@@ -20,49 +17,58 @@ class renewables(object):
             typeList[i] = data.derList[i].energy_type
 
         #pie chart:
-        figure(1, figsize=(6, 6))   #this and the following line are copied from online, idk what they're for excactly, something to do with making the canvas
-        ax = axes([0.1, 0.1, 0.8, 0.8])
-
         labels = 'Deisel', 'Gas', 'Wind', 'Hydro', 'PV'
-        chartList = [None]*5
+        chartList = np.array([0]*5)
         for i in range (0, data.nDer):
-            if typeList[i] == 'Deisel':
+            if typeList[i] == 'Deisel\n':
                 chartList[0] += genList[i]
-            elif typeList[i] == 'Gas':
+            elif typeList[i] == 'Gas\n':
                 chartList[1] += genList[i]
-            elif typeList[i] == 'Wind':
+            elif typeList[i] == 'Wind\n':
                 chartList[2] += genList[i]
-            elif typeList[i] == 'Hydro':
+            elif typeList[i] == 'Hydro\n':
                 chartList[3] += genList[i]
-            elif typeList[i] == 'PV':
+            elif typeList[i] == 'PV\n':
                 chartList[4] += genList[i]
 
         fracs = chartList/(sum(chartList))*100
         colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
-        explode = (0, 0, 0.05, 0.05, 0.05)
-        canvas.axes.title('Pie chart showing total power generation and proportion of renewables')
-        canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=90)
+        explode = (0, 0, 0.1, 0.1, 0.1)
+        canvas.axes.set_title('Pie chart of Total Power Gen. & Percentage Renewables')
+        canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+        #add border lines if possible
 
     @staticmethod
     def renewableTime(data, canvas):
+    # todo: fix timescale to match units
+    #       adjust power units
         t = data.timeList
-        wind, hydro, pv = ([] for i in range(3))
+        wind = np.array([0.0]*len(data.timeList))
+        hydro = np.array([0.0]*len(data.timeList))
+        pv = np.array([0.0]*len(data.timeList))
+
         for i in range(0, data.nDer):
-            if data.derList[i].type == 'Wind':
-                wind += data.derList[i].output
-            if data.derList[i].type == 'Hydro':
-                hydro += data.derList[i].output
-            if data.derList[i].type == 'PV':
-                pv += data.derList[i].output
+            if data.derList[i].energy_type == 'Wind\n':
+                wind += np.array(data.derList[i].output)
+            if data.derList[i].energy_type == 'Hydro\n':
+                hydro += np.array(data.derList[i].output)
+            if data.derList[i].energy_type == 'PV\n':
+                pv += np.array(data.derList[i].output)
 
         total = wind + hydro + pv
 
-        canvas.axes.plot(t, wind, label="Wind Gen")
-        canvas.axes.plot(t, hydro, label="Hydro Gen")
-        canvas.axes.plot(t, pv, label="Solar Gen")
-        canvas.axes.plot(t, total, label="Total Renewable Gen")
+        if not np.all(wind==0):
+            canvas.axes.plot(t, wind, label="Wind Gen")
+        if not np.all(hydro==0):
+            canvas.axes.plot(t, hydro, label="Hydro Gen")
+        if not np.all(pv==0):
+            canvas.axes.plot(t, pv, label="Solar Gen")
+        if np.all(total==0):
+            canvas.axes.plot(t, []*len(data.timeList), label="Total Renewable Gen")
+        elif not np.all(total==0):
+            canvas.axes.plot(t, total, label="Total Renewable Gen")
         canvas.axes.legend(loc='upper left')
-        canvas.axes.xlabel('Time')
-        canvas.axes.ylabel('Power Generation')
-        canvas.axes.title('Time plot showing renewable power generation over entire sample')
+        canvas.axes.set_xlabel('Time (s)')
+        canvas.axes.set_ylabel('Power Generation (MW)')
+        canvas.axes.set_title('Time Plot of Renewable Power Gen.')
 

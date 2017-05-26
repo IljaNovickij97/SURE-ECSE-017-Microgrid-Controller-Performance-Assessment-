@@ -6,6 +6,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 import voltage
 import data
+import renewables
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -23,10 +24,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         l = QtWidgets.QVBoxLayout(self.main_widget)
         l.setAlignment(QtCore.Qt.AlignTop)
         sc = Canvas(self.main_widget, width=5, height=4, dpi=100)
-        voltage.VoltageAndFrequency.voltage_hist(Data, sc, 0, 20)
+        renewables.Renewables.renewableTime(Data, sc)
         l.addWidget(sc)
         cc = Canvas(self.main_widget, width=5, height=4, dpi=100)
-        voltage.VoltageAndFrequency.voltage_time_plot(Data, cc, 0)
+        renewables.Renewables.renewablePie(Data, cc)
         l.addWidget(cc)
         quit = QtWidgets.QPushButton(self.main_widget)
         quit.setFixedSize(100, 25)
