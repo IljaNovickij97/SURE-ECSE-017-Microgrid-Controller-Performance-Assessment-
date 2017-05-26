@@ -89,6 +89,9 @@ class Data(object):
         # Skips Type identifier
         f.read(len('Type '))
         energy_type = f.readline()
+        energy_type = list(energy_type)
+        energy_type.pop()
+        energy_type = "".join(energy_type)
 
         # Skips Power Output identifier
         f.read(len('Power Output '))
@@ -108,6 +111,9 @@ class Data(object):
         # Skips Type identifier
         f.read(len('Type '))
         load_type = f.readline()
+        load_type = list(load_type)
+        load_type.pop()
+        load_type = "".join(load_type)
 
         # Skips Power Output identifier
         f.read(len('Power Demand '))
