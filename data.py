@@ -21,11 +21,15 @@ class Data(object):
     def read_data(self):            # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
                                     # the file is correct. Might be worth adding redundancy later on.
+
         f = open(self.filename, 'r', 1)
 
         # Skips Controller identifier
         f.read(len('Controller '))
         self.controllerName = f.readline()
+        self.controllerName = list(self.controllerName)
+        self.controllerName.pop()
+        self.controllerName = "".join(self.controllerName)
 
         # Skips Sampling Rate identifier
         f.read(len('Sampling Rate '))
@@ -66,7 +70,7 @@ class Data(object):
             f.readline()
 
         # Very simple placeholder for timeList. Will have to be modified later.
-        self.timeList = np.linspace(1, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
+        self.timeList = np.linspace(0, self.samplingPeriod, self.samplingPeriod / self.samplingRate)
 
         f.close()
 
