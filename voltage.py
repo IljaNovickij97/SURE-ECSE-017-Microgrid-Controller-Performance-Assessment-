@@ -8,6 +8,7 @@ class VoltageAndFrequency(object):
         canvas.axes = canvas.fig.add_subplot(111)
         voltageList = data.busList[busNo].voltage
         timeList = np.linspace(0, len(voltageList) - 1, len(voltageList))
+        text = canvas.axes.text(0, 0, 'hi', bbox=dict(facecolor='black', alpha=0.5))
         canvas.axes.plot(timeList, voltageList)
         canvas.axes.axis([0, max(timeList) + 1, min(voltageList) - 1, max(voltageList) + 1])
         canvas.axes.set_xlabel('Time (s)')

@@ -12,9 +12,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         QtWidgets.QMainWindow.__init__(self)
         self.Data = None
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle("application main window")
         self.setMinimumSize(540, 250)
-        self.setGeometry(0,50,540,220)
+        self.setGeometry(0, 30, 540, 220)
         self.main_widget = QtWidgets.QWidget(self)
         self.ui_setup()
         self.main_widget.setFocus()
@@ -84,6 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
         self.Data = data.Data(filename[0])
         self.update_table()
+        self.statusBar().showMessage("Data loaded.", 1000)
 
     def vf(self):
         if self.Data is None:
@@ -92,39 +92,33 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         window = NewWindow(parent=self, title='Voltage and Frequency')
 
         # Layout
-        h_box = QtWidgets.QHBoxLayout(window.main_widget)
-        text_box = QtWidgets.QVBoxLayout(window.main_widget)
-        graphs = QtWidgets.QVBoxLayout(window.main_widget)
-        h_box.addLayout(graphs)
-        h_box.addLayout(text_box)
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
         # Graphs
         hist = Canvas(self.main_widget)
         time_plot = Canvas(self.main_widget)
         voltage.VoltageAndFrequency.voltage_hist(self.Data, hist, 0, 20)
         voltage.VoltageAndFrequency.voltage_time_plot(self.Data, time_plot, 0)
-        graphs.addWidget(hist)
-        graphs.addWidget(time_plot)
+        v_box.addWidget(hist)
+        v_box.addWidget(time_plot)
 
-        #Text
-        bold_font = QtGui.QFont()
-        bold_font.setBold(True)
-        std = QtWidgets.QLabel(window.main_widget)
-        std_val = QtWidgets.QLabel(window.main_widget)
-        mean = QtWidgets.QLabel(window.main_widget)
-        mean_val = QtWidgets.QLabel(window.main_widget)
-        stats = voltage.VoltageAndFrequency.voltage_stats(self.Data, 0)
-        std.setText("Standard Deviation:")
-        std.setFont(bold_font)
-        std_val.setText("%.2f" % stats[0])
-        mean.setText("Mean:")
-        mean.setFont(bold_font)
-        mean_val.setText("%.2f" % stats[1])
-        text_box.addWidget(std)
-        text_box.addWidget(std_val)
-        text_box.addWidget(mean)
-        text_box.addWidget(mean_val)
-        text_box.addStretch()
+        # Table
+        headers = ['Controller Name', 'Std. Deviation', 'Mean']
+        stats = voltage.VoltageAndFrequency.voltage_stats(self.Data,0)
+        tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
+                            self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        v_box.addWidget(tv)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+
+        tv.setColumnWidth(0, 300)
+        tv.setColumnWidth(1, 100)
+        tv.setColumnWidth(2, 100)
+
 
     def update_table(self):
         table_data = [[self.Data.controllerName, self.Data.nBus, self.Data.nDer, self.Data.nLoad]]
@@ -140,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
 
 class Canvas(FigureCanvas):         # Class used to contain graphs as widget in the PyQt framework
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent=None, width=4, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi, tight_layout=True)
 
         FigureCanvas.__init__(self, self.fig)
@@ -155,7 +149,7 @@ class Canvas(FigureCanvas):         # Class used to contain graphs as widget in 
 class NewWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None, title='New Window'):
         super(NewWindow, self).__init__(parent)
-        self.setMinimumSize(540, 600)
+        self.setMinimumSize(540, 800)
         self.move(0, 210)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtWidgets.QWidget(self)
