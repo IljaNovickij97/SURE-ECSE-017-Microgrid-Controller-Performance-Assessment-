@@ -21,7 +21,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
     def ui_setup(self):     # Add main screen widgets here
         # Actions
-        file_open_action = QtWidgets.QAction('Open File', self)
+        file_open_action = QtWidgets.QAction('Open', self)
+        file_open_action.setShortcut('F1')
         file_open_action.triggered.connect(self.open_file)
 
         # Menu bar
@@ -44,21 +45,25 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Generation Rejection button
         gr_button = QtWidgets.QPushButton('Generation\n Rejection')
         gr_button.setFixedSize(100, 100)
+        gr_button.clicked.connect(self.gr)
         h_box.addWidget(gr_button)
 
         # Renewable Energy Intake button
         rei_button = QtWidgets.QPushButton('Renewable\n Energy\n Intake')
         rei_button.setFixedSize(100, 100)
+        rei_button.clicked.connect(self.rei)
         h_box.addWidget(rei_button)
 
         # Running Cost button
         rc_button = QtWidgets.QPushButton('Running\n Cost')
         rc_button.setFixedSize(100, 100)
+        rc_button.clicked.connect(self.rc)
         h_box.addWidget(rc_button)
 
         # Storage Use button
         su_button = QtWidgets.QPushButton('Storage\n Use')
         su_button.setFixedSize(100, 100)
+        su_button.clicked.connect(self.su)
         h_box.addWidget(su_button)
 
         # Data Table
@@ -72,15 +77,17 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh = self.tv.verticalHeader()
         vh.setVisible(False)
         v_box.addStretch()
-
-        self.statusBar()
         self.tv.setColumnWidth(0, 340)
         self.tv.setColumnWidth(1, 60)
         self.tv.setColumnWidth(2, 60)
         self.tv.setColumnWidth(3, 60)
 
+        self.statusBar()
+
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
+        if filename[0] == '':
+            return
         self.Data = data.Data(filename[0])
         self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
@@ -90,6 +97,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
         window = NewWindow(parent=self, title='Voltage and Frequency')
+        window.setMinimumSize(540, 700)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
@@ -104,20 +112,44 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Table
         headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        stats = voltage.VoltageAndFrequency.voltage_stats(self.Data,0)
+        stats = voltage.VoltageAndFrequency.voltage_stats(self.Data, 0)
         tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
                             self.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
-        v_box.addWidget(tv)
         hh = tv.horizontalHeader()
         hh.setStretchLastSection(True)
         vh = tv.verticalHeader()
         vh.setVisible(False)
-
+        v_box.addWidget(tv)
         tv.setColumnWidth(0, 300)
         tv.setColumnWidth(1, 100)
         tv.setColumnWidth(2, 100)
+
+    def gr(self):
+        if self.Data is None:
+            self.statusBar().showMessage("No data loaded.", 1000)
+            return
+        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+    def rei(self):
+        if self.Data is None:
+            self.statusBar().showMessage("No data loaded.", 1000)
+            return
+        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+    def rc(self):
+        if self.Data is None:
+            self.statusBar().showMessage("No data loaded.", 1000)
+            return
+        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+    def su(self):
+        if self.Data is None:
+            self.statusBar().showMessage("No data loaded.", 1000)
+            return
+        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
 
 
     def update_table(self):
@@ -149,7 +181,7 @@ class Canvas(FigureCanvas):         # Class used to contain graphs as widget in 
 class NewWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None, title='New Window'):
         super(NewWindow, self).__init__(parent)
-        self.setMinimumSize(540, 800)
+        self.setMinimumSize(400, 400)
         self.move(0, 210)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtWidgets.QWidget(self)
