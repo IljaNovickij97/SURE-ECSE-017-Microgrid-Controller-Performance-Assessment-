@@ -14,6 +14,7 @@ class Canvas(FigureCanvas):         # Class used to contain graphs as widget in 
                                    QtWidgets.QSizePolicy.Expanding,
                                    QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+        self.axes = self.fig.add_subplot(111)
 
 
 class NewWindow(QtWidgets.QMainWindow):

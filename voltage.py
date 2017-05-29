@@ -5,10 +5,8 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def voltage_time_plot(data, canvas, busNo):
-        canvas.axes = canvas.fig.add_subplot(111)
         voltageList = data.busList[busNo].voltage
         timeList = np.linspace(0, len(voltageList) - 1, len(voltageList))
-        text = canvas.axes.text(0, 0, 'hi', bbox=dict(facecolor='black', alpha=0.5))
         canvas.axes.plot(timeList, voltageList)
         canvas.axes.axis([0, max(timeList) + 1, min(voltageList) - 1, max(voltageList) + 1])
         canvas.axes.set_xlabel('Time (s)')
@@ -17,7 +15,6 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def voltage_hist(data, canvas, busNo, step):
-        canvas.axes = canvas.fig.add_subplot(111)
         voltageList = data.busList[busNo].voltage
         partition = int((max(voltageList) - min(voltageList)) / step)
         hist, bins = np.histogram(voltageList, partition, density=False)
@@ -32,7 +29,4 @@ class VoltageAndFrequency(object):
         stats = [np.std(data.busList[busNo].voltage), np.mean(data.busList[busNo].voltage)]
         return stats
 
-    def test(self, data):
-        timeList = data.timeList
-        self.voltageGraph(0, timeList)
 

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from renewables import *
 from voltage import *
 from data import *
 from gui_backend import *
@@ -100,8 +101,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
         # Graphs
-        hist = Canvas(self.main_widget)
-        time_plot = Canvas(self.main_widget)
+        hist = Canvas(window.main_widget)
+        time_plot = Canvas(window.main_widget)
         VoltageAndFrequency.voltage_hist(self.Data, hist, 0, 20)
         VoltageAndFrequency.voltage_time_plot(self.Data, time_plot, 0)
         v_box.addWidget(hist)
@@ -133,7 +134,25 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         if self.Data is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
-        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+        window = NewWindow(parent=self, title='Renewables')
+        window.setMinimumSize(540, 700)
+
+        # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+
+        # Graphs
+        rpie = Canvas(window.main_widget)
+        time_plot = Canvas(window.main_widget)
+        Renewables.renewablePie(self.Data, rpie)
+        Renewables.renewableTime(self.Data, time_plot)
+        v_box.addWidget(rpie)
+        v_box.addWidget(time_plot)
+
+
+
+
+
 
     def rc(self):
         if self.Data is None:
@@ -149,7 +168,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
     def update_table(self):
         table_data = [[self.Data.controllerName, self.Data.nBus, self.Data.nDer, self.Data.nLoad]]
-        print(self.Data.controllerName)
         tm = DataTableModel(table_data, self.headers, self.main_widget)
         self.tv.setModel(tm)
 
