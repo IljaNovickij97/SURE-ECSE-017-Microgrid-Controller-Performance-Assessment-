@@ -10,10 +10,10 @@ class runningCost(object):
         pass
 
     @staticmethod
-    def fuelConsumption(data, canvas):
+    def fuelConsumption(data, canvas):      #plot of fuel consumption over time
         t = data.timeList
-        diesel = np.array([0.0]*len(data.timeList))
-        gas = np.array([0.0] * len(data.timeList))
+        diesel = np.array([0.0]*len(t))
+        gas = np.array([0.0] * len(t))
 
         for i in range(0, data.nDer):
             if data.derList[i].energy_type == 'Diesel\n':
@@ -63,4 +63,20 @@ class runningCost(object):
         canvas.axes.set_ylabel('Power Generation (MW)')
         canvas.axes.set_title('Time Plot of Non-Renewable Power Gen.')
 
+    @staticmethod
+    def consumptionStats(data):
+        stats = [None]*3
+        t = data.timeList
+        diesel = np.array([0.0] * len(t))
+        gas = np.array([0.0] * len(t))
+
+        for i in range(0, data.nDer):
+            if data.derList[i].energy_type == 'Diesel\n':
+                diesel += np.array(data.derList[i].consumption)
+            if data.derList[i].energy_type == 'Gas\n':
+                gas += np.array(data.derList[i].cosumption)
+
+        stats[0] = sum(diesel)     # total Diesel consumption
+        stats[1] = sum(gas)        # total gas consumption
+        stats[2] = sum(diesel) + sum(gas)   # total fuel consumption
 
