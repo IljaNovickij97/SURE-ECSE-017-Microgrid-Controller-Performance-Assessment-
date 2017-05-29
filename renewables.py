@@ -33,7 +33,7 @@ class Renewables(object):
 
         fracs = chartList/(sum(chartList))*100
         colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
-        explode = (0, 0, 0.1, 0.1, 0.1)
+        explode = (0, 0, 0.07, 0.07, 0.07)
         canvas.axes.set_title('Pie chart of Total Power Gen. & Percentage Renewables')
         canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
         #add border lines if possible
@@ -41,7 +41,7 @@ class Renewables(object):
     @staticmethod
     def renewableTime(data, canvas):
     # todo: fix timescale to match units
-    #       adjust power units
+    # todo: adjust power units
         t = data.timeList
         wind = np.array([0.0]*len(data.timeList))
         hydro = np.array([0.0]*len(data.timeList))
