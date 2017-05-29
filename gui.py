@@ -149,11 +149,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addWidget(rpie)
         v_box.addWidget(time_plot)
 
-
-
-
-
-
     def rc(self):
         if self.Data is None:
             self.statusBar().showMessage("No data loaded.", 1000)
