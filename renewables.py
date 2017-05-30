@@ -1,10 +1,8 @@
 from pylab import *
-import data
+import numpy as np
 # **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV!**
 
 class Renewables(object):
-    Data = data.Data('sample.txt')
-
     @staticmethod
     # pie chart showing % renewable generation of total power out
     def renewablePie(data, canvas):
@@ -19,19 +17,19 @@ class Renewables(object):
             typeList[i] = data.derList[i].energy_type
 
         #pie chart:
-        labels = 'Diesel', 'Gas', 'Wind', 'Hydro', 'PV'
+        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
         # array to be used for chart
         chartList = np.array([0]*5)
         for i in range (0, data.nDer):
-            if typeList[i] == 'Diesel\n':
+            if typeList[i] == 'Diesel':
                 chartList[0] += genList[i]
-            elif typeList[i] == 'Gas\n':
+            elif typeList[i] == 'Gas':
                 chartList[1] += genList[i]
-            elif typeList[i] == 'Wind\n':
+            elif typeList[i] == 'Wind':
                 chartList[2] += genList[i]
-            elif typeList[i] == 'Hydro\n':
+            elif typeList[i] == 'Hydro':
                 chartList[3] += genList[i]
-            elif typeList[i] == 'PV\n':
+            elif typeList[i] == 'PV':
                 chartList[4] += genList[i]
 
         colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
@@ -51,11 +49,11 @@ class Renewables(object):
         pv = np.array([0.0]*len(data.timeList))
 
         for i in range(0, data.nDer):
-            if data.derList[i].energy_type == 'Wind\n':
+            if data.derList[i].energy_type == 'Wind':
                 wind += np.array(data.derList[i].output)
-            if data.derList[i].energy_type == 'Hydro\n':
+            if data.derList[i].energy_type == 'Hydro':
                 hydro += np.array(data.derList[i].output)
-            if data.derList[i].energy_type == 'PV\n':
+            if data.derList[i].energy_type == 'PV':
                 pv += np.array(data.derList[i].output)
 
         total = wind + hydro + pv
@@ -74,4 +72,5 @@ class Renewables(object):
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Power Generation (MW)')
         canvas.axes.set_title('Time Plot of Renewable Power Gen.')
+        canvas.draw()
 

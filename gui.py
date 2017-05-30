@@ -135,7 +135,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         if self.Data is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
-
         window = NewWindow(parent=self, title='Renewables')
         window.setMinimumSize(540, 700)
 
@@ -154,16 +153,24 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         if self.Data is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
-        pass
+        window = NewWindow(parent=self, title='Running Cost')
+        window.setMinimumSize(540, 700)
 
-    def su(self):
-        if self.Data is None:
-            self.statusBar().showMessage("No data loaded.", 1000)
-            return
+        # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+
+        # Graphs
+        runningCost.basicCalc(self.Data)
+        pwrGen = Canvas(window.main_widget)
+        ramping = Canvas(window.main_widget)
+        runningCost.pwrGen(self.Data, pwrGen)
+        runningCost.ramping(self.Data, ramping)
+        v_box.addWidget(pwrGen)
+        v_box.addWidget(ramping)
 
         # Table
-        headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        stats = VoltageAndFrequency.voltage_stats(self.Data, 0)
+        headers = ['Controller Name', 'Fuel Consumption', 'Switching']
+        stats = runningCost.rc_stats()
         tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
                             self.main_widget)
         tv = QtWidgets.QTableView()
@@ -176,4 +183,20 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(0, 300)
         tv.setColumnWidth(1, 100)
         tv.setColumnWidth(2, 100)
-        pass
+
+
+    def su(self):
+        if self.Data is None:
+            self.statusBar().showMessage("No data loaded.", 1000)
+            return
+
+    def update_table(self):
+        table_data = [[self.Data.controllerName, self.Data.nBus, self.Data.nDer, self.Data.nLoad]]
+        tm = DataTableModel(table_data, self.headers, self.main_widget)
+        self.tv.setModel(tm)
+
+    def fileQuit(self):
+        self.close()
+
+    def closeEvent(self, ce):
+        self.fileQuit()
