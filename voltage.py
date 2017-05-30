@@ -4,14 +4,17 @@ import numpy as np
 class VoltageAndFrequency(object):
 
     @staticmethod
-    def voltage_time_plot(data, canvas, busNo):
-        voltageList = data.busList[busNo].voltage
+    def voltage_time_plot(data_list, canvas, busNo):
+        voltageList = data_list[0].busList[busNo].voltage
         timeList = np.linspace(0, len(voltageList) - 1, len(voltageList))
-        canvas.axes.plot(timeList, voltageList)
-        canvas.axes.axis([0, max(timeList) + 1, min(voltageList) - 1, max(voltageList) + 1])
+
+        for i in range(len(data_list)):
+            voltageList = data_list[i].busList[busNo].voltage
+            canvas.axes.plot(timeList, voltageList)
+            canvas.axes.axis([0, max(timeList) + 1, min(voltageList) - 1, max(voltageList) + 1])
+
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Voltage (V)')
-        canvas.draw()
 
     @staticmethod
     def voltage_hist(data, canvas, busNo, step):
@@ -22,7 +25,6 @@ class VoltageAndFrequency(object):
         canvas.axes.bar(center, hist, align='center', width=step)
         canvas.axes.set_xlabel('Voltage (V)')
         canvas.axes.set_ylabel('Number of Occurrences')
-        canvas.draw()
 
     @staticmethod
     def voltage_stats(data, busNo):

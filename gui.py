@@ -83,18 +83,20 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         self.statusBar()
 
-    def open_file(self):
-        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
-        if filename[0] == '':
-            return
-        self.data_list.append(Data(filename[0]))
-        self.update_table()
-        self.statusBar().showMessage("Data loaded.", 1000)
-
     def vf(self):
         if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
+
+        selected = self.get_selected()
+        selected_data = []
+        if selected == []:
+            selected_data = [self.data_list[0]]
+        else:
+            for i in range(len(self.data_list)):
+                if i in selected:
+                    selected_data.append(self.data_list[i])
+
         window = NewWindow(parent=self, title='Voltage and Frequency')
         window.setMinimumSize(540, 700)
 
@@ -105,7 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         hist = Canvas(window.main_widget)
         time_plot = Canvas(window.main_widget)
         VoltageAndFrequency.voltage_hist(self.data_list[0], hist, 0, 20)
-        VoltageAndFrequency.voltage_time_plot(self.data_list[0], time_plot, 0)
+        VoltageAndFrequency.voltage_time_plot(selected_data, time_plot, 0)
         v_box.addWidget(hist)
         v_box.addWidget(time_plot)
 
@@ -186,12 +188,25 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
-        self.get_selected()
+        print(self.get_selected())
         self.statusBar().showMessage("This is still a work in progress!", 1000)
 
+    def open_file(self):
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
+        if filename[0] == '':
+            return
+        self.data_list.append(Data(filename[0]))
+        self.update_table()
+        self.statusBar().showMessage("Data loaded.", 1000)
+
     def update_table(self):
-        table_data = [[self.data_list[0].controllerName, self.data_list[0].nBus, self.data_list[0].nDer,
-                       self.data_list[0].nLoad], ['','','','']]
+        table_data = []
+
+        for i in range(len(self.data_list)):
+            current_data = [self.data_list[i].controllerName, self.data_list[i].nBus, self.data_list[i].nDer,
+                            self.data_list[i].nLoad]
+            table_data.append(current_data)
+
         tm = DataTableModel(table_data, self.headers, self.main_widget)
         self.tv.setModel(tm)
 
@@ -217,4 +232,4 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             if columns[i] == 0:
                 selected.append(rows[i])
 
-        print(selected)
+        return selected
