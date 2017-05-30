@@ -9,7 +9,7 @@ from generation_rejection import *
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
-        self.Data = None
+        self.data_list = []
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setMinimumSize(540, 250)
         self.setGeometry(0, 30, 540, 220)
@@ -87,12 +87,12 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
         if filename[0] == '':
             return
-        self.Data = Data(filename[0])
+        self.data_list.append(Data(filename[0]))
         self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
 
     def vf(self):
-        if self.Data is None:
+        if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
         window = NewWindow(parent=self, title='Voltage and Frequency')
@@ -104,15 +104,15 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         hist = Canvas(window.main_widget)
         time_plot = Canvas(window.main_widget)
-        VoltageAndFrequency.voltage_hist(self.Data, hist, 0, 20)
-        VoltageAndFrequency.voltage_time_plot(self.Data, time_plot, 0)
+        VoltageAndFrequency.voltage_hist(self.data_list[0], hist, 0, 20)
+        VoltageAndFrequency.voltage_time_plot(self.data_list[0], time_plot, 0)
         v_box.addWidget(hist)
         v_box.addWidget(time_plot)
 
         # Table
         headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        stats = VoltageAndFrequency.voltage_stats(self.Data, 0)
-        tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
+        stats = VoltageAndFrequency.voltage_stats(self.data_list[0], 0)
+        tm = DataTableModel([[self.data_list[0].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
                             self.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
@@ -126,7 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(2, 100)
 
     def gr(self):
-        if self.Data is None:
+        if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -138,13 +138,13 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Graphs
         time_plot = Canvas(window.main_widget)
-        GenerationRejection.dump_time_plot(self.Data, time_plot)
+        GenerationRejection.dump_time_plot(self.data_list[0], time_plot)
         v_box.addWidget(time_plot)
 
         # Table
         headers = ['Controller Name', 'Total Dumped (MWh)']
-        stats = GenerationRejection.dump_stats(self.Data)
-        tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0]]], headers,
+        stats = GenerationRejection.dump_stats(self.data_list[0])
+        tm = DataTableModel([[self.data_list[0].controllerName, "%.2f" % stats[0]]], headers,
                             self.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
@@ -157,7 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(1, 100)
 
     def rei(self):
-        if self.Data is None:
+        if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -170,25 +170,28 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         rpie = Canvas(window.main_widget)
         time_plot = Canvas(window.main_widget)
-        Renewables.renewablePie(self.Data, rpie)
-        Renewables.renewableTime(self.Data, time_plot)
+        Renewables.renewablePie(self.data_list[0], rpie)
+        Renewables.renewableTime(self.data_list[0], time_plot)
         v_box.addWidget(rpie)
         v_box.addWidget(time_plot)
 
     def rc(self):
-        if self.Data is None:
+        if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
         self.statusBar().showMessage("This is still a work in progress!", 1000)
 
     def su(self):
-        if self.Data is None:
+        if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
+
+        self.get_selected()
         self.statusBar().showMessage("This is still a work in progress!", 1000)
 
     def update_table(self):
-        table_data = [[self.Data.controllerName, self.Data.nBus, self.Data.nDer, self.Data.nLoad]]
+        table_data = [[self.data_list[0].controllerName, self.data_list[0].nBus, self.data_list[0].nDer,
+                       self.data_list[0].nLoad], ['','','','']]
         tm = DataTableModel(table_data, self.headers, self.main_widget)
         self.tv.setModel(tm)
 
@@ -198,4 +201,20 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
     def closeEvent(self, ce):
         self.fileQuit()
 
+    def get_selected(self):
+        selected_box = self.tv.selectedIndexes()
+        columns = []
+        rows = []
+        selected = []
 
+        for i in range(len(selected_box)):
+            current_row = selected_box[i].row()
+            current_column = selected_box[i].column()
+            rows.append(current_row)
+            columns.append(current_column)
+
+        for i in range(len(selected_box)):
+            if columns[i] == 0:
+                selected.append(rows[i])
+
+        print(selected)
