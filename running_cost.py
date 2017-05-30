@@ -1,17 +1,10 @@
-# running cost evaluation depends on unit commitment and generator output
-# unit commitment = total time for P_dem =/= 0
+# running cost evaluation depends on fuel consumption, and generation patterns
+
 from pylab import *
 import numpy as np
 
 class runningCost(object):
-    t = []
-    diesel = []
-    gas = []
-
-    # def __init__(self):
-    #     # Put stuff here if using variables throughout the class i.e. something that's calculated for all of the methods
-    #     # below
-    #     pass
+    t, diesel, gas = [], [], []
 
     @staticmethod
     def basicCalc(data):
@@ -30,6 +23,7 @@ class runningCost(object):
 
         global totalFuel
         totalFuel = gas + diesel
+    # note: emissions are linked to fuel consumption. If emissions data is given, then add another calculation
 
     @staticmethod
     # plot power generation over time
@@ -43,23 +37,15 @@ class runningCost(object):
         elif not np.all(totalFuel == 0):
             canvas.axes.plot(t, totalFuel, label="Total Non-Renewable Gen")
 
+        # total generation capacity for each fuel type
         diesel_cap, gas_cap = 0
         for i in range(0, data.nDer):
-            if data.derList[i].energy_type == 'Diesel\n':
+            if data.derList[i].energy_type == 'Diesel':
                 diesel_cap += data.derList[i].capacity
-            if data.derList[i].energy_type == 'Gas\n':
+            if data.derList[i].energy_type == 'Gas':
                 gas_cap += data.derList[i].capacity
 
-        # calculate total on/off switching (where off is considered to be less than 50% of generation capacity)
-        global diesel_switch
-        global gas_switch
-        for i in range (0, t-1):
-            if (diesel[i] > diesel_cap) and (diesel[i+1] < diesel_cap):
-                diesel_switch += 1
-            if (gas[i] > gas_cap) and (gas[i+1] < gas_cap):
-                gas_switch += 1
-
-        canvas.axes.plot(t, diesel_cap/2, label='Deisel Gen. Threshold')
+        canvas.axes.plot(t, diesel_cap/2, label='Diesel Gen. Threshold')
         canvas.axes.plot(t, gas_cap/2, label='Gas Gen. Threshold')
 
         canvas.axes.legend(loc='upper left')
@@ -82,9 +68,31 @@ class runningCost(object):
         canvas.axes.set_title('Power Gen. Derivative vs Time, showing Ramping')
         canvas.draw()
 
+        # calculate total slope (point-wise):
+        # greater slope indicates more ramping
+        global total_grad
+        total_grad = 0
+        for i in range (0, t):
+            total_grad += abs(fuelDiff[i])
+
     @staticmethod
-    def rc_stats():
+    def rc_stats(data):
         consumption = [sum(diesel), sum(gas), (sum(diesel)+sum(gas))]
-        switching = [diesel_switch, gas_switch]
-        stats = [consumption, switching]
+
+        # calculate total on/off switching (per source)
+        switching = 0
+        for i in range(0, data.nDer):
+            for j in range (0, t-1):
+                if ((data.derList[i].output[j] != 0) and (data.derList[i].output[j+1] == 0)):
+                    switching += 1
+
+        # find peak demand
+        peak_power = 0
+        for i in range(0, data.nLoad):
+            if data.loadList[i].load_type != 'Dump':
+                for j in range(0, t - 1):
+                    if (data.loadList[i].demand[j] > peak_power):
+                        peak_power = data.loadList[i].demand[j]
+
+        stats = [consumption, switching, (total_grad/t), peak_power]
         return stats

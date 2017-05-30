@@ -169,8 +169,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addWidget(ramping)
 
         # Table
+        # todo: change table layout to match data to be displayed
         headers = ['Controller Name', 'Fuel Consumption', 'Switching']
-        stats = runningCost.rc_stats()
+        stats = runningCost.rc_stats(Data)
         tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
                             self.main_widget)
         tv = QtWidgets.QTableView()

@@ -19,6 +19,7 @@ class Renewables(object):
         #pie chart:
         labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
         # array to be used for chart
+        global chartList
         chartList = np.array([0]*5)
         for i in range (0, data.nDer):
             if typeList[i] == 'Diesel':
@@ -74,3 +75,8 @@ class Renewables(object):
         canvas.axes.set_title('Time Plot of Renewable Power Gen.')
         canvas.draw()
 
+    @staticmethod
+    def portionRenewable():
+        total_ren = chartList[2] + chartList[3] + chartList[4]
+        prop_ren = total_ren/(total_ren + chartList[0] + chartList[1])
+        return prop_ren     # percentage renewable generation of total gen
