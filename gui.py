@@ -3,6 +3,7 @@ from renewables import *
 from voltage import *
 from data import *
 from gui_backend import *
+from generation_rejection import *
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -128,7 +129,32 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         if self.Data is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
-        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+        window = NewWindow(parent=self, title='Generation Rejection')
+        window.setMinimumSize(540, 400)
+
+        # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+
+        # Graphs
+        time_plot = Canvas(window.main_widget)
+        GenerationRejection.dump_time_plot(self.Data, time_plot)
+        v_box.addWidget(time_plot)
+
+        # Table
+        headers = ['Controller Name', 'Total Dumped (MWh)']
+        stats = GenerationRejection.dump_stats(self.Data)
+        tm = DataTableModel([[self.Data.controllerName, "%.2f" % stats[0]]], headers,
+                            self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 300)
+        tv.setColumnWidth(1, 100)
 
     def rei(self):
         if self.Data is None:
@@ -148,11 +174,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         Renewables.renewableTime(self.Data, time_plot)
         v_box.addWidget(rpie)
         v_box.addWidget(time_plot)
-
-
-
-
-
 
     def rc(self):
         if self.Data is None:
