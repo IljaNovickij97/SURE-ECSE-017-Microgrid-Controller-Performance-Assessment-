@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from renewables import *
-from voltage import *
+from voltage_frequency import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
@@ -98,34 +98,73 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                     selected_data.append(self.data_list[i])
 
         window = NewWindow(parent=self, title='Voltage and Frequency')
-        window.setMinimumSize(540, 700)
+        window.setMinimumSize(1080, 700)
 
         # Layout
-        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+        h_box = QtWidgets.QHBoxLayout(window.main_widget)
+        v_box_left = QtWidgets.QVBoxLayout(window.main_widget)
+        v_box_right = QtWidgets.QVBoxLayout(window.main_widget)
 
+        # VOLTAGE
         # Graphs
-        hist = Canvas(window.main_widget)
-        time_plot = Canvas(window.main_widget)
-        VoltageAndFrequency.voltage_hist(self.data_list[0], hist, 0, 20)
-        VoltageAndFrequency.voltage_time_plot(selected_data, time_plot, 0)
-        v_box.addWidget(hist)
-        v_box.addWidget(time_plot)
+        hist_left = Canvas(window.main_widget)
+        time_plot_left = Canvas(window.main_widget)
+        VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, 10)
+        VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
+        v_box_left.addWidget(hist_left)
+        v_box_left.addWidget(time_plot_left)
 
         # Table
         headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        stats = VoltageAndFrequency.voltage_stats(self.data_list[0], 0)
-        tm = DataTableModel([[self.data_list[0].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]], headers,
-                            self.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 300)
-        tv.setColumnWidth(1, 100)
-        tv.setColumnWidth(2, 100)
+        table_data_left = []
+        for i in range(len(selected_data)):
+            stats = VoltageAndFrequency.voltage_stats(selected_data[i], 0)
+            current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+            table_data_left.append(current_data)
+
+        tm_left = DataTableModel(table_data_left, headers, self.main_widget)
+        tv_left = QtWidgets.QTableView()
+        tv_left.setModel(tm_left)
+        hh_left = tv_left.horizontalHeader()
+        hh_left.setStretchLastSection(True)
+        vh_left = tv_left.verticalHeader()
+        vh_left.setVisible(False)
+        v_box_left.addWidget(tv_left)
+        tv_left.setColumnWidth(0, 300)
+        tv_left.setColumnWidth(1, 100)
+        tv_left.setColumnWidth(2, 100)
+
+        # FREQUENCY
+        # Graphs
+        hist_right = Canvas(window.main_widget)
+        time_plot_right = Canvas(window.main_widget)
+        VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, 0.2)
+        VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
+        v_box_right.addWidget(hist_right)
+        v_box_right.addWidget(time_plot_right)
+
+        # Table
+        headers = ['Controller Name', 'Std. Deviation', 'Mean']
+        table_data_right = []
+        for i in range(len(selected_data)):
+            stats = VoltageAndFrequency.frequency_stats(selected_data[i], 0)
+            current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+            table_data_right.append(current_data)
+
+        tm_right = DataTableModel(table_data_right, headers, self.main_widget)
+        tv_right = QtWidgets.QTableView()
+        tv_right.setModel(tm_right)
+        hh_right = tv_right.horizontalHeader()
+        hh_right.setStretchLastSection(True)
+        vh_right = tv_right.verticalHeader()
+        vh_right.setVisible(False)
+        v_box_right.addWidget(tv_right)
+        tv_right.setColumnWidth(0, 300)
+        tv_right.setColumnWidth(1, 100)
+        tv_right.setColumnWidth(2, 100)
+
+        h_box.addLayout(v_box_left)
+        h_box.addLayout(v_box_right)
 
     def gr(self):
         if self.data_list[0] is None:
