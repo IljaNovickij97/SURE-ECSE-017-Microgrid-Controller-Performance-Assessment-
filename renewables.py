@@ -35,8 +35,10 @@ class Renewables(object):
         fracs = chartList/(sum(chartList))*100
         colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
         explode = [0, 0, 0.1, 0.1, 0.1]
-        canvas.axes.set_title('Pie chart of Total Power Gen. & Percentage Renewables')
+        canvas.axes.set_title(data.controllerName)
         canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+
+
         #add border lines if possible
 
     @staticmethod
@@ -73,4 +75,47 @@ class Renewables(object):
         canvas.axes.set_ylabel('Power Generation (MW)')
         canvas.axes.set_title('Time Plot of Renewable Power Gen.')
         canvas.draw()
+
+    @staticmethod
+    def renewable_stats(data):
+        wind = np.array([0.0] * len(data.timeList))
+        hydro = np.array([0.0] * len(data.timeList))
+        pv = np.array([0.0] * len(data.timeList))
+        diesel = np.array([0.0]*len(data.timeList))
+        gas = np.array([0.0]*len(data.timeList))
+
+        for i in range(0, data.nDer):
+            if data.derList[i].energy_type == 'Wind':
+                wind += np.array(data.derList[i].output)
+            elif data.derList[i].energy_type == 'Hydro':
+                hydro += np.array(data.derList[i].output)
+            elif data.derList[i].energy_type == 'PV':
+                pv += np.array(data.derList[i].output)
+            elif data.derList[i].energy_type == 'Diesel':
+                diesel += np.array(data.derList[i].output)
+            elif data.derList[i].energy_type == 'Gas':
+                gas += np.array(data.derList[i].output)
+
+        total_wind, total_hydro, total_pv, total_diesel, total_gas = 0, 0, 0, 0, 0
+
+        for i in range(0, data.samplingPeriod):
+            total_wind += wind[i]
+            total_hydro += hydro[i]
+            total_pv += pv[i]
+            total_diesel += diesel[i]
+            total_gas += gas[i]
+
+        total_wind /= (data.samplingPeriod*60*60)
+        total_hydro /= (data.samplingPeriod*60*60)
+        total_pv /= (data.samplingPeriod*60*60)
+        total_diesel /= (data.samplingPeriod*60*60)
+        total_gas /= (data.samplingPeriod*60*60)
+
+        total_renewable = total_wind + total_hydro + total_pv
+        total = total_renewable + total_diesel + total_gas
+
+        stats = [total_wind, total_hydro, total_pv, total_diesel, total_gas, total_renewable, total]
+
+        return stats
+
 

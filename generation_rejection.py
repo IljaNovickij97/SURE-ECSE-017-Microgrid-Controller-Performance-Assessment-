@@ -5,19 +5,18 @@ import numpy as np
 class GenerationRejection(object):
 
     @staticmethod
-    def dump_time_plot(data, canvas):
+    def dump_time_plot(data_list, canvas):
 
-        dump_loads = []
-        dump_load_use  = np.array([0.0]*data.samplingPeriod)
+        for i in range(len(data_list)):
+            dump_loads = []
+            dump_load_use = np.array([0.0] * data_list[i].samplingPeriod)
+            for j in range(0, data_list[i].nLoad):
+                if data_list[i].loadList[j].load_type == 'Dump':
+                    dump_loads.append(data_list[i].loadList[j])
+            for j in range(len(dump_loads)):
+                    dump_load_use += dump_loads[j].demand
+            canvas.axes.plot(data_list[i].timeList, dump_load_use)
 
-        for i in range(0, data.nLoad):
-            if data.loadList[i].load_type == 'Dump':
-                dump_loads.append(data.loadList[i])
-
-        for i in range(len(dump_loads)):
-                dump_load_use += dump_loads[i].demand
-
-        canvas.axes.plot(data.timeList, dump_load_use)
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Dump Load Use (MW)')
 
