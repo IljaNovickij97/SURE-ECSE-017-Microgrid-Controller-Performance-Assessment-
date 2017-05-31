@@ -88,14 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
-        selected = self.get_selected()
-        selected_data = []
-        if selected == []:
-            selected_data = [self.data_list[0]]
-        else:
-            for i in range(len(self.data_list)):
-                if i in selected:
-                    selected_data.append(self.data_list[i])
+        selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Voltage and Frequency')
         window.setMinimumSize(1080, 700)
@@ -171,6 +164,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
+        selected_data = self.get_selected()
+
         window = NewWindow(parent=self, title='Generation Rejection')
         window.setMinimumSize(540, 400)
 
@@ -179,14 +174,18 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Graphs
         time_plot = Canvas(window.main_widget)
-        GenerationRejection.dump_time_plot(self.data_list[0], time_plot)
+        GenerationRejection.dump_time_plot(selected_data, time_plot)
         v_box.addWidget(time_plot)
 
         # Table
+        table_data = []
+        for i in range(len(selected_data)):
+            stats = GenerationRejection.dump_stats(selected_data[i])
+            current_data = [selected_data[i].controllerName, "%.5f" % stats[0]]
+            table_data.append(current_data)
+
         headers = ['Controller Name', 'Total Dumped (MWh)']
-        stats = GenerationRejection.dump_stats(self.data_list[0])
-        tm = DataTableModel([[self.data_list[0].controllerName, "%.2f" % stats[0]]], headers,
-                            self.main_widget)
+        tm = DataTableModel(table_data, headers, self.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
         hh = tv.horizontalHeader()
@@ -202,19 +201,54 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
+        selected_data = self.get_selected()
+
+
+        n_pies = len(selected_data)
         window = NewWindow(parent=self, title='Renewables')
-        window.setMinimumSize(540, 700)
+        window.setFixedSize(450*n_pies, 400)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
+        pie_box = QtWidgets.QHBoxLayout(window.main_widget)
+        table_box = QtWidgets.QHBoxLayout(window.main_widget)
+
 
         # Graphs
-        rpie = Canvas(window.main_widget)
-        time_plot = Canvas(window.main_widget)
-        Renewables.renewablePie(self.data_list[0], rpie)
-        Renewables.renewableTime(self.data_list[0], time_plot)
-        v_box.addWidget(rpie)
-        v_box.addWidget(time_plot)
+        canvas_list = []
+        for i in range(n_pies):
+            canvas_list.append(Canvas(window.main_widget, width=3.5))
+            Renewables.renewablePie(selected_data[i], canvas_list[i])
+            pie_box.addWidget(canvas_list[i])
+
+        # Table
+        table_data = []
+        for i in range(len(selected_data)):
+            stats = Renewables.renewable_stats(selected_data[i])
+            current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1], "%.2f" % stats[2],
+                            "%.2f" % stats[3], "%.2f" % stats[4], "%.2f" % stats[5], "%.2f" % stats[6]]
+            table_data.append(current_data)
+
+        headers = ['Controller Name', 'Wind (MWh)', 'Hydro (MWh)', 'PV (MWh)', 'Diesel (MWh)', 'Gas (MWh)',
+                   'Renewable (MWh)', 'Total (MWh)']
+        tm = DataTableModel(table_data, headers, self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        table_box.addWidget(tv)
+        tv.setColumnWidth(0, 100)
+        tv.setColumnWidth(1, 75)
+        tv.setColumnWidth(2, 75)
+        tv.setColumnWidth(3, 75)
+        tv.setColumnWidth(4, 75)
+        tv.setColumnWidth(5, 75)
+        tv.setColumnWidth(6, 100)
+
+        v_box.addLayout(pie_box)
+        v_box.addLayout(table_box)
 
     def rc(self):
         if self.data_list[0] is None:
@@ -271,4 +305,12 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             if columns[i] == 0:
                 selected.append(rows[i])
 
-        return selected
+        selected_data = []
+        if selected == []:
+            selected_data = [self.data_list[0]]
+        else:
+            for i in range(len(self.data_list)):
+                if i in selected:
+                    selected_data.append(self.data_list[i])
+
+        return selected_data
