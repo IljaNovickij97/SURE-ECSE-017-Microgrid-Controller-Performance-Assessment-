@@ -15,65 +15,65 @@ Frequency 60 61 62 60
 Type Hydro
 Power Output 458 456 998 212 45 56 67 36 63 32 92 121 45 0 65 46 45 89 255 360
 Generation Capacity 1000
-Consumption 0
+Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
 Type Diesel
 Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
-Consumption 235 953 232 21
+Consumption 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
 # next der
 Type Hydro
 Power Output 45 456 2 3 45 78 3 634 56 33 236 453 658 331 98 564 78 45 45 1
 Generation Capacity 1002
-Consumption 235 953 232 21
+Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
 Type PV
 Power Output 456 458 536 98 89 78 466 178 345 78 456 123 12 132 326 5 0 0 0 45
 Generation Capacity 1002
-Consumption 235 953 232 21
+Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
 Type Gas
 Power Output 458 456 98 212 455 56 67 36 63 312 92 121 45 0 65 46 45 89 265 36
 Generation Capacity 1002
-Consumption 235 953 232 21
+Consumption 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
 # next der
 Type Wind
-Power Output 45.32 458 456 98 89 78 456 718 345 78 456 123 123 132 326 5 456 61 62 65
+Power Output 45.32 458 456 98 89 78 0 0 0 78 456 123 123 132 326 5 456 61 62 65
 Generation Capacity 1002
-Consumption 235 953 232 21
+Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
 Type Diesel
 Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
-Consumption 235 953 232 21
+Consumption 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
 ### Load Info
 Type Dump
-Power Demand 432 786 0 4568
+Power Demand 432 786 0 456 5 6 2 1 6 9 4 13 32 65 123 83 3 32 12 5
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 432 786 0 4268 432 786 0 428 432 786 0 4268 432 786 0 426 56 64 132 123
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 432 786 0 4268 235 95 232 21 45 65 56 45 213 86 32 432 786 0 0 426
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 68 235 95 232 21 45 65 56 45 213 432 786 0 426 6 9 123 12 36 9
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 68 235 95 232 21 45 65 56 45 213 432 786 0 426 6 9 123 12 36 9
 # next load
 Type Interruptable
-Power Demand 432 786 0 4268
+Power Demand 68 235 95 232 21 45 65 56 45 213 432 786 0 426 6 9 123 12 36 9
 # next load
 Type Critical
-Power Demand 432 786 0 4268
+Power Demand 432 786 0 40268 235 95 232 21 45 65 56 45 213 86 32 432 786 0 0 426
 # next load
 Type Priority
-Power Demand 432 786 0 4268
+Power Demand 432 786 0 4268 432 786 0 428 432 786 0 4268 432 786 0 426 56 64 132 123
 ###

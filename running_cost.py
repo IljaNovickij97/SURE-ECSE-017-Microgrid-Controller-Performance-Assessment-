@@ -1,7 +1,7 @@
 # running cost evaluation depends on fuel consumption, and generation patterns
-
 from pylab import *
 import numpy as np
+import data
 
 class runningCost(object):
     t, diesel, gas = [], [], []
@@ -19,10 +19,10 @@ class runningCost(object):
             if data.derList[i].energy_type == 'Diesel\n':
                 diesel += np.array(data.derList[i].consumption)
             if data.derList[i].energy_type == 'Gas\n':
-                gas += np.array(data.derList[i].cosumption)
+                gas += np.array(data.derList[i].consumption)
 
-        global totalFuel
-        totalFuel = gas + diesel
+        global total_fuel
+        total_fuel = gas + diesel
     # note: emissions are linked to fuel consumption. If emissions data is given, then add another calculation
 
     @staticmethod
@@ -32,10 +32,10 @@ class runningCost(object):
             canvas.axes.plot(t, diesel, label="Diesel Gen")
         if not np.all(gas == 0):
             canvas.axes.plot(t, gas, label="Gas Gen")
-        if np.all(totalFuel == 0):
+        if np.all(total_fuel == 0):
             canvas.axes.plot(t, [] * len(data.timeList), label="Total Non-Renewable Gen")
-        elif not np.all(totalFuel == 0):
-            canvas.axes.plot(t, totalFuel, label="Total Non-Renewable Gen")
+        elif not np.all(total_fuel == 0):
+            canvas.axes.plot(t, total_fuel, label="Total Non-Renewable Gen")
 
         # total generation capacity for each fuel type
         diesel_cap, gas_cap = 0
@@ -44,6 +44,8 @@ class runningCost(object):
                 diesel_cap += data.derList[i].capacity
             if data.derList[i].energy_type == 'Gas':
                 gas_cap += data.derList[i].capacity
+
+        print (gas_cap)
 
         canvas.axes.plot(t, diesel_cap/2, label='Diesel Gen. Threshold')
         canvas.axes.plot(t, gas_cap/2, label='Gas Gen. Threshold')
@@ -57,42 +59,54 @@ class runningCost(object):
     @staticmethod
     # plot d(P_gen)/dt vs t to show ramping
     def ramping(data, canvas):
-        fuelDiff = np.diff(totalFuel, n=1, axis=t)
-        if np.all(fuelDiff == 0):
-            canvas.axes.plot(t, [] * len(data.timeList))
-        elif not np.all(fuelDiff == 0):
-            canvas.axes.plot(t, fuelDiff)
+        fuel_diff = np.diff(total_fuel, n=1, axis=t)
+        if np.all(fuel_diff == 0):
+            canvas.axes.plot(t, [] * len(t))
+        elif not np.all(fuel_diff == 0):
+            canvas.axes.plot(t, fuel_diff)
+
+        print(fuel_diff)
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('d(P_Gen)/dt')
         canvas.axes.set_title('Power Gen. Derivative vs Time, showing Ramping')
         canvas.draw()
 
-        # calculate total slope (point-wise):
+        # calculate total slope (point-wise dP/dt):
         # greater slope indicates more ramping
         global total_grad
         total_grad = 0
-        for i in range (0, t):
-            total_grad += abs(fuelDiff[i])
+        for i in range (0, len(t)):
+            total_grad += abs(fuel_diff[i])
+
+        print(total_grad)
 
     @staticmethod
-    def rc_stats(data):
+    def rcStats(data):
         consumption = [sum(diesel), sum(gas), (sum(diesel)+sum(gas))]
+        total_grad = 5768
 
         # calculate total on/off switching (per source)
         switching = 0
         for i in range(0, data.nDer):
-            for j in range (0, t-1):
+            for j in range (0, len(t)-1):
                 if ((data.derList[i].output[j] != 0) and (data.derList[i].output[j+1] == 0)):
                     switching += 1
 
         # find peak demand
-        peak_power = 0
+        peak_pwr = 0
         for i in range(0, data.nLoad):
             if data.loadList[i].load_type != 'Dump':
-                for j in range(0, t - 1):
-                    if (data.loadList[i].demand[j] > peak_power):
-                        peak_power = data.loadList[i].demand[j]
+                for j in range(0, len(t)):
+                    if (data.loadList[i].demand[j] > peak_pwr):
+                        peak_pwr = data.loadList[i].demand[j]
 
-        stats = [consumption, switching, (total_grad/t), peak_power]
+        stats = [consumption, switching, (total_grad/len(t)), peak_pwr]
+        print(consumption)
+        print(switching)
+        print(peak_pwr)
         return stats
+
+Data = data.Data('renewable_ex.txt')
+runningCost.basicCalc(Data)
+runningCost.rcStats(Data)
