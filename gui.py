@@ -109,7 +109,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         hist_left = Canvas(window.main_widget)
         time_plot_left = Canvas(window.main_widget)
-        VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, 10)
+        VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, 0.2)
         VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
         v_box_left.addWidget(hist_left)
         v_box_left.addWidget(time_plot_left)

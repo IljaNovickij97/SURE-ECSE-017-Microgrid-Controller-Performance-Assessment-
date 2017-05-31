@@ -18,18 +18,24 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def voltage_hist(data_list, canvas, busNo, step):
-        voltageList = data_list[0].busList[busNo].voltage
-        partition = int((max(voltageList) - min(voltageList)) / step)
+        bounds = ['<120', '120-180', '180-220', '220-260', '>260']
+        pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
             voltageList = data_list[i].busList[busNo].voltage
-            hist, bins = np.histogram(voltageList, partition, density=False)
-            if i == 0:
-                center = (bins[:-1] + bins[1:]) / 2
-            canvas.axes.bar(center, hist, align='center', width=step)
+            for j in range(len(pos)):
+                pos[j] += step
+            bins = sort_bin(voltageList, 120, 180, 220, 260)
+            canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
+        for j in range(len(pos)):
+            pos[j] -= i * step / 2.0
+
+        canvas.axes.set_xticklabels(bounds)
+        canvas.axes.set_xticks(pos)
         canvas.axes.set_xlabel('Voltage (V)')
         canvas.axes.set_ylabel('Number of Occurrences')
+        canvas.axes.legend(loc='upper right')
 
     @staticmethod
     def voltage_stats(data, busNo):
@@ -51,21 +57,47 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def frequency_hist(data_list, canvas, busNo, step):
-        frequencyList = data_list[0].busList[busNo].frequency
-        partition = int((max(frequencyList) - min(frequencyList)) / step)
+
+        bounds = ['<58.5', '58.5-59.5', '59.5-60.5', '60.5-61.5', '>61.5']
+        pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
             frequencyList = data_list[i].busList[busNo].frequency
-            hist, bins = np.histogram(frequencyList, partition, density=False)
-            center = ((bins[:-1] + bins[1:]) / 2) + i*step
-            canvas.axes.bar(center, hist, align='center', width=step)
+            for j in range(len(pos)):
+                pos[j] += step
+            bins = sort_bin(frequencyList, 58.5, 59.5, 60.5, 61.5)
+            canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
+        for j in range(len(pos)):
+            pos[j] -= i * step / 2.0
+
+        canvas.axes.set_xticklabels(bounds)
+        canvas.axes.set_xticks(pos)
         canvas.axes.set_xlabel('Frequency (Hz)')
         canvas.axes.set_ylabel('Number of Occurrences')
+        canvas.axes.legend(loc='upper right')
 
     @staticmethod
     def frequency_stats(data, busNo):
         stats = [np.std(data.busList[busNo].frequency), np.mean(data.busList[busNo].frequency)]
         return stats
+
+
+def sort_bin(data_list, lower_bound, middle_left, middle_right, upper_bound):
+    bins = [0, 0, 0, 0, 0]
+    for i in range(len(data_list)):
+
+        if data_list[i] < lower_bound:
+            bins[0] += 1
+        elif (data_list[i] >= lower_bound) & (data_list[i] <= middle_left):
+            bins[1] += 1
+        elif (data_list[i] >= middle_left) & (data_list[i] <= middle_right):
+            bins[2] += 1
+        elif (data_list[i] >= middle_right) & (data_list[i] <= upper_bound):
+            bins[3] += 1
+        elif data_list[i] > upper_bound:
+            bins[4] += 1
+
+    return bins
 
 
