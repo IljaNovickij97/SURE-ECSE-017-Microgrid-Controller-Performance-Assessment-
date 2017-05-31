@@ -4,6 +4,7 @@ from voltage_frequency import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
+from running_cost import *
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -220,7 +221,52 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         if self.data_list[0] is None:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
-        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+        # # for multiple comparisons
+        # selected = self.get_selected()
+        # selected_data = []
+        # if selected == []:
+        #     selected_data = [self.data_list[0]]
+        # else:
+        #     for i in range(len(self.data_list)):
+        #         if i in selected:
+        #             selected_data.append(self.data_list[i])
+
+        window = NewWindow(parent=self, title='Runnnig Costs')
+        window.setMinimumSize(540, 700)
+
+        # Layout
+        # h_box = QtWidgets.QHBoxLayout(window.main_widget)
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+
+        # Graphs
+        pwr_out = Canvas(window.main_widget)
+        gen_ramp = Canvas(window.main_widget)
+        runningCost.basicCalc(self.data_list[0])
+        runningCost.pwrGen(self.data_list[0], pwr_out)
+        runningCost.ramping(self.data_list[0], gen_ramp)
+        v_box.addWidget(pwr_out)
+        v_box.addWidget(gen_ramp)
+
+        # # Table
+        # headers = ['Controller Name', 'Std. Deviation', 'Mean']
+        # table_data_left = []
+        # for i in range(len(selected_data)):
+        #     stats = VoltageAndFrequency.voltage_stats(selected_data[i], 0)
+        #     current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+        #     table_data_left.append(current_data)
+        #
+        # tm_left = DataTableModel(table_data_left, headers, self.main_widget)
+        # tv_left = QtWidgets.QTableView()
+        # tv_left.setModel(tm_left)
+        # hh_left = tv_left.horizontalHeader()
+        # hh_left.setStretchLastSection(True)
+        # vh_left = tv_left.verticalHeader()
+        # vh_left.setVisible(False)
+        # v_box_left.addWidget(tv_left)
+        # tv_left.setColumnWidth(0, 300)
+        # tv_left.setColumnWidth(1, 100)
+        # tv_left.setColumnWidth(2, 100)
 
     def su(self):
         if self.data_list[0] is None:
