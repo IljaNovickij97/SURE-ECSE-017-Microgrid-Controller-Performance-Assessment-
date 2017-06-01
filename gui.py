@@ -84,7 +84,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         self.statusBar()
 
     def vf(self):
-        if self.data_list[0] is None:
+        if self.data_list == []:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -160,7 +160,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         h_box.addLayout(v_box_right)
 
     def gr(self):
-        if self.data_list[0] is None:
+        if self.data_list == []:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -197,22 +197,20 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(1, 100)
 
     def rei(self):
-        if self.data_list[0] is None:
+        if self.data_list == []:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
         selected_data = self.get_selected()
 
-
         n_pies = len(selected_data)
         window = NewWindow(parent=self, title='Renewables')
-        window.setFixedSize(450*n_pies, 400)
+        window.setMinimumSize(450*n_pies, 400)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
         pie_box = QtWidgets.QHBoxLayout(window.main_widget)
         table_box = QtWidgets.QHBoxLayout(window.main_widget)
-
 
         # Graphs
         canvas_list = []
@@ -240,24 +238,24 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh.setVisible(False)
         table_box.addWidget(tv)
         tv.setColumnWidth(0, 100)
-        tv.setColumnWidth(1, 75)
-        tv.setColumnWidth(2, 75)
-        tv.setColumnWidth(3, 75)
-        tv.setColumnWidth(4, 75)
-        tv.setColumnWidth(5, 75)
-        tv.setColumnWidth(6, 100)
+        tv.setColumnWidth(1, 50*n_pies)
+        tv.setColumnWidth(2, 50*n_pies)
+        tv.setColumnWidth(3, 50*n_pies)
+        tv.setColumnWidth(4, 50*n_pies)
+        tv.setColumnWidth(5, 50*n_pies)
+        tv.setColumnWidth(6, 50*n_pies)
 
         v_box.addLayout(pie_box)
         v_box.addLayout(table_box)
 
     def rc(self):
-        if self.data_list[0] is None:
+        if self.data_list == []:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
         self.statusBar().showMessage("This is still a work in progress!", 1000)
 
     def su(self):
-        if self.data_list[0] is None:
+        if self.data_list == []:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
