@@ -27,10 +27,11 @@ class runningCost(object):
     @staticmethod
     # plot power generation over time
     def pwrGen(data, canvas):
+
         if np.all(total_fuel == 0):
-            canvas.axes.plot(t, [] * len(t), label="Total Fuel Gen")
+            canvas.axes.plot(t, [] * len(t), label="Total Power Gen (diesel & gas)")
         elif not np.all(total_fuel == 0):
-            canvas.axes.plot(t, total_fuel, label="Total Fuel Gen")
+            canvas.axes.plot(t, total_fuel, label="Total Power Gen (diesel & gas)")
 
         # total generation capacity for each fuel type
         diesel_cap, gas_cap = 0, 0
@@ -40,8 +41,9 @@ class runningCost(object):
             if (data.derList[i].energy_type == 'Gas'):
                 gas_cap += data.derList[i].capacity
         total_cap = diesel_cap + gas_cap
-        canvas.axes.plot(t, [total_cap/2]*len(t), label='Gen. Threshold')
-        canvas.axes.legend(loc='upper left')
+        canvas.axes.plot(t, [total_cap/2]*len(t), 'r--', label='Gen. Threshold (50% cap)')
+        # todo: add user input/data input to decide what % of capacity the threshold should be, to max efficiency
+        canvas.axes.legend(loc='lower left', fontsize=7)
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Power Generation (MW)')
         canvas.axes.set_title('Time Plot of Non-Renewable Power Gen.')  # todo: change to show controller name

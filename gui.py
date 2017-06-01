@@ -204,7 +204,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
 
-
         n_pies = len(selected_data)
         window = NewWindow(parent=self, title='Renewables')
         window.setFixedSize(450*n_pies, 400)
@@ -213,7 +212,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
         pie_box = QtWidgets.QHBoxLayout(window.main_widget)
         table_box = QtWidgets.QHBoxLayout(window.main_widget)
-
 
         # Graphs
         canvas_list = []
@@ -256,15 +254,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
-        # # for multiple comparisons
-        # selected = self.get_selected()
-        # selected_data = []
-        # if selected == []:
-        #     selected_data = [self.data_list[0]]
-        # else:
-        #     for i in range(len(self.data_list)):
-        #         if i in selected:
-        #             selected_data.append(self.data_list[i])
+        # selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Runnnig Costs')
         window.setMinimumSize(540, 700)
@@ -283,7 +273,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addWidget(gen_ramp)
 
         # # Table
-        # headers = ['Controller Name', 'Std. Deviation', 'Mean']
+        # headers = ['Controller Name', 'Fuel Consumption (L)', '# On/Off Switching', 'Ramping', 'Peak Power (Grid Connected)']
         # table_data_left = []
         # for i in range(len(selected_data)):
         #     stats = VoltageAndFrequency.voltage_stats(selected_data[i], 0)
