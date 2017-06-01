@@ -4,6 +4,7 @@ from voltage_frequency import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
+from storage_use import *
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -259,8 +260,17 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
-        print(self.get_selected())
-        self.statusBar().showMessage("This is still a work in progress!", 1000)
+        selected_data = self.get_selected()
+        window = NewWindow(parent=self, title='Renewables')
+        window.setMinimumSize(540, 400)
+
+        # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+
+        # Graphs
+        charge_time_plot = Canvas(window.main_widget)
+        StorageUse.charge_time_plot(selected_data, charge_time_plot)
+        v_box.addWidget(charge_time_plot)
 
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')

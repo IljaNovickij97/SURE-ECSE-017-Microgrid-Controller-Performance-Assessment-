@@ -3,7 +3,7 @@ Sampling Rate 1
 Sampling Period 20
 ### System info
 Bus No. 2
-DER No. 7
+DER No. 8
 Load No. 3
 ### Bus Info
 Voltage 220 100 120 100 134 120 100 134 120 100 134 120 100 134 257 100 134 120 100 134
@@ -45,6 +45,11 @@ Consumption 235 953 232 21
 Type Diesel
 Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
+Consumption 235 953 232 21
+# next der
+Type Battery
+Power Output -4560.32 -4508 -4506 -980 -890 708 2000 780 3045 708 4506 1023 -1203 -1032 0 0 0 0 0 0
+Generation Capacity 1000
 Consumption 235 953 232 21
 ### Load Info
 Type Dump
