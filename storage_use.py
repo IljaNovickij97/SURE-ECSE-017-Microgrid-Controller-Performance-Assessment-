@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class StorageUse(object):
 
     @staticmethod
@@ -11,11 +12,12 @@ class StorageUse(object):
                     k += 1
                     charge_state = data_list[i].derList[j].consumption
                     label = 'Storage #' + ("%d " % k) + data_list[i].controllerName
-                    canvas.axes.plot(data_list[i].timeList, charge_state, label=label)
+                    canvas.axes.plot(data_list[i].timeList, charge_state, label=label, linewidth=1.0)
 
         canvas.axes.set_xlabel("Time (s)")
         canvas.axes.set_ylabel("State of Charge (%)")
         canvas.axes.legend(loc='upper right')
+        canvas.axes.set_xlim([0, len(data_list[i].timeList) - 1])
 
     @staticmethod
     def charge_stats(data):

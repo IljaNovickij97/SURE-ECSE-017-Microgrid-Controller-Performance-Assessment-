@@ -5,16 +5,17 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def voltage_time_plot(data_list, canvas, busNo):
-        voltageList = data_list[0].busList[busNo].voltage
-        timeList = np.linspace(0, len(voltageList) - 1, len(voltageList))
+        voltage_list = data_list[0].busList[busNo].voltage
+        time_list = np.linspace(0, len(voltage_list) - 1, len(voltage_list))
 
         for i in range(len(data_list)):
-            voltageList = data_list[i].busList[busNo].voltage
-            canvas.axes.plot(timeList, voltageList)
-            canvas.axes.axis([0, max(timeList) + 1, min(voltageList) - 1, max(voltageList) + 1])
+            voltage_list = data_list[i].busList[busNo].voltage
+            canvas.axes.plot(time_list, voltage_list, linewidth=1.0)
+            canvas.axes.axis([0, max(time_list) + 1, min(voltage_list) - 1, max(voltage_list) + 1])
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Voltage (V)')
+        canvas.axes.set_xlim([0, len(time_list) - 1])
 
     @staticmethod
     def voltage_hist(data_list, canvas, busNo, step):
@@ -22,10 +23,10 @@ class VoltageAndFrequency(object):
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
-            voltageList = data_list[i].busList[busNo].voltage
+            voltage_list = data_list[i].busList[busNo].voltage
             for j in range(len(pos)):
                 pos[j] += step
-            bins = sort_bin(voltageList, 120, 180, 220, 260)
+            bins = sort_bin(voltage_list, 120, 180, 220, 260)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):
@@ -38,34 +39,35 @@ class VoltageAndFrequency(object):
         canvas.axes.legend(loc='upper right')
 
     @staticmethod
-    def voltage_stats(data, busNo):
-        stats = [np.std(data.busList[busNo].voltage), np.mean(data.busList[busNo].voltage)]
+    def voltage_stats(data, bus_no):
+        stats = [np.std(data.busList[bus_no].voltage), np.mean(data.busList[bus_no].voltage)]
         return stats
 
     @staticmethod
-    def frequency_time_plot(data_list, canvas, busNo):
-        frequencyList = data_list[0].busList[busNo].frequency
-        timeList = np.linspace(0, len(frequencyList) - 1, len(frequencyList))
+    def frequency_time_plot(data_list, canvas, bus_no):
+        frequency_list = data_list[0].busList[bus_no].frequency
+        time_list = np.linspace(0, len(frequency_list) - 1, len(frequency_list))
 
         for i in range(len(data_list)):
-            frequencyList = data_list[i].busList[busNo].frequency
-            canvas.axes.plot(timeList, frequencyList)
-            canvas.axes.axis([0, max(timeList) + 1, min(frequencyList) - 1, max(frequencyList) + 1])
+            frequency_list = data_list[i].busList[bus_no].frequency
+            canvas.axes.plot(time_list, frequency_list, linewidth=1.0)
+            canvas.axes.axis([0, max(time_list) + 1, min(frequency_list) - 1, max(frequency_list) + 1])
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Frequency (Hz)')
+        canvas.axes.set_xlim([0, len(time_list) - 1])
 
     @staticmethod
-    def frequency_hist(data_list, canvas, busNo, step):
+    def frequency_hist(data_list, canvas, bus_no, step):
 
         bounds = ['<58.5', '58.5-59.5', '59.5-60.5', '60.5-61.5', '>61.5']
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
-            frequencyList = data_list[i].busList[busNo].frequency
+            frequency_list = data_list[i].busList[bus_no].frequency
             for j in range(len(pos)):
                 pos[j] += step
-            bins = sort_bin(frequencyList, 58.5, 59.5, 60.5, 61.5)
+            bins = sort_bin(frequency_list, 58.5, 59.5, 60.5, 61.5)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):
@@ -78,8 +80,8 @@ class VoltageAndFrequency(object):
         canvas.axes.legend(loc='upper right')
 
     @staticmethod
-    def frequency_stats(data, busNo):
-        stats = [np.std(data.busList[busNo].frequency), np.mean(data.busList[busNo].frequency)]
+    def frequency_stats(data, bus_no):
+        stats = [np.std(data.busList[bus_no].frequency), np.mean(data.busList[bus_no].frequency)]
         return stats
 
 

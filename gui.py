@@ -85,7 +85,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         self.statusBar()
 
     def vf(self):
-        if self.data_list == []:
+        if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -99,11 +99,14 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box_left = QtWidgets.QVBoxLayout(window.main_widget)
         v_box_right = QtWidgets.QVBoxLayout(window.main_widget)
 
+        # Histogram width
+        width = 0.6/len(selected_data)
+
         # VOLTAGE
         # Graphs
         hist_left = Canvas(window.main_widget)
         time_plot_left = Canvas(window.main_widget)
-        VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, 0.2)
+        VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
         VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
         v_box_left.addWidget(hist_left)
         v_box_left.addWidget(time_plot_left)
@@ -132,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         hist_right = Canvas(window.main_widget)
         time_plot_right = Canvas(window.main_widget)
-        VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, 0.2)
+        VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
         VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
         v_box_right.addWidget(hist_right)
         v_box_right.addWidget(time_plot_right)
@@ -161,7 +164,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         h_box.addLayout(v_box_right)
 
     def gr(self):
-        if self.data_list == []:
+        if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -198,7 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(1, 100)
 
     def rei(self):
-        if self.data_list == []:
+        if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -250,13 +253,13 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addLayout(table_box)
 
     def rc(self):
-        if self.data_list == []:
+        if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
         self.statusBar().showMessage("This is still a work in progress!", 1000)
 
     def su(self):
-        if self.data_list == []:
+        if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
 
@@ -280,7 +283,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             for j in range(len(stats[0])):
                 if j == 0:
                     current_data = [selected_data[i].controllerName, j+1, "%.0f" % stats[0][j], "%.0f" % stats[1][j],
-                                "%.0f" % stats[2][j]]
+                                    "%.0f" % stats[2][j]]
                 else:
                     current_data = ['---', j+1, "%.0f" % stats[0][j], "%.0f" % stats[1][j],
                                     "%.0f" % stats[2][j]]
@@ -301,7 +304,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(3, 120)
         tv.setColumnWidth(4, 100)
 
-
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
         if filename[0] == '':
@@ -321,11 +323,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tm = DataTableModel(table_data, self.headers, self.main_widget)
         self.tv.setModel(tm)
 
-    def fileQuit(self):
+    def file_quit(self):
         self.close()
 
     def closeEvent(self, ce):
-        self.fileQuit()
+        self.file_quit()
 
     def get_selected(self):
         selected_box = self.tv.selectedIndexes()
@@ -344,7 +346,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                 selected.append(rows[i])
 
         selected_data = []
-        if selected == []:
+        if not selected:
             selected_data = [self.data_list[0]]
         else:
             for i in range(len(self.data_list)):
