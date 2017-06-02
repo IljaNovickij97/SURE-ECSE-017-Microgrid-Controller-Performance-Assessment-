@@ -12,7 +12,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         QtWidgets.QMainWindow.__init__(self)
         self.data_list = []
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setMinimumSize(540, 250)
+        self.setMinimumHeight(250)
+        self.setFixedWidth(540)
         self.setGeometry(0, 30, 540, 220)
         self.main_widget = QtWidgets.QWidget(self)
         self.ui_setup()
@@ -34,7 +35,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box = QtWidgets.QVBoxLayout(self.main_widget)
         h_box = QtWidgets.QHBoxLayout(self.main_widget)
         v_box.addLayout(h_box)
-        v_box.addStretch()
 
         # Voltage and Frequency button
         vf_button = QtWidgets.QPushButton('Voltage\n and\n Frequency')
@@ -76,7 +76,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         hh.setStretchLastSection(True)
         vh = self.tv.verticalHeader()
         vh.setVisible(False)
-        v_box.addStretch()
         self.tv.setColumnWidth(0, 340)
         self.tv.setColumnWidth(1, 60)
         self.tv.setColumnWidth(2, 60)
