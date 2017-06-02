@@ -1,5 +1,9 @@
 from pylab import *
 import numpy as np
+<<<<<<< HEAD
+=======
+# **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV and Storage**
+>>>>>>> b5e7017974fe4e002347b979ec72c16c7aa53899
 
 # **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV, Storage **
 
@@ -8,30 +12,30 @@ class Renewables(object):
     @staticmethod
     def renewablePie(data, canvas):
 
-        genList = [None]*data.nDer
+        gen_list = [None]*data.nDer
         for i in range(0, data.nDer):
             #total generation per source
-            genList[i] = sum(data.derList[i].output)
-        typeList = [None]*data.nDer
+            gen_list[i] = sum(data.derList[i].output)
+        type_list = [None]*data.nDer
         for i in range(0, data.nDer):
-            typeList[i] = data.derList[i].energy_type
+            type_list[i] = data.derList[i].energy_type
 
         #pie chart:
         labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
-        chartList = np.array([0]*5)
+        chart_list = np.array([0]*5)
         for i in range(0, data.nDer):
-            if typeList[i] == 'Diesel':
-                chartList[0] += genList[i]
-            elif typeList[i] == 'Gas':
-                chartList[1] += genList[i]
-            elif typeList[i] == 'Wind':
-                chartList[2] += genList[i]
-            elif typeList[i] == 'Hydro':
-                chartList[3] += genList[i]
-            elif typeList[i] == 'PV':
-                chartList[4] += genList[i]
+            if type_list[i] == 'Diesel':
+                chart_list[0] += gen_list[i]
+            elif type_list[i] == 'Gas':
+                chart_list[1] += gen_list[i]
+            elif type_list[i] == 'Wind':
+                chart_list[2] += gen_list[i]
+            elif type_list[i] == 'Hydro':
+                chart_list[3] += gen_list[i]
+            elif type_list[i] == 'PV':
+                chart_list[4] += gen_list[i]
 
-        fracs = chartList/(sum(chartList))*100
+        fracs = chart_list/(sum(chart_list))*100
         colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
         explode = [0, 0, 0.1, 0.1, 0.1]
         canvas.axes.set_title(data.controllerName)

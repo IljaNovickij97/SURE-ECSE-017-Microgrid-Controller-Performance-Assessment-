@@ -15,11 +15,12 @@ class GenerationRejection(object):
                     dump_loads.append(data_list[i].loadList[j])
             for j in range(len(dump_loads)):
                     dump_load_use += dump_loads[j].demand
-            canvas.axes.plot(data_list[i].timeList, dump_load_use, label=data_list[i].controllerName)
+            canvas.axes.plot(data_list[i].timeList, dump_load_use, label=data_list[i].controllerName, linewidth=1.0)
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Dump Load Use (MW)')
         canvas.axes.legend(loc='upper right')
+        canvas.axes.set_xlim([0, len(data_list[i].timeList) - 1])
 
     @staticmethod
     def dump_stats(data):
