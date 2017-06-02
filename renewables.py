@@ -1,8 +1,7 @@
 from pylab import *
 import numpy as np
 
-# **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV**
-
+# **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV, Storage **
 
 class Renewables(object):
 
