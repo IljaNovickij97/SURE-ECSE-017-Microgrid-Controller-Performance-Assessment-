@@ -261,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             return
 
         selected_data = self.get_selected()
-        window = NewWindow(parent=self, title='Renewables')
+        window = NewWindow(parent=self, title='Storage Use')
         window.setMinimumSize(540, 400)
 
         # Layout
@@ -271,6 +271,36 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         charge_time_plot = Canvas(window.main_widget)
         StorageUse.charge_time_plot(selected_data, charge_time_plot)
         v_box.addWidget(charge_time_plot)
+
+        # Table
+
+        table_data = []
+        for i in range(len(selected_data)):
+            stats = StorageUse.charge_stats(selected_data[i])
+            for j in range(len(stats[0])):
+                if j == 0:
+                    current_data = [selected_data[i].controllerName, j+1, "%.0f" % stats[0][j], "%.0f" % stats[1][j],
+                                "%.0f" % stats[2][j]]
+                else:
+                    current_data = ['---', j+1, "%.0f" % stats[0][j], "%.0f" % stats[1][j],
+                                    "%.0f" % stats[2][j]]
+                table_data.append(current_data)
+
+        headers = ['Controller Name', 'Storage No.', 'Time Charging (s)', 'Time Discharging (s)', 'Time Idle (s)']
+        tm = DataTableModel(table_data, headers, self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 100)
+        tv.setColumnWidth(1, 80)
+        tv.setColumnWidth(2, 100)
+        tv.setColumnWidth(3, 120)
+        tv.setColumnWidth(4, 100)
+
 
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
