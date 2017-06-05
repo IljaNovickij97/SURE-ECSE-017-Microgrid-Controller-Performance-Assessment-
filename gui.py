@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from renewables import *
 from voltage_frequency import *
+from running_cost import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
@@ -97,7 +98,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         window = NewWindow(parent=self, title='Voltage and Frequency')
         window.setMinimumSize(1080, 700)
 
+
         # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
         h_box = QtWidgets.QHBoxLayout(window.main_widget)
         v_box_left = QtWidgets.QVBoxLayout(window.main_widget)
         v_box_right = QtWidgets.QVBoxLayout(window.main_widget)
@@ -108,7 +111,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # VOLTAGE
         # Graphs
         hist_left = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(hist_left, window, coordinates=False)
         time_plot_left = Canvas(window.main_widget)
+        time_plot_left.setup_toolbar(toolbar)
+        time_plot_left.mouseDoubleClickEvent = time_plot_left.set_toolbar_active
+        hist_left.setup_toolbar(toolbar)
+        hist_left.mouseDoubleClickEvent = hist_left.set_toolbar_active
+
+        v_box.addWidget(toolbar)
+        v_box.addLayout(h_box)
+
         VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
         VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
         v_box_left.addWidget(hist_left)
@@ -140,6 +152,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         time_plot_right = Canvas(window.main_widget)
         VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
         VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
+        time_plot_right.setup_toolbar(toolbar)
+        time_plot_right.mouseDoubleClickEvent = time_plot_right.set_toolbar_active
+        hist_right.setup_toolbar(toolbar)
+        hist_right.mouseDoubleClickEvent = hist_right.set_toolbar_active
         v_box_right.addWidget(hist_right)
         v_box_right.addWidget(time_plot_right)
 
@@ -174,14 +190,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Generation Rejection')
-        window.setMinimumSize(540, 400)
+        window.setMinimumSize(540, 500)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
         # Graphs
         time_plot = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(time_plot, window, coordinates=False)
         GenerationRejection.dump_time_plot(selected_data, time_plot)
+        v_box.addWidget(toolbar)
         v_box.addWidget(time_plot)
 
         # Table
@@ -262,7 +280,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
 
+<<<<<<< HEAD
         window = NewWindow(parent=self, title='Runnnig Costs')
+=======
+        window = NewWindow(parent=self, title='Running Cost')
+>>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
         window.setMinimumSize(740, 500)
 
         # Layout
@@ -271,6 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Graphs
         pwr_out = Canvas(window.main_widget)
+<<<<<<< HEAD
         runningCost.basicCalc(selected_data)
         runningCost.pwrGen(selected_data, pwr_out)
         v_box.addWidget(pwr_out)
@@ -278,14 +301,27 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Table
         print("table")
         headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Total Ramping', 'Max. Ramping',
+=======
+        toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
+        runningCost.basicCalc(selected_data)
+        runningCost.pwrGen(selected_data, pwr_out)
+        v_box.addWidget(toolbar)
+        v_box.addWidget(pwr_out)
+
+        # Table
+        headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
+>>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
                    'Peak Power\n(Grid Connected) (MW)']
         runningCost.ramping(selected_data)
         table_data = runningCost.rcStats(selected_data)
 
         for i in range(len(selected_data)):
             table_data[i].insert(0, selected_data[i].controllerName)
+<<<<<<< HEAD
         print(table_data)
         print("here")
+=======
+>>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
 
         tm = DataTableModel(table_data, headers, self.main_widget)
         tv = QtWidgets.QTableView()
@@ -295,7 +331,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh = tv.verticalHeader()
         vh.setVisible(False)
         v_box.addWidget(tv)
+<<<<<<< HEAD
         tv.setColumnWidth(0, 130)
+=======
+        tv.setColumnWidth(0, 110)
+>>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
         tv.setColumnWidth(1, 120)
         tv.setColumnWidth(2, 120)
         tv.setColumnWidth(3, 120)
@@ -311,14 +351,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
         window = NewWindow(parent=self, title='Storage Use')
-        window.setMinimumSize(540, 400)
+        window.setMinimumSize(540, 500)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
         # Graphs
         charge_time_plot = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(charge_time_plot, window, coordinates=False)
         StorageUse.charge_time_plot(selected_data, charge_time_plot)
+        v_box.addWidget(toolbar)
         v_box.addWidget(charge_time_plot)
 
         # Table
