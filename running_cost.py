@@ -31,9 +31,9 @@ class runningCost(object):
     def pwrGen(data_list, canvas):
         for i in range (len(fuel_list)):
             if np.all(fuel_list[i] == 0):
-                canvas.axes.plot(t, [] * len(t), label="Controller 1")
+                canvas.axes.plot(t, [] * len(t), label=data_list[i].controllerName)
             elif not np.all(fuel_list[i] == 0):
-                canvas.axes.plot(t, fuel_list[i], label="Controller 2")
+                canvas.axes.plot(t, fuel_list[i], label=data_list[i].controllerName)
 
         # total generation capacity for each fuel type
         # note the capacity is a SYSTEM property, indep. of controller; calculate only once
@@ -52,7 +52,7 @@ class runningCost(object):
         canvas.axes.legend(loc='lower left', fontsize=7)
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Power Generation (MW)')
-        canvas.axes.set_title('Time Plot of Total Power Gen. (Diesel & Gas)')  # todo: change to show controller name
+        canvas.axes.set_title('Time Plot of Total Power Gen. (Diesel & Gas)')
 
     @staticmethod
     def ramping(data_list):
@@ -76,27 +76,26 @@ class runningCost(object):
 
     @staticmethod
     def rcStats(data_list):
-        stats = []*len(data_list)
+        stats = [[0]*5 for i in range (len(data_list))]
+
         # total fuel consumption per controller
-        #consumption = [0.0]*len(data_list)
         for i in range(len(data_list)):
-            stats[i].append([np.sum(fuel_list[i])])
+            stats[i][0] = '%.2f' % np.sum(fuel_list[i])
 
         # total on/off switching (per source) per controller
-        #switching = [0]*len(data_list)
         for i in range(len(data_list)):
             switching = 0
             for j in range(data_list[0].nDer):
                 for k in range(len(t)-1):
                     if ((data_list[i].derList[j].output[k] != 0) and (data_list[i].derList[j].output[k+1] == 0)):
                         switching += 1
-            stats[i].append([switching])
+            stats[i][1] = switching
 
         # ramping info
         total_grad_norm = [int(x/len(t)) for x in total_grad]
         for i in range(len(data_list)):
-            stats[i].append([total_grad_norm[i]])
-            stats[i].append([max_ramping[i]])
+            stats[i][2] = total_grad_norm[i]
+            stats[i][3] = '%.1f' % max_ramping[i]
 
         # peak demand per controller
         for a in range(len(data_list)):
@@ -104,8 +103,8 @@ class runningCost(object):
             for i in range(data_list[0].nLoad):
                 if data_list[a].loadList[i].load_type != 'Dump':
                     for j in range(len(t)):
-                        if (data_list[a].loadList[i].demand[j] > peak_pwr[a]):
+                        if (data_list[a].loadList[i].demand[j] > peak_pwr):
                             peak_pwr = data_list[a].loadList[i].demand[j]
-            stats[a].append([peak_pwr])
+            stats[a][4] = '%.2f' % peak_pwr
 
         return stats

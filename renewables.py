@@ -1,9 +1,5 @@
 from pylab import *
 import numpy as np
-<<<<<<< HEAD
-=======
-# **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV and Storage**
->>>>>>> b5e7017974fe4e002347b979ec72c16c7aa53899
 
 # **assume all possible DER types are Diesel, Gas, Wind, Hydro, PV, Storage **
 

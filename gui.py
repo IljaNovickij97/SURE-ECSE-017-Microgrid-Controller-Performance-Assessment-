@@ -4,11 +4,11 @@ from voltage_frequency import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
-<<<<<<< HEAD
+
 from running_cost import *
-=======
+
 from storage_use import *
->>>>>>> b5e7017974fe4e002347b979ec72c16c7aa53899
+
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -263,29 +263,24 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Runnnig Costs')
-        window.setMinimumSize(540, 600)
+        window.setMinimumSize(740, 500)
 
         # Layout
-        #h_box = QtWidgets.QHBoxLayout(window.main_widget)
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
         table_box = QtWidgets.QHBoxLayout(window.main_widget)
 
         # Graphs
         pwr_out = Canvas(window.main_widget)
-        #gen_ramp = Canvas(window.main_widget)
         runningCost.basicCalc(selected_data)
         runningCost.pwrGen(selected_data, pwr_out)
         v_box.addWidget(pwr_out)
-        #v_box.addWidget(gen_ramp)
 
         # Table
         print("table")
-        headers = ['Controller Name', 'Fuel Consumption (L)', '# On/Off Switching', 'Total Ramping', 'Max. Ramping',
-                   'Peak Power (Grid Connected) (MW)']
+        headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Total Ramping', 'Max. Ramping',
+                   'Peak Power\n(Grid Connected) (MW)']
         runningCost.ramping(selected_data)
-        print("HERE")
         table_data = runningCost.rcStats(selected_data)
-        print("heeree")
 
         for i in range(len(selected_data)):
             table_data[i].insert(0, selected_data[i].controllerName)
@@ -300,15 +295,14 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh = tv.verticalHeader()
         vh.setVisible(False)
         v_box.addWidget(tv)
-        tv.setColumnWidth(0, 300)
-        tv.setColumnWidth(1, 100)
-        tv.setColumnWidth(2, 100)
-        tv.setColumnWidth(3, 100)
-        tv.setColumnWidth(4, 100)
-        tv.setColumnWidth(5, 100)
+        tv.setColumnWidth(0, 130)
+        tv.setColumnWidth(1, 120)
+        tv.setColumnWidth(2, 120)
+        tv.setColumnWidth(3, 120)
+        tv.setColumnWidth(4, 120)
+        tv.setColumnWidth(5, 120)
 
         v_box.addLayout(table_box)
-
 
     def su(self):
         if not self.data_list:
