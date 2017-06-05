@@ -93,7 +93,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         window = NewWindow(parent=self, title='Voltage and Frequency')
         window.setMinimumSize(1080, 700)
 
+
         # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
         h_box = QtWidgets.QHBoxLayout(window.main_widget)
         v_box_left = QtWidgets.QVBoxLayout(window.main_widget)
         v_box_right = QtWidgets.QVBoxLayout(window.main_widget)
@@ -104,7 +106,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # VOLTAGE
         # Graphs
         hist_left = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(hist_left, window, coordinates=False)
         time_plot_left = Canvas(window.main_widget)
+        time_plot_left.setup_toolbar(toolbar)
+        time_plot_left.mouseDoubleClickEvent = time_plot_left.set_toolbar_active
+        hist_left.setup_toolbar(toolbar)
+        hist_left.mouseDoubleClickEvent = hist_left.set_toolbar_active
+
+        v_box.addWidget(toolbar)
+        v_box.addLayout(h_box)
+
         VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
         VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
         v_box_left.addWidget(hist_left)

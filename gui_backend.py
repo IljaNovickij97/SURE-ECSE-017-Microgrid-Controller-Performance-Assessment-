@@ -1,12 +1,13 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
 
 class Canvas(FigureCanvas):         # Class used to contain graphs as widget in the PyQt framework
     def __init__(self, parent=None, width=4, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi, tight_layout=True)
-
+        self.toolbar = None
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
@@ -15,6 +16,18 @@ class Canvas(FigureCanvas):         # Class used to contain graphs as widget in 
                                    QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
         self.axes = self.fig.add_subplot(111)
+
+    def setup_toolbar(self, toolbar):
+        self.toolbar = toolbar
+
+    def set_toolbar_active(self, event):
+        if not self.toolbar.canvas == self:
+            self.toolbar.canvas = self
+            self.toolbar.dynamic_update()
+            print('active')
+        else:
+            return
+
 
 
 class NewWindow(QtWidgets.QMainWindow):
