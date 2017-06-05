@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from renewables import *
 from voltage_frequency import *
+from running_cost import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
@@ -147,6 +148,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         time_plot_right = Canvas(window.main_widget)
         VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
         VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
+        time_plot_right.setup_toolbar(toolbar)
+        time_plot_right.mouseDoubleClickEvent = time_plot_right.set_toolbar_active
+        hist_right.setup_toolbar(toolbar)
+        hist_right.mouseDoubleClickEvent = hist_right.set_toolbar_active
         v_box_right.addWidget(hist_right)
         v_box_right.addWidget(time_plot_right)
 
@@ -181,14 +186,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Generation Rejection')
-        window.setMinimumSize(540, 400)
+        window.setMinimumSize(540, 500)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
         # Graphs
         time_plot = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(time_plot, window, coordinates=False)
         GenerationRejection.dump_time_plot(selected_data, time_plot)
+        v_box.addWidget(toolbar)
         v_box.addWidget(time_plot)
 
         # Table
@@ -266,7 +273,49 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
-        self.statusBar().showMessage("This is still a work in progress!", 1000)
+
+        selected_data = self.get_selected()
+
+        window = NewWindow(parent=self, title='Running Cost')
+        window.setMinimumSize(740, 500)
+
+        # Layout
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+        table_box = QtWidgets.QHBoxLayout(window.main_widget)
+
+        # Graphs
+        pwr_out = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
+        runningCost.basicCalc(selected_data)
+        runningCost.pwrGen(selected_data, pwr_out)
+        v_box.addWidget(toolbar)
+        v_box.addWidget(pwr_out)
+
+        # Table
+        headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
+                   'Peak Power\n(Grid Connected) (MW)']
+        runningCost.ramping(selected_data)
+        table_data = runningCost.rcStats(selected_data)
+
+        for i in range(len(selected_data)):
+            table_data[i].insert(0, selected_data[i].controllerName)
+
+        tm = DataTableModel(table_data, headers, self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 110)
+        tv.setColumnWidth(1, 120)
+        tv.setColumnWidth(2, 120)
+        tv.setColumnWidth(3, 120)
+        tv.setColumnWidth(4, 120)
+        tv.setColumnWidth(5, 120)
+
+        v_box.addLayout(table_box)
 
     def su(self):
         if not self.data_list:
@@ -275,14 +324,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
         window = NewWindow(parent=self, title='Storage Use')
-        window.setMinimumSize(540, 400)
+        window.setMinimumSize(540, 500)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
         # Graphs
         charge_time_plot = Canvas(window.main_widget)
+        toolbar = NavigationToolbar(charge_time_plot, window, coordinates=False)
         StorageUse.charge_time_plot(selected_data, charge_time_plot)
+        v_box.addWidget(toolbar)
         v_box.addWidget(charge_time_plot)
 
         # Table
