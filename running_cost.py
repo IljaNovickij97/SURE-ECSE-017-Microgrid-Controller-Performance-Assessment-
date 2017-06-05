@@ -31,7 +31,7 @@ class runningCost(object):
     @staticmethod
     # plot power generation over time
     def pwrGen(data_list, canvas):
-        for i in range (len(fuel_list)):
+        for i in range(len(fuel_list)):
             if np.all(fuel_list[i] == 0):
                 canvas.axes.plot(t, [] * len(t), label=data_list[i].controllerName)
             elif not np.all(fuel_list[i] == 0):

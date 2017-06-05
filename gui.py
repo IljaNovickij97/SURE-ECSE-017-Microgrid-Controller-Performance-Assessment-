@@ -295,10 +295,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Table
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
-        runningCost.basicCalc(selected_data)
-        runningCost.pwrGen(selected_data, pwr_out)
         v_box.addWidget(toolbar)
-        v_box.addWidget(pwr_out)
 
         headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
                    'Peak Power\n(Grid Connected) (MW)']
