@@ -11,3 +11,4 @@ aw = MainWindow()
 aw.setWindowTitle("%s" % progname)
 aw.show()
 sys.exit(qApp.exec_())
+
