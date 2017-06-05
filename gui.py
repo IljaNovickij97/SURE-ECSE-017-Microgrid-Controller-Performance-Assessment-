@@ -5,7 +5,11 @@ from running_cost import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
+
+from running_cost import *
+
 from storage_use import *
+
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -276,7 +280,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
 
-        window = NewWindow(parent=self, title='Running Cost')
+        window = NewWindow(parent=self, title='Running Costs')
         window.setMinimumSize(740, 500)
 
         # Layout
@@ -285,13 +289,17 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Graphs
         pwr_out = Canvas(window.main_widget)
+        runningCost.basicCalc(selected_data)
+        runningCost.pwrGen(selected_data, pwr_out)
+        v_box.addWidget(pwr_out)
+
+        # Table
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
         runningCost.basicCalc(selected_data)
         runningCost.pwrGen(selected_data, pwr_out)
         v_box.addWidget(toolbar)
         v_box.addWidget(pwr_out)
 
-        # Table
         headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
                    'Peak Power\n(Grid Connected) (MW)']
         runningCost.ramping(selected_data)

@@ -6,25 +6,27 @@ class runningCost(object):
 
     @staticmethod
     def basicCalc(data_list):
+    # this method calculates variables used throughout the class
+        # time list
         global t
         t = data_list[0].timeList
 
+        # 2D list of total fuel consumption per system
         global fuel_list
         fuel_list = np.array([[0.0]*len(t) for i in range(len(data_list))])
 
         for i in range(len(data_list)):
-            temp_gas, temp_diesel = np.array([0.0] * len(t)), np.array([0.0] * len(t))
+            # temp variable to calculate total fuel (diesel and gas) consumed by one controller
+            temp_fuel = np.array([0.0] * len(t))
             data = data_list[i]
 
             for j in range(data.nDer):
-                if data.derList[j].energy_type == 'Diesel':
-                    temp_diesel += np.array(data.derList[j].consumption)
-                if data.derList[j].energy_type == 'Gas':
-                    temp_gas += np.array(data.derList[j].consumption)
+                if (data.derList[j].energy_type == ('Diesel' or 'Gas')):
+                    temp_fuel += np.array(data.derList[j].consumption)
 
-            fuel_list[i] = (temp_gas + temp_diesel)
+            fuel_list[i] = temp_fuel
 
-        # note: emissions are linked to fuel consumption. If emissions data is given, then add another calculation
+        # note: emissions are linked to fuel consumption. If emissions data is given, then add another variable/metric
 
     @staticmethod
     # plot power generation over time
@@ -38,17 +40,15 @@ class runningCost(object):
         # total generation capacity for each fuel type
         # note the capacity is a SYSTEM property, indep. of controller; calculate only once
         data = data_list[0]
-        diesel_cap, gas_cap = 0, 0
-
+        fuel_cap = 0
         for i in range(0, data.nDer):
-            if (data.derList[i].energy_type == 'Diesel'):
-                diesel_cap += data.derList[i].capacity
-            if (data.derList[i].energy_type == 'Gas'):
-                gas_cap += data.derList[i].capacity
-        total_cap = diesel_cap + gas_cap
+            if (data.derList[i].energy_type == ('Diesel' or 'Gas')):
+                fuel_cap += data.derList[i].capacity
 
-        canvas.axes.plot(t, [total_cap/2]*len(t), 'r--', label='Gen. Threshold (50% cap)')
+        # add generation threshold plot to graph
+        canvas.axes.plot(t, [fuel_cap/2]*len(t), 'r--', label='Gen. Threshold (50% cap)')
         # todo: add user input/data input to decide what % of capacity the threshold should be, to max efficiency
+
         canvas.axes.legend(loc='lower left', fontsize=7)
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Power Generation (MW)')
@@ -61,12 +61,14 @@ class runningCost(object):
         for i in range(len(fuel_list)):
             fuel_diff[i] = np.gradient(fuel_list[i])
 
+        # total slope of power gen. over time per controller
         global total_grad
         total_grad = [0]*len(data_list)
         for i in range(len(data_list)):
             for j in range(len(t)):
                 total_grad[i] += abs(fuel_diff[i][j])
 
+        # max. slope of power gen. over time per controller
         global max_ramping
         max_ramping = [0]*len(data_list)
         for i in range(len(data_list)):
@@ -76,7 +78,10 @@ class runningCost(object):
 
     @staticmethod
     def rcStats(data_list):
-        stats = [[0]*5 for i in range (len(data_list))]
+    # this method calculates various statistics for displaying in a table in the GUI
+
+        # 2D list for storing statistics for each controller
+        stats = [[0]*5 for i in range(len(data_list))]
 
         # total fuel consumption per controller
         for i in range(len(data_list)):
@@ -92,9 +97,9 @@ class runningCost(object):
             stats[i][1] = switching
 
         # ramping info
-        total_grad_norm = [int(x/len(t)) for x in total_grad]
+        avg_grad = [int(x/len(t)) for x in total_grad]     # normalized
         for i in range(len(data_list)):
-            stats[i][2] = total_grad_norm[i]
+            stats[i][2] = avg_grad[i]
             stats[i][3] = '%.1f' % max_ramping[i]
 
         # peak demand per controller
