@@ -22,7 +22,7 @@ Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
 Consumption 45 456 2 3 45 78 3 634 56 33 236 453 658 331 98 564 78 45 45 1
 # next der
-Type Hydro
+Type PV
 Power Output 45 456 2 3 45 78 3 634 56 33 236 453 658 331 98 564 78 45 45 1
 Generation Capacity 1002
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -42,7 +42,7 @@ Power Output 45.32 458 456 98 89 78 456 718 345 78 456 123 123 132 326 5 456 61 
 Generation Capacity 1002
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type Diesel
+Type Gas
 Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
 Consumption 45.32 458 456 98 89 78 456 718 345 78 456 123 123 132 326 5 456 61 62 65
