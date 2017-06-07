@@ -280,11 +280,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
 
-<<<<<<< HEAD
         window = NewWindow(parent=self, title='Runnnig Costs')
-=======
-        window = NewWindow(parent=self, title='Running Cost')
->>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
         window.setMinimumSize(740, 500)
 
         # Layout
@@ -293,35 +289,20 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Graphs
         pwr_out = Canvas(window.main_widget)
-<<<<<<< HEAD
-        runningCost.basicCalc(selected_data)
-        runningCost.pwrGen(selected_data, pwr_out)
-        v_box.addWidget(pwr_out)
-
-        # Table
-        print("table")
-        headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Total Ramping', 'Max. Ramping',
-=======
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
+        v_box.addWidget(toolbar)
         runningCost.basicCalc(selected_data)
         runningCost.pwrGen(selected_data, pwr_out)
-        v_box.addWidget(toolbar)
         v_box.addWidget(pwr_out)
 
         # Table
         headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
->>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
                    'Peak Power\n(Grid Connected) (MW)']
         runningCost.ramping(selected_data)
         table_data = runningCost.rcStats(selected_data)
 
         for i in range(len(selected_data)):
             table_data[i].insert(0, selected_data[i].controllerName)
-<<<<<<< HEAD
-        print(table_data)
-        print("here")
-=======
->>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
 
         tm = DataTableModel(table_data, headers, self.main_widget)
         tv = QtWidgets.QTableView()
@@ -331,11 +312,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh = tv.verticalHeader()
         vh.setVisible(False)
         v_box.addWidget(tv)
-<<<<<<< HEAD
-        tv.setColumnWidth(0, 130)
-=======
         tv.setColumnWidth(0, 110)
->>>>>>> a9034a5997d9b126ed86a188ea9dce1f46942d7d
         tv.setColumnWidth(1, 120)
         tv.setColumnWidth(2, 120)
         tv.setColumnWidth(3, 120)
