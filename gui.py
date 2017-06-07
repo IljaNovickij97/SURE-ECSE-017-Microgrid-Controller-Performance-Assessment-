@@ -107,19 +107,33 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Histogram width
         width = 0.6/len(selected_data)
 
+        # Canvas setup
+        hist_left = Canvas(window.main_widget)
+        hist_left.fig.set_facecolor('lightsteelblue')
+        time_plot_left = Canvas(window.main_widget)
+        hist_right = Canvas(window.main_widget)
+        time_plot_right = Canvas(window.main_widget)
+        graph_list = [hist_left, hist_right, time_plot_left, time_plot_right]
+        toolbar = NavigationToolbar(hist_left, window, coordinates=False)
+
+        def update_hist_left(event):
+            hist_left.set_toolbar_active(graph_list, toolbar)
+
+        def update_hist_right(event):
+            hist_right.set_toolbar_active(graph_list, toolbar)
+
+        def update_time_plot_left(event):
+            time_plot_left.set_toolbar_active(graph_list, toolbar)
+
+        def update_time_plot_right(event):
+            time_plot_right.set_toolbar_active(graph_list, toolbar)
+
         # VOLTAGE
         # Graphs
-        hist_left = Canvas(window.main_widget)
-        toolbar = NavigationToolbar(hist_left, window, coordinates=False)
-        time_plot_left = Canvas(window.main_widget)
-        time_plot_left.setup_toolbar(toolbar)
-        time_plot_left.mouseDoubleClickEvent = time_plot_left.set_toolbar_active
-        hist_left.setup_toolbar(toolbar)
-        hist_left.mouseDoubleClickEvent = hist_left.set_toolbar_active
-
+        time_plot_left.mouseDoubleClickEvent = update_time_plot_left
+        hist_left.mouseDoubleClickEvent = update_hist_left
         v_box.addWidget(toolbar)
         v_box.addLayout(h_box)
-
         VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
         VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
         v_box_left.addWidget(hist_left)
@@ -147,14 +161,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # FREQUENCY
         # Graphs
-        hist_right = Canvas(window.main_widget)
-        time_plot_right = Canvas(window.main_widget)
         VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
         VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
-        time_plot_right.setup_toolbar(toolbar)
-        time_plot_right.mouseDoubleClickEvent = time_plot_right.set_toolbar_active
-        hist_right.setup_toolbar(toolbar)
-        hist_right.mouseDoubleClickEvent = hist_right.set_toolbar_active
+        time_plot_right.mouseDoubleClickEvent = update_time_plot_right
+        hist_right.mouseDoubleClickEvent = update_hist_right
         v_box_right.addWidget(hist_right)
         v_box_right.addWidget(time_plot_right)
 
@@ -221,6 +231,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(1, 100)
 
     def rei(self):
+
         if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
@@ -240,8 +251,29 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         canvas_list = []
         for i in range(n_pies):
             canvas_list.append(Canvas(window.main_widget, width=3.5))
-            Renewables.renewablePie(selected_data[i], canvas_list[i])
+            Renewables.renewable_pie(selected_data[i], canvas_list[i])
             pie_box.addWidget(canvas_list[i])
+
+
+
+        # Normalize pie chart button
+        norm_button = QtWidgets.QPushButton('Normalize Pie Chart', window)
+        norm_button.setCheckable(True)
+        norm_button.setFixedSize(150, 20)
+
+        def switch_pie():
+            if norm_button.isChecked():
+                for j in range(n_pies):
+                    canvas_list[j].axes.clear()
+                    Renewables.renewable_norm_pie(selected_data[j], canvas_list[j])
+                    canvas_list[j].draw()
+            else:
+                for j in range(n_pies):
+                    canvas_list[j].axes.clear()
+                    Renewables.renewable_pie(selected_data[j], canvas_list[j])
+                    canvas_list[j].draw()
+
+        norm_button.clicked.connect(switch_pie)
 
         # Table
         table_data = []
@@ -270,7 +302,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(6, 50*n_pies)
 
         v_box.addLayout(pie_box)
+        v_box.addWidget(norm_button)
         v_box.addLayout(table_box)
+
+
+
 
     def rc(self):
         if not self.data_list:

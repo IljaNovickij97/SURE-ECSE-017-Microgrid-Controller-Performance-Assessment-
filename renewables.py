@@ -6,20 +6,16 @@ import numpy as np
 class Renewables(object):
 
     @staticmethod
-    def renewablePie(data, canvas):
+    def renewable_pie(data, canvas):
 
-        gen_list = [None]*data.nDer
+        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
+        chart_list = np.array([0] * 5)
+        gen_list = [None] * data.nDer
+        type_list = [None] * data.nDer
         for i in range(0, data.nDer):
             #total generation per source
             gen_list[i] = sum(data.derList[i].output)
-        type_list = [None]*data.nDer
-        for i in range(0, data.nDer):
             type_list[i] = data.derList[i].energy_type
-
-        #pie chart:
-        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
-        chart_list = np.array([0]*5)
-        for i in range(0, data.nDer):
             if type_list[i] == 'Diesel':
                 chart_list[0] += gen_list[i]
             elif type_list[i] == 'Gas':
@@ -34,16 +30,45 @@ class Renewables(object):
         fracs = chart_list/(sum(chart_list))*100
         colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
         explode = [0, 0, 0.1, 0.1, 0.1]
-        canvas.axes.set_title(data.controllerName)
+        title = data.controllerName + ' Absolute Energy Distribution'
+        canvas.axes.set_title(title)
         canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
 
+    @staticmethod
+    def renewable_norm_pie(data, canvas):
 
-        #add border lines if possible
+        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
+        chart_list = np.array([0.0] * 5)
+        gen_list = [None] * data.nDer
+        type_list = [None] * data.nDer
+        capacity_list = [None] * data.nDer
+        for i in range(0, data.nDer):
+            # total generation per source
+            gen_list[i] = sum(data.derList[i].output)
+            type_list[i] = data.derList[i].energy_type
+            capacity_list[i] = data.derList[i].capacity
+            if type_list[i] == 'Diesel':
+                chart_list[0] += (gen_list[i] / capacity_list[i])
+            elif type_list[i] == 'Gas':
+                chart_list[1] += (gen_list[i] / capacity_list[i])
+            elif type_list[i] == 'Wind':
+                chart_list[2] += (gen_list[i] / capacity_list[i])
+            elif type_list[i] == 'Hydro':
+                chart_list[3] += (gen_list[i] / capacity_list[i])
+            elif type_list[i] == 'PV':
+                chart_list[4] += (gen_list[i] / capacity_list[i])
+
+        fracs = chart_list / (sum(chart_list)) * 100
+        colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
+        explode = [0, 0, 0.1, 0.1, 0.1]
+        title = data.controllerName + ' Normalized Energy Distribution'
+        canvas.axes.set_title(title)
+        canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
 
     @staticmethod
-    def renewableTime(data, canvas):
-    # todo: fix timescale to match units
-    #       adjust power units
+    def renewable_time(data, canvas):
+        #  todo: fix timescale to match units
+        #       adjust power units
         t = data.timeList
         wind = np.array([0.0]*len(data.timeList))
         hydro = np.array([0.0]*len(data.timeList))
