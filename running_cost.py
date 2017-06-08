@@ -33,9 +33,10 @@ class runningCost(object):
 
         fuel_type = list(set(fuel_type))
         num_fuel = len(fuel_type)
+        print(fuel_type)
 
         fuels = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
-        cap_list = [[0.0]*len(t) for i in range(num_fuel)]
+        cap_list = [0.0]*(num_fuel)
 
         for i in range(len(data_list)):
             for j in range(num_fuel):
@@ -45,10 +46,10 @@ class runningCost(object):
                     if data_list[i].derList[x].energy_type == fuel_type[j]:
                         temp_fuel += np.array(data_list[i].derList[x].consumption)
                         if i == 0:
-                            cap_list[j] += data_list[i].derList[x].capacity
+                            cap_list[j] += np.array(data_list[i].derList[x].capacity)
                             # only needs to be calculated once
                 fuels[i][j] = temp_fuel
-        print(fuels)
+        print("fuels: ",fuels)
 
         # 2D list of total fuel consumption per sample
         global total_fuel_list
@@ -56,33 +57,50 @@ class runningCost(object):
         for i in range(len(data_list)):
             for j in range(num_fuel):
                 total_fuel_list[i] += fuels[i][j]
-        print(total_fuel_list)
+        print("total fuel list: ", total_fuel_list)
+
+        # 3D list of power generation from non-renewables per type per sample
+        global fuel_gen
+        fuel_gen = ([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
+        for i in range(len(data_list)):
+            for j in range(num_fuel):
+                # temp variable to hold total generation by one type of fuel in a sample
+                temp_gen = np.array([0.0]*len(t))
+                for x in range(data_list[i].nDer):
+                    if data_list[i].derList[x].energy_type == fuel_type[j]:
+                        temp_gen += np.array(data_list[i].derList[x].output)
+                fuel_gen[i][j] = temp_gen
+        print("fuel gen: ", fuel_gen)
 
         # note: emissions are linked to fuel consumption. If emissions data is given, then add another variable/metric
 
     @staticmethod
+    # todo: to rotate between fuel type plots...find a way of separating fuel type plots...
     # plot power generation over time
     def pwrGen(data_list, canvas):
-        line_styles = ['None', '_', '-', '--']
+        print("pwrGen")
+        line_styles = ['-', '--', '-.', '_', ':']
+        if (len(line_styles) < num_fuel):
+            line_styles.extend(line_styles)
         colors = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
         for i in range(len(data_list)):
-            for j in range(num_fuel):
-                line_style = cycle(line_styles)
-                if np.all(fuels[i][j] == 0):
-                    canvas.axes.plot(t, [0]*len(t), linestyle=line_style, color=colors[i], label=fuel_type[j])
-                elif not np.all(fuels[i][j] == 0):
-                    canvas.axes.plot(t, fuels[i][j], linestyle=line_style, color=colors[i], label=fuel_type[j])
             if np.all(total_fuel_list[i] == 0):
-                canvas.axes.plot(t, [0]*len(t), linewidth=5, linestyle=None, color=colors[i],
-                                 label=(data_list[i].controllerName, " Total Fuel Consumption"))
+                canvas.axes.plot(t, [0]*len(t), linewidth=4, linestyle=None, color=colors[i],
+                                 label=(data_list[i].controllerName, 'Total Fuel Consumption'))
             elif not np.all(total_fuel_list[i] == 0):
-                canvas.axes.plot(t, total_fuel_list[i], linewidth=5, linestyle=None, color=colors[i],
-                                 label=(data_list[i].controllerName, " Total Fuel Consumption"))
-        # add generation threshold plot to graph
-        for i in range(num_fuel):
-            line_style = cycle(line_styles)
-            canvas.axes.plot(t, [cap_list[i]*0.3] * len(t), linestyle=line_style, color='red', label='Gen. Threshold (30% cap)')
+                canvas.axes.plot(t, total_fuel_list[i], linewidth=4, linestyle=None, color=colors[i],
+                                 label=(data_list[i].controllerName, 'Total Fuel Consumption'))
+            for j in range(num_fuel):
+                if np.all(fuels[i][j] == 0):
+                    canvas.axes.plot(t, [0]*len(t), linestyle=line_styles[j], color=colors[i], label=fuel_type[j])
+                elif not np.all(fuels[i][j] == 0):
+                    canvas.axes.plot(t, fuels[i][j], linestyle=line_styles[j], color=colors[i], label=fuel_type[j])
 
+        # add generation threshold plot to graph
+        print(num_fuel)
+        print(cap_list)
+        for i in range(num_fuel):
+            canvas.axes.plot(t, [cap_list[i]*0.3]*len(t), linestyle=line_styles[i], color='red', label='Gen. Threshold (30% cap)')
         # todo: add user input/data input to decide what % of capacity the threshold should be, to max efficiency
 
         canvas.axes.legend(loc='lower left', fontsize=7)
@@ -90,27 +108,60 @@ class runningCost(object):
         canvas.axes.set_ylabel('Power Generation (MW)')
         canvas.axes.set_title('Time Plot of Power Gen. with Fuel')
 
+
     @staticmethod
-    def ramping(data_list):
-    # use d(P_gen)/dt vs t to show ramping
-        fuel_diff = np.array([[0.0]*len(t) for i in range(len(data_list))])
-        for i in range(len(fuel_list)):
-            fuel_diff[i] = np.gradient(fuel_list[i])
-
-        # total slope of power gen. over time per controller
-        global total_grad
-        total_grad = [0]*len(data_list)
+    # plot (fuel consumption/power out) vs power out to find most efficient operating point (in terms of fuel use)
+    def fuelUse(data_list, canvas):
+        print("Fuel Use")
+        # power out needs to match fuel consumption: ie per source per sample
+        y = [[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))]
         for i in range(len(data_list)):
-            for j in range(len(t)):
-                total_grad[i] += abs(fuel_diff[i][j])
+            for j in range(num_fuel):
+                for k in range(len(t)):
+                    if fuel_gen[i][j][k] != 0:
+                        y[i][j][k] = (fuels[i][j][k]/fuel_gen[i][j][k])
+                    else:
+                        y[i][j][k] = max(fuel_gen[i][j])
+                y[i][j].sort()
+                fuel_gen[i][j].sort()
 
-        # max. slope of power gen. over time per controller
-        global max_ramping
-        max_ramping = [0]*len(data_list)
+        line_styles = ['-', '--', '-.', '_', ':']
+        colors = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
+        if (len(line_styles) < num_fuel):
+            line_styles.extend(line_styles)
         for i in range(len(data_list)):
-            for j in range(len(t)):
-                if abs(fuel_diff[i][j] > max_ramping[i]):
-                    max_ramping[i] = abs(fuel_diff[i][j])
+            for j in range(num_fuel):
+                if np.all(fuel_gen[i][j] == 0):
+                    canvas.axes.plot(y[i][j], [0]*len(t), linestyle=line_styles[j], color=colors[i], label=fuel_type[j])
+                elif not np.all(fuels[i][j] == 0):
+                    canvas.axes.plot(y[i][j], fuel_gen[i][j], linestyle=line_styles[j], color=colors[i], label=fuel_type[j])
+
+        canvas.axes.legend(loc='lower left', fontsize=7)
+        canvas.axes.set_xlabel('Power Output')
+        canvas.axes.set_ylabel('Fuel Consumption/Power Output')
+        canvas.axes.set_title('Plot to find most efficient operating point (in terms of fuel use)')
+
+    # @staticmethod
+    # def ramping(data_list):
+    # # use d(P_gen)/dt vs t to show ramping
+    #     fuel_diff = np.array([[0.0]*len(t) for i in range(len(data_list))])
+    #     for i in range(len(power_gen)):
+    #         fuel_diff[i] = np.gradient(power_gen[i])
+    #
+    #     # total slope of power gen. over time per controller
+    #     global total_grad
+    #     total_grad = [0]*len(data_list)
+    #     for i in range(len(data_list)):
+    #         for j in range(len(t)):
+    #             total_grad[i] += abs(fuel_diff[i][j])
+    #
+    #     # max. slope of power gen. over time per controller
+    #     global max_ramping
+    #     max_ramping = [0]*len(data_list)
+    #     for i in range(len(data_list)):
+    #         for j in range(len(t)):
+    #             if abs(fuel_diff[i][j] > max_ramping[i]):
+    #                 max_ramping[i] = abs(fuel_diff[i][j])
 
     @staticmethod
     def rcStats(data_list):

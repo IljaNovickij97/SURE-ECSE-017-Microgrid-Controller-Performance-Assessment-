@@ -1,13 +1,10 @@
 from __future__ import unicode_literals
 from renewables import *
 from voltage_frequency import *
-from running_cost import *
 from data import *
 from gui_backend import *
 from generation_rejection import *
-
 from running_cost import *
-
 from storage_use import *
 
 
@@ -281,45 +278,48 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Runnnig Costs')
-        window.setMinimumSize(740, 500)
+        window.setMinimumSize(740, 800)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
-        table_box = QtWidgets.QHBoxLayout(window.main_widget)
+        #table_box = QtWidgets.QHBoxLayout(window.main_widget)
 
         # Graphs
         pwr_out = Canvas(window.main_widget)
+        fuel_use = Canvas(window.main_widget)
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
         v_box.addWidget(toolbar)
         runningCost.basicCalc(selected_data)
         runningCost.pwrGen(selected_data, pwr_out)
+        runningCost.fuelUse(selected_data, fuel_use)
         v_box.addWidget(pwr_out)
+        v_box.addWidget(fuel_use)
 
         # Table
-        headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
-                   'Peak Power\n(Grid Connected) (MW)']
-        runningCost.ramping(selected_data)
-        table_data = runningCost.rcStats(selected_data)
-
-        for i in range(len(selected_data)):
-            table_data[i].insert(0, selected_data[i].controllerName)
-
-        tm = DataTableModel(table_data, headers, self.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 110)
-        tv.setColumnWidth(1, 120)
-        tv.setColumnWidth(2, 120)
-        tv.setColumnWidth(3, 120)
-        tv.setColumnWidth(4, 120)
-        tv.setColumnWidth(5, 120)
-
-        v_box.addLayout(table_box)
+        # headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
+        #            'Peak Power\n(Grid Connected) (MW)']
+        # runningCost.ramping(selected_data)
+        # table_data = runningCost.rcStats(selected_data)
+        #
+        # for i in range(len(selected_data)):
+        #     table_data[i].insert(0, selected_data[i].controllerName)
+        #
+        # tm = DataTableModel(table_data, headers, self.main_widget)
+        # tv = QtWidgets.QTableView()
+        # tv.setModel(tm)
+        # hh = tv.horizontalHeader()
+        # hh.setStretchLastSection(True)
+        # vh = tv.verticalHeader()
+        # vh.setVisible(False)
+        # v_box.addWidget(tv)
+        # tv.setColumnWidth(0, 110)
+        # tv.setColumnWidth(1, 120)
+        # tv.setColumnWidth(2, 120)
+        # tv.setColumnWidth(3, 120)
+        # tv.setColumnWidth(4, 120)
+        # tv.setColumnWidth(5, 120)
+        #
+        # v_box.addLayout(table_box)
 
     def su(self):
         if not self.data_list:
