@@ -103,6 +103,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         h_box = QtWidgets.QHBoxLayout(window.main_widget)
         v_box_left = QtWidgets.QVBoxLayout(window.main_widget)
         v_box_right = QtWidgets.QVBoxLayout(window.main_widget)
+        toolbar_layout = QtWidgets.QHBoxLayout(window.main_widget)
 
         # Histogram width
         width = 0.6/len(selected_data)
@@ -115,25 +116,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         time_plot_right = Canvas(window.main_widget)
         graph_list = [hist_left, hist_right, time_plot_left, time_plot_right]
         toolbar = NavigationToolbar(hist_left, window, coordinates=False)
-
-        def update_hist_left(event):
-            hist_left.set_toolbar_active(graph_list, toolbar)
-
-        def update_hist_right(event):
-            hist_right.set_toolbar_active(graph_list, toolbar)
-
-        def update_time_plot_left(event):
-            time_plot_left.set_toolbar_active(graph_list, toolbar)
-
-        def update_time_plot_right(event):
-            time_plot_right.set_toolbar_active(graph_list, toolbar)
+        toolbar_layout.addWidget(toolbar)
 
         # VOLTAGE
         # Graphs
-        time_plot_left.mouseDoubleClickEvent = update_time_plot_left
-        hist_left.mouseDoubleClickEvent = update_hist_left
-        v_box.addWidget(toolbar)
-        v_box.addLayout(h_box)
         VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
         VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
         v_box_left.addWidget(hist_left)
@@ -163,8 +149,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
         VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
-        time_plot_right.mouseDoubleClickEvent = update_time_plot_right
-        hist_right.mouseDoubleClickEvent = update_hist_right
         v_box_right.addWidget(hist_right)
         v_box_right.addWidget(time_plot_right)
 
@@ -188,6 +172,75 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv_right.setColumnWidth(1, 100)
         tv_right.setColumnWidth(2, 100)
 
+        # Toolbar switching
+        def update_hist_left(event):
+            hist_left.set_toolbar_active(graph_list, toolbar)
+
+        def update_hist_right(event):
+            hist_right.set_toolbar_active(graph_list, toolbar)
+
+        def update_time_plot_left(event):
+            time_plot_left.set_toolbar_active(graph_list, toolbar)
+
+        def update_time_plot_right(event):
+            time_plot_right.set_toolbar_active(graph_list, toolbar)
+
+        time_plot_right.mouseDoubleClickEvent = update_time_plot_right
+        hist_right.mouseDoubleClickEvent = update_hist_right
+        time_plot_left.mouseDoubleClickEvent = update_time_plot_left
+        hist_left.mouseDoubleClickEvent = update_hist_left
+        canvas_list = [time_plot_right, time_plot_left, hist_right, hist_left]
+
+        # Bus switching
+        n_bus = []
+        for i in range(len(selected_data)):
+            n_bus.append(selected_data[i].nBus)
+        n_bus = min(n_bus)
+        bus_current = 0
+
+        def switch_bus():
+            nonlocal bus_current
+            if bus_current < (n_bus - 1):
+                bus_current += 1
+            else:
+                bus_current = 0
+            for j in range(0, len(canvas_list)):
+                canvas_list[j].axes.clear()
+            VoltageAndFrequency.voltage_hist(selected_data, hist_left, bus_current, width)
+            VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, bus_current)
+            VoltageAndFrequency.frequency_hist(selected_data, hist_right, bus_current, width)
+            VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, bus_current)
+            label = "Bus: " + ("%d" % (bus_current + 1))
+            bus_label.setText(label)
+            for j in range(0, len(canvas_list)):
+                canvas_list[j].draw()
+
+            nonlocal table_data_right, table_data_left, tv_right, tv_left
+            table_data_right, table_data_left = [], []
+            for i in range(len(selected_data)):
+                stats = VoltageAndFrequency.voltage_stats(selected_data[i], bus_current)
+                current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+                table_data_left.append(current_data)
+                stats = VoltageAndFrequency.frequency_stats(selected_data[i], bus_current)
+                current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+                table_data_right.append(current_data)
+            tm = DataTableModel(table_data_left, headers, self.main_widget)
+            tv_left.setModel(tm)
+            tm = DataTableModel(table_data_right, headers, self.main_widget)
+            tv_right.setModel(tm)
+
+
+        bus_button = QtWidgets.QPushButton('Next Bus', window.main_widget)
+        bus_button.setFixedSize(150, 20)
+        bus_button.clicked.connect(switch_bus)
+        bus_label = QtWidgets.QLabel('Bus: 1', window.main_widget)
+        toolbar_layout.addStretch()
+        toolbar_layout.addWidget(bus_button)
+        toolbar_layout.addWidget(bus_label)
+
+        # Layout finalization
+        v_box.addLayout(toolbar_layout)
+        v_box.addLayout(h_box)
         h_box.addLayout(v_box_left)
         h_box.addLayout(v_box_right)
 
@@ -254,8 +307,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             Renewables.renewable_pie(selected_data[i], canvas_list[i])
             pie_box.addWidget(canvas_list[i])
 
-
-
         # Normalize pie chart button
         norm_button = QtWidgets.QPushButton('Normalize Pie Chart', window)
         norm_button.setCheckable(True)
@@ -305,9 +356,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addWidget(norm_button)
         v_box.addLayout(table_box)
 
-
-
-
     def rc(self):
         if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
@@ -331,7 +379,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addWidget(pwr_out)
 
         # Table
-
         headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
                    'Peak Power\n(Grid Connected) (MW)']
         runningCost.ramping(selected_data)
@@ -364,20 +411,37 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         selected_data = self.get_selected()
         window = NewWindow(parent=self, title='Storage Use')
-        window.setMinimumSize(540, 500)
+        window.setMinimumSize(540, 700)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
+        # Histogram width
+        width = 0.6 / len(selected_data)
+
         # Graphs
+        charge_hist = Canvas(window.main_widget)
+        StorageUse.charge_hist(selected_data, charge_hist, width)
         charge_time_plot = Canvas(window.main_widget)
-        toolbar = NavigationToolbar(charge_time_plot, window, coordinates=False)
+        toolbar = NavigationToolbar(charge_hist, window, coordinates=False)
         StorageUse.charge_time_plot(selected_data, charge_time_plot)
         v_box.addWidget(toolbar)
+        v_box.addWidget(charge_hist)
         v_box.addWidget(charge_time_plot)
+        graph_list = [charge_hist, charge_time_plot]
+
+        # Toolbar switching setup
+        def update_hist(event):
+            charge_hist.set_toolbar_active(graph_list, toolbar)
+
+        def update_time_plot(event):
+            charge_time_plot.set_toolbar_active(graph_list, toolbar)
+
+        charge_hist.mouseDoubleClickEvent = update_hist
+        charge_time_plot.mouseDoubleClickEvent = update_time_plot
+        charge_hist.fig.set_facecolor('lightsteelblue')
 
         # Table
-
         table_data = []
         for i in range(len(selected_data)):
             stats = StorageUse.charge_stats(selected_data[i])
