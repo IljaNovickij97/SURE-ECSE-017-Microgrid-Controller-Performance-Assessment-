@@ -321,7 +321,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                     canvas_list[j].axes.clear()
                     Renewables.renewable_pie(selected_data[j], canvas_list[j])
                     canvas_list[j].draw()
-
         norm_button.clicked.connect(switch_pie)
 
         # Table
@@ -343,12 +342,12 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh.setVisible(False)
         table_box.addWidget(tv)
         tv.setColumnWidth(0, 100)
-        tv.setColumnWidth(1, 50*n_pies)
-        tv.setColumnWidth(2, 50*n_pies)
-        tv.setColumnWidth(3, 50*n_pies)
-        tv.setColumnWidth(4, 50*n_pies)
-        tv.setColumnWidth(5, 50*n_pies)
-        tv.setColumnWidth(6, 50*n_pies)
+        tv.setColumnWidth(1, 75)
+        tv.setColumnWidth(2, 75)
+        tv.setColumnWidth(3, 75)
+        tv.setColumnWidth(4, 75)
+        tv.setColumnWidth(5, 75)
+        tv.setColumnWidth(6, 100)
 
         v_box.addLayout(pie_box)
         v_box.addWidget(norm_button)

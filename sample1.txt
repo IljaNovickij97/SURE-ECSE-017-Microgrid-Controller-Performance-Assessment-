@@ -17,7 +17,7 @@ Power Output 458 456 998 212 45 56 67 36 63 32 92 121 45 0 65 46 45 89 255 360
 Generation Capacity 1000
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type Diesel
+Type Gas
 Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 1002
 Consumption 456 458 536 98 89 78 466 178 345 78 456 123 12 132 326 5 0 0 0 45
@@ -42,7 +42,7 @@ Power Output 45.32 458 456 98 89 78 456 718 345 78 456 123 123 132 326 5 456 61 
 Generation Capacity 2000
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type Diesel
+Type Gas
 Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
 Generation Capacity 200
 Consumption 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89

@@ -8,7 +8,6 @@ class Renewables(object):
     @staticmethod
     def renewable_pie(data, canvas):
 
-        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
         chart_list = np.array([0] * 5)
         gen_list = [None] * data.nDer
         type_list = [None] * data.nDer
@@ -27,9 +26,20 @@ class Renewables(object):
             elif type_list[i] == 'PV':
                 chart_list[4] += gen_list[i]
 
-        fracs = chart_list/(sum(chart_list))*100
-        colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
         explode = [0, 0, 0.1, 0.1, 0.1]
+        colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
+        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
+
+        range_list = list(range(0, len(chart_list)))
+        for i in range_list:
+            if chart_list[i] == 0:
+                chart_list = np.delete(chart_list, i)
+                del explode[i]
+                del labels[i]
+                del colors[i]
+                del range_list[-1]
+
+        fracs = chart_list/(sum(chart_list))*100
         title = data.controllerName + ' Absolute Energy Distribution'
         canvas.axes.set_title(title)
         canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
@@ -37,7 +47,6 @@ class Renewables(object):
     @staticmethod
     def renewable_norm_pie(data, canvas):
 
-        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
         chart_list = np.array([0.0] * 5)
         gen_list = [None] * data.nDer
         type_list = [None] * data.nDer
@@ -58,9 +67,20 @@ class Renewables(object):
             elif type_list[i] == 'PV':
                 chart_list[4] += (gen_list[i] / capacity_list[i])
 
-        fracs = chart_list / (sum(chart_list)) * 100
-        colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
         explode = [0, 0, 0.1, 0.1, 0.1]
+        colors = ['magenta', 'lightskyblue', 'gold', 'yellowgreen', 'lightcoral']
+        labels = ['Diesel', 'Gas', 'Wind', 'Hydro', 'PV']
+
+        range_list = list(range(0, len(chart_list)))
+        for i in range_list:
+            if chart_list[i] == 0:
+                chart_list = np.delete(chart_list, i)
+                del explode[i]
+                del labels[i]
+                del colors[i]
+                del range_list[-1]
+
+        fracs = chart_list / (sum(chart_list)) * 100
         title = data.controllerName + ' Normalized Energy Distribution'
         canvas.axes.set_title(title)
         canvas.axes.pie(fracs, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
