@@ -30,7 +30,6 @@ class StorageUse(object):
         canvas.axes.set_ylabel('Number of Occurrences')
         canvas.axes.legend(loc='upper right')
 
-
     @staticmethod
     def charge_time_plot(data_list, canvas):
         for i in range(len(data_list)):

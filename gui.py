@@ -97,7 +97,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         window = NewWindow(parent=self, title='Voltage and Frequency')
         window.setMinimumSize(1080, 700)
 
-
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
         h_box = QtWidgets.QHBoxLayout(window.main_widget)
@@ -228,7 +227,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             tv_left.setModel(tm)
             tm = DataTableModel(table_data_right, headers, self.main_widget)
             tv_right.setModel(tm)
-
 
         bus_button = QtWidgets.QPushButton('Next Bus', window.main_widget)
         bus_button.setFixedSize(150, 20)

@@ -6,7 +6,7 @@ class runningCost(object):
 
     @staticmethod
     def basicCalc(data_list):
-    # this method calculates variables used throughout the class
+        # this method calculates variables used throughout the class
         # time list
         global t
         t = data_list[0].timeList
@@ -56,7 +56,7 @@ class runningCost(object):
 
     @staticmethod
     def ramping(data_list):
-    # use d(P_gen)/dt vs t to show ramping
+        # use d(P_gen)/dt vs t to show ramping
         fuel_diff = np.array([[0.0]*len(t) for i in range(len(data_list))])
         for i in range(len(fuel_list)):
             fuel_diff[i] = np.gradient(fuel_list[i])
@@ -78,7 +78,7 @@ class runningCost(object):
 
     @staticmethod
     def rcStats(data_list):
-    # this method calculates various statistics for displaying in a table in the GUI
+        # this method calculates various statistics for displaying in a table in the GUI
 
         # 2D list for storing statistics for each controller
         stats = [[0]*5 for i in range(len(data_list))]
