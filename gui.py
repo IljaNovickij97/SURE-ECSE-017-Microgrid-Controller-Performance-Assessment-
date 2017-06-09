@@ -282,18 +282,54 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
-        #table_box = QtWidgets.QHBoxLayout(window.main_widget)
+        # table_box = QtWidgets.QHBoxLayout(window.main_widget)
+        toolbar_layout = QtWidgets.QHBoxLayout(window.main_widget)
 
-        # Graphs
+        # Canvas setup
         pwr_out = Canvas(window.main_widget)
         fuel_use = Canvas(window.main_widget)
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
-        v_box.addWidget(toolbar)
-        runningCost.basicCalc(selected_data)
-        runningCost.pwrGen(selected_data, pwr_out)
-        runningCost.fuelUse(selected_data, fuel_use)
+        toolbar_layout.addWidget(toolbar)
+
+        fuel_types = RunningCost.basicCalc(selected_data)
+        RunningCost.pwrGen(selected_data, 0, pwr_out)
+        RunningCost.fuelUse(selected_data, 0, fuel_use)
+        v_box.addLayout(toolbar_layout)
         v_box.addWidget(pwr_out)
         v_box.addWidget(fuel_use)
+
+        # Button for rotating between fuel types
+        button_list = []
+        button_list.insert(0, 'Total Fuel')
+        for each in fuel_types:
+            button_list.append(each)
+        print(button_list)
+        type = 0
+
+        def switch_fuel_type():
+            nonlocal type
+            if (type < len(button_list)):
+                type += 1
+            else:
+                type = 0
+
+            pwr_out.axes.clear()
+            fuel_use.axes.clear()
+            RunningCost.pwrGen(selected_data, type, pwr_out)
+            RunningCost.fuelUse(selected_data, type, fuel_use)
+            label = button_list[type]
+            fuel_label.setText(label)
+
+            # todo: include variable table data if needed
+
+        fuel_button = QtWidgets.QPushButton('Change Fuel Type', window.main_widget)
+        fuel_button.setFixedSize(150, 20)
+        fuel_button.clicked.connect(switch_fuel_type)
+        fuel_label = QtWidgets.QLabel('Total Fuel', window.main_widget)
+        toolbar_layout.addStretch()
+        toolbar_layout.addWidget(fuel_button)
+        toolbar_layout.addWidget(fuel_label)
+
 
         # Table
         # headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
