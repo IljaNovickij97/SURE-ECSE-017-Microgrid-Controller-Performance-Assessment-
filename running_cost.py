@@ -1,4 +1,4 @@
-# running cost evaluation depends on fuel consumption, and generation patterns
+# running cost evaluation depends on fuel consumption and generation patterns
 # **assume all possible DER types are Fuel (Diesel, Gas, Propane...), Renewable (Wind, Hydro, PV...), and Storage **
 from pylab import *
 import numpy as np
@@ -7,24 +7,21 @@ import numpy as np
 class RunningCost(object):
 
     @staticmethod
-    def basicCalc(data_list):
     # this method calculates variables used throughout the class
+    def basic_calc(data_list):
         # time list
         global t
         t = data_list[0].timeList
 
-        # 3D list of fuel consumption per type per sample
-        global fuels
-
         # list of fuel types
         global fuel_types
+
+        # number of fuel types, int
+        global num_fuel
 
         # list of total generation capacity for each fuel type
         # note the capacity is a SYSTEM property, indep. of controller
         global cap_list
-
-        # number of fuel types, int
-        global num_fuel
 
         fuel_types = []
         for i in range(data_list[0].nDer):
@@ -34,6 +31,9 @@ class RunningCost(object):
         fuel_types = list(set(fuel_types))
         num_fuel = len(fuel_types)
         print(fuel_types)
+
+        # 3D list of fuel consumption per type per sample
+        global fuels
 
         fuels = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
         cap_list = [0.0]*(num_fuel)
@@ -56,13 +56,10 @@ class RunningCost(object):
         for i in range(len(data_list)):
             for j in range(num_fuel):
                 total_fuel_list[i] += fuels[i][j]
-        #combine to a single 3D list, where the 1st entry per sample is total fuel
-        for i in range(len(data_list)):
-            fuels[i].insert(0, total_fuel_list[i])
 
         # 3D list of power generation from non-renewables per type per sample
         global fuel_gen
-        fuel_gen = ([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
+        fuel_gen = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
         for i in range(len(data_list)):
             for j in range(num_fuel):
                 # temp variable to hold total generation by one type of fuel in a sample
@@ -71,7 +68,13 @@ class RunningCost(object):
                     if data_list[i].derList[x].energy_type == fuel_types[j]:
                         temp_gen += np.array(data_list[i].derList[x].output)
                 fuel_gen[i][j] = temp_gen
-        
+
+        # 2D list of total fuel generation per sample
+        global total_gen_list
+        total_gen_list = np.array([[0.0] * len(t) for i in range(len(data_list))])
+        for i in range(len(data_list)):
+            for j in range(num_fuel):
+                total_gen_list[i] += fuel_gen[i][j]
 
         return fuel_types
         # note: emissions are linked to fuel consumption. If emissions data is given, then add another variable/metric
@@ -80,28 +83,27 @@ class RunningCost(object):
     # todo: to rotate between fuel type plots...find a way of separating fuel type plots...
     # plot power generation over time
     def pwrGen(data_list, type, canvas):
-        print("pwrGen")
         line_styles = ['-', '--', '-.', '_', ':']
-        if (len(line_styles) < num_fuel):
+        if len(line_styles) < num_fuel:
             line_styles.extend(line_styles)
         colors = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
         for i in range(len(data_list)):
             if type == 0:
-                if np.all(total_fuel_list[i] == 0):
+                if np.all(total_gen_list[i] == 0):
                     canvas.axes.plot(t, [0]*len(t), linewidth=2, linestyle=None, color=colors[i],
                                      label=(data_list[i].controllerName, 'Total Fuel Consumption'))
-                elif not np.all(total_fuel_list[i] == 0):
-                    canvas.axes.plot(t, total_fuel_list[i], linewidth=2, linestyle=None, color=colors[i],
+                elif not np.all(total_gen_list[i] == 0):
+                    canvas.axes.plot(t, total_gen_list[i], linewidth=2, linestyle=None, color=colors[i],
                                      label=(data_list[i].controllerName, 'Total Fuel Consumption'))
             else:
-                if np.all(fuels[i][type-1] == 0):
+                if np.all(fuel_gen[i][type-1] == 0):
                     canvas.axes.plot(t, [0]*len(t), linestyle=line_styles[type-1], color=colors[i], label=fuel_types[type-1])
-                elif not np.all(fuels[i][type-1] == 0):
+                elif not np.all(fuel_gen[i][type-1] == 0):
                     canvas.axes.plot(t, fuels[i][type-1], linestyle=line_styles[type-1], color=colors[i], label=fuel_types[type-1])
-                print("in here")
-                canvas.axes.plot(t, [cap_list[type]*0.3]*len(t), linestyle=line_styles[type], color='red',
+
+                canvas.axes.plot(t, [cap_list[type-1]*0.3]*len(t), linestyle=line_styles[type-1], color='red',
                                  label='Gen. Threshold (30% cap)')
-        # add generation threshold plot to graph
+
         # todo: add user input/data input to decide what % of capacity the threshold should be, to max efficiency
 
         canvas.axes.legend(loc='lower left', fontsize=7)
@@ -112,9 +114,9 @@ class RunningCost(object):
     @staticmethod
     # plot (fuel consumption/power out) vs power out to find most efficient operating point (in terms of fuel use)
     def fuelUse(data_list, type, canvas):
-        print("Fuel Use")
         # power out needs to match fuel consumption: ie per source per sample
-        y = [[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))]
+        fuel_gen_sorted = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
+        y = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
         for i in range(len(data_list)):
             for j in range(num_fuel):
                 for k in range(len(t)):
@@ -122,25 +124,26 @@ class RunningCost(object):
                         y[i][j][k] = (fuels[i][j][k]/fuel_gen[i][j][k])
                     else:
                         y[i][j][k] = max(fuel_gen[i][j])
-                y[i][j].sort()
-                fuel_gen[i][j].sort()
+                y[i][j] = np.sort(y[i][j], axis=-1)
+                fuel_gen_sorted[i][j] = np.sort(fuel_gen[i][j], axis=0)
 
         line_styles = ['-', '--', '-.', '_', ':']
         colors = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
         if (len(line_styles) < num_fuel):
             line_styles.extend(line_styles)
-        for i in range(len(data_list)):
-            for j in range(num_fuel):
-                if np.all(fuel_gen[i][j] == 0):
-                    canvas.axes.plot(y[i][j], [0]*len(t), linestyle=line_styles[j], color=colors[i], label=fuel_types[j])
-                elif not np.all(fuels[i][j] == 0):
-                    canvas.axes.plot(y[i][j], fuel_gen[i][j], linestyle=line_styles[j], color=colors[i], label=fuel_types[j])
+        if type == 0:
+            pass
+        else:
+            for i in range(len(data_list)):
+                if np.all(fuel_gen_sorted[i][type-1] == 0):
+                    canvas.axes.plot([0]*len(t), y[i][type-1], linestyle=line_styles[type-1], color=colors[i], label=fuel_types[type-1])
+                elif not np.all(fuel_gen_sorted[i][type-1] == 0):
+                    canvas.axes.plot(fuel_gen_sorted[i][type-1], y[i][type-1], linestyle=line_styles[type-1], color=colors[i], label=fuel_types[type-1])
 
         canvas.axes.legend(loc='lower left', fontsize=7)
         canvas.axes.set_xlabel('Power Output')
         canvas.axes.set_ylabel('Fuel Consumption/Power Output')
         canvas.axes.set_title('Plot to find most efficient operating point (in terms of fuel use)')
-        print ("done Fuel use")
 
     # @staticmethod
     # def ramping(data_list):

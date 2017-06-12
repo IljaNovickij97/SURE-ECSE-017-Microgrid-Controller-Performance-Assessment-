@@ -291,7 +291,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
         toolbar_layout.addWidget(toolbar)
 
-        fuel_types = RunningCost.basicCalc(selected_data)
+        fuel_types = RunningCost.basic_calc(selected_data)
         RunningCost.pwrGen(selected_data, 0, pwr_out)
         RunningCost.fuelUse(selected_data, 0, fuel_use)
         v_box.addLayout(toolbar_layout)
@@ -308,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         def switch_fuel_type():
             nonlocal type
-            if (type < len(button_list)):
+            if type < len(button_list):
                 type += 1
             else:
                 type = 0
@@ -319,6 +319,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             RunningCost.fuelUse(selected_data, type, fuel_use)
             label = button_list[type]
             fuel_label.setText(label)
+            pwr_out.draw()
+            fuel_use.draw()
 
             # todo: include variable table data if needed
 
