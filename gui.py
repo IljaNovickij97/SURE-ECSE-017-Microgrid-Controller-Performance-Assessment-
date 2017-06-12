@@ -132,7 +132,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
             table_data_left.append(current_data)
 
-        tm_left = DataTableModel(table_data_left, headers, self.main_widget)
+        tm_left = DataTableModel(table_data_left, headers, window.main_widget)
         tv_left = QtWidgets.QTableView()
         tv_left.setModel(tm_left)
         hh_left = tv_left.horizontalHeader()
@@ -159,7 +159,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
             table_data_right.append(current_data)
 
-        tm_right = DataTableModel(table_data_right, headers, self.main_widget)
+        tm_right = DataTableModel(table_data_right, headers, window.main_widget)
         tv_right = QtWidgets.QTableView()
         tv_right.setModel(tm_right)
         hh_right = tv_right.horizontalHeader()
@@ -270,7 +270,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             table_data.append(current_data)
 
         headers = ['Controller Name', 'Total Dumped (MWh)']
-        tm = DataTableModel(table_data, headers, self.main_widget)
+        tm = DataTableModel(table_data, headers, window.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
         hh = tv.horizontalHeader()
@@ -333,7 +333,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         headers = ['Controller Name', 'Wind (MWh)', 'Hydro (MWh)', 'PV (MWh)', 'Diesel (MWh)', 'Gas (MWh)',
                    'Renewable (MWh)', 'Total (MWh)']
-        tm = DataTableModel(table_data, headers, self.main_widget)
+        tm = DataTableModel(table_data, headers, window.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
         hh = tv.horizontalHeader()
@@ -384,7 +384,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         for i in range(len(selected_data)):
             table_data[i].insert(0, selected_data[i].controllerName)
 
-        tm = DataTableModel(table_data, headers, self.main_widget)
+        tm = DataTableModel(table_data, headers, window.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
         hh = tv.horizontalHeader()
@@ -407,22 +407,25 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             return
 
         selected_data = self.get_selected()
+        storage_use = StorageUse(selected_data)
         window = NewWindow(parent=self, title='Storage Use')
-        window.setMinimumSize(540, 700)
+        window.setMinimumSize(650, 700)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
+        toolbar_layout = QtWidgets.QHBoxLayout(window.main_widget)
 
         # Histogram width
         width = 0.6 / len(selected_data)
 
         # Graphs
         charge_hist = Canvas(window.main_widget)
-        StorageUse.charge_hist(selected_data, charge_hist, width)
+        storage_use.charge_hist(selected_data, charge_hist, width)
         charge_time_plot = Canvas(window.main_widget)
         toolbar = NavigationToolbar(charge_hist, window, coordinates=False)
-        StorageUse.charge_time_plot(selected_data, charge_time_plot)
-        v_box.addWidget(toolbar)
+        storage_use.charge_time_plot(selected_data, charge_time_plot)
+        toolbar_layout.addWidget(toolbar)
+        v_box.addLayout(toolbar_layout)
         v_box.addWidget(charge_hist)
         v_box.addWidget(charge_time_plot)
         graph_list = [charge_hist, charge_time_plot]
@@ -441,18 +444,41 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Table
         table_data = []
         for i in range(len(selected_data)):
-            stats = StorageUse.charge_stats(selected_data[i])
-            for j in range(len(stats[0])):
-                if j == 0:
-                    current_data = [selected_data[i].controllerName, j+1, "%.0f" % stats[0][j], "%.0f" % stats[1][j],
-                                    "%.0f" % stats[2][j]]
-                else:
-                    current_data = ['---', j+1, "%.0f" % stats[0][j], "%.0f" % stats[1][j],
-                                    "%.0f" % stats[2][j]]
-                table_data.append(current_data)
+            stats = storage_use.charge_stats(selected_data)
+            current_data = [selected_data[i].controllerName, "%.0f" % stats[0][i], "%.0f" % stats[1][i],
+                            "%.0f" % stats[2][i]]
+            table_data.append(current_data)
 
-        headers = ['Controller Name', 'Storage No.', 'Time Charging (s)', 'Time Discharging (s)', 'Time Idle (s)']
-        tm = DataTableModel(table_data, headers, self.main_widget)
+        # Storage switching
+
+        def switch_storage():
+            label = 'Storage: ' + str(storage_use.next_storage() + 1)
+            storage_label.setText(label)
+            charge_time_plot.axes.clear()
+            charge_hist.axes.clear()
+            storage_use.charge_time_plot(selected_data, charge_time_plot)
+            storage_use.charge_hist(selected_data, charge_hist, width)
+            charge_time_plot.draw()
+            charge_hist.draw()
+            table_data = []
+            for i in range(len(selected_data)):
+                stats = storage_use.charge_stats(selected_data)
+                current_data = [selected_data[i].controllerName, "%.0f" % stats[0][i], "%.0f" % stats[1][i],
+                                "%.0f" % stats[2][i]]
+                table_data.append(current_data)
+            tm = DataTableModel(table_data, headers, window.main_widget)
+            tv.setModel(tm)
+
+        storage_button = QtWidgets.QPushButton('Next Storage', window.main_widget)
+        storage_button.setFixedSize(150, 20)
+        storage_button.clicked.connect(switch_storage)
+        storage_label = QtWidgets.QLabel('Storage: 1', window.main_widget)
+        toolbar_layout.addStretch()
+        toolbar_layout.addWidget(storage_button)
+        toolbar_layout.addWidget(storage_label)
+
+        headers = ['Controller Name', 'Time Charging (s)', 'Time Discharging (s)', 'Time Idle (s)']
+        tm = DataTableModel(table_data, headers, window.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
         hh = tv.horizontalHeader()
@@ -461,10 +487,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh.setVisible(False)
         v_box.addWidget(tv)
         tv.setColumnWidth(0, 100)
-        tv.setColumnWidth(1, 80)
-        tv.setColumnWidth(2, 100)
+        tv.setColumnWidth(1, 120)
+        tv.setColumnWidth(2, 120)
         tv.setColumnWidth(3, 120)
-        tv.setColumnWidth(4, 100)
 
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')

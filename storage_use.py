@@ -2,22 +2,26 @@ import numpy as np
 
 
 class StorageUse(object):
+    def __init__(self, data_list):
+        # Identify the storages
+        # Indexed as storage_index[data][DER]
+        self.storage_index = []
+        for i in range(len(data_list)):
+            index = []
+            for j in range(data_list[i].nDer):
+                if data_list[i].derList[j].energy_type == 'Storage':
+                    index.append(j)
+            self.storage_index.append(index)
+        self.n_storage = len(self.storage_index[0])
+        self.current_index = 0
 
-    @staticmethod
-    def charge_hist(data_list, canvas, step):
+    def charge_hist(self, data_list, canvas, step):
         bounds = ['<20%', '20%-40%', '40%-60%', '60%-80%', '>80%']
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
         for i in range(len(data_list)):
-            n = 0
-            charge_state = np.array([0.0] * data_list[i].samplingPeriod)
             for j in range(len(pos)):
                 pos[j] += step
-            for k in range(0, data_list[i].nDer):
-                if data_list[i].derList[k].energy_type == 'Storage':
-                    n += 1
-                    charge_state += data_list[i].derList[k].consumption
-            for k in range(0, len(charge_state)):
-                charge_state[k] /= n
+            charge_state = data_list[i].derList[self.storage_index[i][self.current_index]].consumption
             bins = sort_bin(charge_state, 0.2, 0.4, 0.6, 0.8)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
@@ -30,46 +34,34 @@ class StorageUse(object):
         canvas.axes.set_ylabel('Number of Occurrences')
         canvas.axes.legend(loc='upper right')
 
-    @staticmethod
-    def charge_time_plot(data_list, canvas):
+    def charge_time_plot(self, data_list, canvas):
         for i in range(len(data_list)):
-            k = 0
-            for j in range(0, data_list[i].nDer):
-                if data_list[i].derList[j].energy_type == 'Storage':
-                    k += 1
-                    charge_state = data_list[i].derList[j].consumption
-                    charge_state_percent = [0.0] * len(charge_state)
-                    for m in range(len(charge_state)):
-                        charge_state_percent[m] = charge_state[m]*100.0
-                    label = 'Storage #' + ("%d " % k) + data_list[i].controllerName
-                    canvas.axes.plot(data_list[i].timeList, charge_state_percent, label=label, linewidth=1.0)
+            charge_state = data_list[i].derList[self.storage_index[i][self.current_index]].consumption
+            charge_state_percent = [0.0] * len(charge_state)
+            for k in range(len(charge_state)):
+                charge_state_percent[k] = charge_state[k]*100.0
+            canvas.axes.plot(data_list[i].timeList, charge_state_percent, linewidth=1.0)
 
         canvas.axes.set_xlabel("Time (s)")
         canvas.axes.set_ylabel("State of Charge (%)")
-        canvas.axes.legend(loc='upper right')
         canvas.axes.set_xlim([0, len(data_list[i].timeList) - 1])
 
-    @staticmethod
-    def charge_stats(data):
+    def charge_stats(self, data_list):
         time_spent_charging = []
         time_spent_discharging = []
         time_spent_idle = []
-        k = -1
-        for i in range(0, data.nDer):
-            if data.derList[i].energy_type == 'Storage':
-                k += 1
 
-                time_spent_charging.append(0)
-                time_spent_discharging.append(0)
-                time_spent_idle.append(0)
-
-                for j in range(0, len(data.derList[i].output)):
-                    if data.derList[i].output[j] < 0:
-                        time_spent_charging[k] += 1
-                    elif data.derList[i].output[j] > 0:
-                        time_spent_discharging[k] += 1
-                    else:
-                        time_spent_idle[k] += 1
+        for i in range(len(data_list)):
+            time_spent_charging.append(0)
+            time_spent_discharging.append(0)
+            time_spent_idle.append(0)
+            for j in range(len(data_list[i].derList[self.storage_index[i][self.current_index]].output)):
+                if data_list[i].derList[self.storage_index[i][self.current_index]].output[j] < 0:
+                    time_spent_charging[i] += 1
+                elif data_list[i].derList[self.storage_index[i][self.current_index]].output[j] > 0:
+                    time_spent_discharging[i] += 1
+                else:
+                    time_spent_idle[i] += 1
 
         stats = [time_spent_charging, time_spent_discharging, time_spent_idle]
         return stats
@@ -91,6 +83,14 @@ class StorageUse(object):
                 stored_energy[j] = stored_energy[j - 1] - power_flow[j - 1]
             charge_state = (100 * stored_energy) / (total_capacity * 60 * 60)
             charge_state_list.append(charge_state)
+
+    def next_storage(self):
+        if self.current_index < (self.n_storage - 1):
+            self.current_index += 1
+        else:
+            self.current_index = 0
+
+        return self.current_index
 
 
 def sort_bin(data_list, lower_bound, middle_left, middle_right, upper_bound):
