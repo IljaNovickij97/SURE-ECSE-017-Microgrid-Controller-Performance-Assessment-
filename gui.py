@@ -278,11 +278,12 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Runnnig Costs')
-        window.setMinimumSize(740, 800)
+        window.setMinimumSize(740, 850)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
-        # table_box = QtWidgets.QHBoxLayout(window.main_widget)
+        switch_table_box = QtWidgets.QHBoxLayout(window.main_widget)
+        stats_table_box = QtWidgets.QHBoxLayout(window.main_widget)
         toolbar_layout = QtWidgets.QHBoxLayout(window.main_widget)
 
         # Canvas setup
@@ -303,12 +304,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         button_list.insert(0, 'Total Fuel')
         for each in fuel_types:
             button_list.append(each)
-        print(button_list)
         type = 0
 
         def switch_fuel_type():
             nonlocal type
-            if type < len(button_list):
+            if type < (len(button_list)-1):
                 type += 1
             else:
                 type = 0
@@ -332,32 +332,61 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         toolbar_layout.addWidget(fuel_button)
         toolbar_layout.addWidget(fuel_label)
 
+        # Switching Table
+        headers = ['Controller Name']
+        for i in range(selected_data[0].nDer):
+            headers.append(selected_data[0].derList[i].energy_type)
+        print(headers)
 
-        # Table
-        # headers = ['Controller Name', 'Fuel Consumption(L)', 'On/Off Switching', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
-        #            'Peak Power\n(Grid Connected) (MW)']
-        # runningCost.ramping(selected_data)
-        # table_data = runningCost.rcStats(selected_data)
-        #
-        # for i in range(len(selected_data)):
-        #     table_data[i].insert(0, selected_data[i].controllerName)
-        #
-        # tm = DataTableModel(table_data, headers, self.main_widget)
-        # tv = QtWidgets.QTableView()
-        # tv.setModel(tm)
-        # hh = tv.horizontalHeader()
-        # hh.setStretchLastSection(True)
-        # vh = tv.verticalHeader()
-        # vh.setVisible(False)
-        # v_box.addWidget(tv)
-        # tv.setColumnWidth(0, 110)
-        # tv.setColumnWidth(1, 120)
-        # tv.setColumnWidth(2, 120)
-        # tv.setColumnWidth(3, 120)
-        # tv.setColumnWidth(4, 120)
-        # tv.setColumnWidth(5, 120)
-        #
-        # v_box.addLayout(table_box)
+        table_data = RunningCost.switching(selected_data)
+
+        for i in range(len(selected_data)):
+            table_data[i].insert(0, selected_data[i].controllerName)
+
+        tm = DataTableModel(table_data, headers, self.main_widget)
+        tv = QtWidgets.QTableView()
+        print("nope")
+        # todo: add table title
+        tv.setWindowTitle("Occurrences of On/Off Switching per DER \n if Fuel: off: consumption = 0 "
+                          "\n if Renewable: off: generation < 5% Cacpacity")
+
+        print("yep")
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 100)
+        for i in range(1, len(headers)):
+            tv.setColumnWidth(i, 70)
+
+        v_box.addLayout(switch_table_box)
+
+        # Stats Table
+        headers = ['Controller Name', 'Fuel Consumption(L)', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
+                   'Peak Power\n(Grid Connected) (MW)']
+        RunningCost.ramping(selected_data)
+        table_data = RunningCost.rcStats(selected_data)
+
+        for i in range(len(selected_data)):
+            table_data[i].insert(0, selected_data[i].controllerName)
+
+        tm = DataTableModel(table_data, headers, self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 100)
+        tv.setColumnWidth(1, 120)
+        tv.setColumnWidth(2, 120)
+        tv.setColumnWidth(3, 120)
+        tv.setColumnWidth(4, 120)
+
+        v_box.addLayout(stats_table_box)
 
     def su(self):
         if not self.data_list:
