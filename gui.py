@@ -343,14 +343,17 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         for i in range(len(selected_data)):
             table_data[i].insert(0, selected_data[i].controllerName)
 
+        tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER ", window.main_widget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        tl1.setFont(font)
+        switch_table_box.addWidget(tl1)
+        tl2 = QtWidgets.QLabel("If 'Fuel': off: consumption = 0 \n"
+                               "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
+        switch_table_box.addWidget(tl2)
+
         tm = DataTableModel(table_data, headers, self.main_widget)
         tv = QtWidgets.QTableView()
-        print("nope")
-        # todo: add table title
-        tv.setWindowTitle("Occurrences of On/Off Switching per DER \n if Fuel: off: consumption = 0 "
-                          "\n if Renewable: off: generation < 5% Cacpacity")
-
-        print("yep")
         tv.setModel(tm)
         hh = tv.horizontalHeader()
         hh.setStretchLastSection(True)
