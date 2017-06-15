@@ -315,6 +315,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                 for j in range(n_pies):
                     canvas_list[j].axes.clear()
                     Renewables.renewable_norm_pie(selected_data[j], canvas_list[j])
+
                     canvas_list[j].draw()
             else:
                 for j in range(n_pies):
@@ -326,13 +327,13 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Table
         table_data = []
         for i in range(len(selected_data)):
-            stats = Renewables.renewable_stats(selected_data[i])
-            current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1], "%.2f" % stats[2],
-                            "%.2f" % stats[3], "%.2f" % stats[4], "%.2f" % stats[5], "%.2f" % stats[6]]
+            num_gen, stats, headers = Renewables.renewable_stats(selected_data[i])
+            current_data = stats
+            current_data.insert(0, selected_data[i].controllerName)
             table_data.append(current_data)
 
-        headers = ['Controller Name', 'Wind (MWh)', 'Hydro (MWh)', 'PV (MWh)', 'Diesel (MWh)', 'Gas (MWh)',
-                   'Renewable (MWh)', 'Total (MWh)']
+        headers.insert(0, 'Controller Name')
+
         tm = DataTableModel(table_data, headers, window.main_widget)
         tv = QtWidgets.QTableView()
         tv.setModel(tm)
@@ -342,12 +343,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         vh.setVisible(False)
         table_box.addWidget(tv)
         tv.setColumnWidth(0, 100)
-        tv.setColumnWidth(1, 75)
-        tv.setColumnWidth(2, 75)
-        tv.setColumnWidth(3, 75)
-        tv.setColumnWidth(4, 75)
-        tv.setColumnWidth(5, 75)
-        tv.setColumnWidth(6, 100)
+        for i in range(1, num_gen-1):
+            tv.setColumnWidth(i, 75)
+        tv.setColumnWidth(num_gen-1, 100)
 
         v_box.addLayout(pie_box)
         v_box.addWidget(norm_button)
@@ -381,6 +379,18 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         v_box.addLayout(toolbar_layout)
         v_box.addWidget(pwr_out)
         v_box.addWidget(fuel_use)
+        graph_list = [pwr_out, fuel_use]
+
+        # Toolbar switching setup
+        def update_hist(event):
+            pwr_out.set_toolbar_active(graph_list, toolbar)
+
+        def update_time_plot(event):
+            fuel_use.set_toolbar_active(graph_list, toolbar)
+
+        pwr_out.mouseDoubleClickEvent = update_hist
+        fuel_use.mouseDoubleClickEvent = update_time_plot
+        pwr_out.fig.set_facecolor('lightsteelblue')
 
         # Button for rotating between fuel types
         button_list = []

@@ -90,27 +90,28 @@ class RunningCost(object):
             if ftype == 0:
                 if np.all(total_gen_list[i] == 0):
                     canvas.axes.plot(t, [0]*len(t), linewidth=2, linestyle=None, color=colors[i],
-                                     label=(data_list[i].controllerName, 'Total Fuel Consumption'))
+                                     label=(data_list[i].controllerName + 'Total Fuel Consumption'))
                 elif not np.all(total_gen_list[i] == 0):
                     canvas.axes.plot(t, total_gen_list[i], linewidth=2, linestyle=None, color=colors[i],
-                                     label=(data_list[i].controllerName, 'Total Fuel Consumption'))
+                                     label=(data_list[i].controllerName + ': Total Fuel Consumption'))
             else:
                 if np.all(fuel_gen[i][ftype-1] == 0):
-                    canvas.axes.plot(t, [0]*len(t), linestyle=line_styles[ftype-1], color=colors[i], label=fuel_types[ftype-1])
+                    canvas.axes.plot(t, [0]*len(t), linestyle=line_styles[ftype-1], color=colors[i], label=(data_list[i].controllerName))
                 elif not np.all(fuel_gen[i][ftype-1] == 0):
-                    canvas.axes.plot(t, fuels[i][ftype-1], linestyle=line_styles[ftype-1], color=colors[i], label=fuel_types[ftype-1])
+                    canvas.axes.plot(t, fuels[i][ftype-1], linestyle=line_styles[ftype-1], color=colors[i], label=(data_list[i].controllerName))
         if ftype != 0:
             canvas.axes.plot(t, [cap_list[ftype-1]*0.3]*len(t), linestyle=line_styles[ftype-1], color='red',
                             label='Gen. Threshold (30% cap)')
 
         # todo: add user input/data input to decide what % of capacity the threshold should be, to max efficiency
 
-        canvas.axes.legend(loc='lower left', fontsize=7)
+        canvas.axes.legend(loc='upper right', fontsize=7)
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Power Generation (MW)')
         canvas.axes.set_title('Time Plot of Fuel-Powered Generation')
 
     """ Plot (fuel consumption/power out) vs power out to find most efficient operating point (in terms of fuel use)"""
+    # todo: add minpoint recognition to plot
     @staticmethod
     def fuelUse(data_list, ftype, canvas):
         # power out needs to match fuel consumption: ie per source per sample
@@ -151,7 +152,7 @@ class RunningCost(object):
                     # canvas.axes.annotate('min. pt.: Fuel consumption: L', xy=(x, min(y[i][ftype-1])), xytext=(x+5, min(y[i][ftype-1])-2),
                     #                      color=colors[i], arrowprops=dict(facecolor='black', shrink=0.05), )
 
-        canvas.axes.legend(loc='lower left', fontsize=7)
+        #canvas.axes.legend(loc='lower left', fontsize=7)
         canvas.axes.set_xlabel('Power Output')
         canvas.axes.set_ylabel('Fuel Consumption/Power Output')
         canvas.axes.set_title('Fuel Consumption/Power Output vs. Power Output \n Efficient Fuel Use Operating Point')

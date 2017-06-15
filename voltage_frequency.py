@@ -8,6 +8,9 @@ class VoltageAndFrequency(object):
         voltage_list = data_list[0].busList[busNo].voltage
         time_list = np.linspace(0, len(voltage_list) - 1, len(voltage_list))
 
+        if not voltage_list:
+            return 0
+
         for i in range(len(data_list)):
             voltage_list = data_list[i].busList[busNo].voltage
             canvas.axes.plot(time_list, voltage_list, linewidth=1.0)
@@ -47,6 +50,9 @@ class VoltageAndFrequency(object):
     def frequency_time_plot(data_list, canvas, bus_no):
         frequency_list = data_list[0].busList[bus_no].frequency
         time_list = np.linspace(0, len(frequency_list) - 1, len(frequency_list))
+
+        if not frequency_list:
+            return 0
 
         for i in range(len(data_list)):
             frequency_list = data_list[i].busList[bus_no].frequency
