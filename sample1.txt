@@ -9,43 +9,43 @@ Load No. 3
 Voltage 220 100 120 100 134 120 100 134 120 100 134 120 100 134 257 100 134 120 100 134
 Frequency 60 61 62 60 61 59 59.5 62 60 61 60 61 59 59.5 57 60 61 59 59.5 62 59.5 62 60 61 59
 # next bus
-Voltage 120 100 134 257 100 134 120 100 134 100 134 120 100 134 120 100 120 100 134 222
+Voltage 220 212 235.221 2321
 Frequency 60 61 62 60 61 59 59.5 62 60 61 60 61 59 59.5 62 60 61 59 59.5 62 59.5 62 60 61 59
 ### Der Info
-Type Hydro
+Type Ren Hydro
 Power Output 458 456 998 212 45 56 67 36 63 32 92 121 45 0 65 46 45 89 255 360
 Generation Capacity 1000
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type Gas
-Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
+Type Fuel Diesel
+Power Output 454.32 448 456 98 89 78 456 78 345 77 456 123 13 132 314 5 0 0 0 0
 Generation Capacity 1002
-Consumption 456 458 536 98 89 78 466 178 345 78 456 123 12 132 326 5 0 0 0 45
+Consumption 456 458 536 108 99 88 466 118 355 78 457 125 17 136 326 9 1 1 1 5
 # next der
-Type Hydro
+Type Ren Hydro
 Power Output 45 456 2 3 45 78 3 634 56 33 236 453 658 331 98 564 78 45 45 1
 Generation Capacity 1002
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type PV
+Type Ren PV
 Power Output 456 458 536 98 89 78 466 178 345 78 456 123 12 132 326 5 0 0 0 45
-Generation Capacity 1000
+Generation Capacity 1002
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type Gas
-Power Output 458 456 98 212 455 56 67 36 63 312 92 121 45 0 65 46 45 89 265 36
-Generation Capacity 500
-Consumption 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
+Type Fuel Gas
+Power Output 358 56 198 12 455 56 67 36 63 32 22 121 45 0 65 46 45 89 65 36
+Generation Capacity 1002
+Consumption 335 95 232 21 459 65 69 45 83 86 32 165 46 3 78 55 56 112 56 59
 # next der
-Type Wind
+Type Ren Wind
 Power Output 45.32 458 456 98 89 78 456 718 345 78 456 123 123 132 326 5 456 61 62 65
-Generation Capacity 2000
+Generation Capacity 1002
 Consumption 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # next der
-Type Gas
-Power Output 456.32 458 456 98 89 78 456 78 345 78 456 123 123 132 326 5 0 0 0 0
-Generation Capacity 200
-Consumption 235 95 232 21 45 65 56 45 213 86 32 65 456 23 78 435 36 12 56 89
+Type Fuel Diesel
+Power Output 75.32 458 156 98 89 68 46 78 245 78 456 53 123 102 36 11 10 30 40 1
+Generation Capacity 1002
+Consumption 135 395 232 121 95 75 56 85 253 86 432 65 156 123 78 35 36 12 56 9
 # next der
 Type Storage
 Power Output -4560.32 -4508 -4506 -980 -890 708 2000 780 3045 708 4506 1023 -1203 -1032 0 0 0 0 0 0
