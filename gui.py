@@ -359,7 +359,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Runnnig Costs')
-        window.setMinimumSize(740, 850)
+        window.setMinimumSize(745, 900)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
@@ -425,40 +425,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         toolbar_layout.addWidget(fuel_button)
         toolbar_layout.addWidget(fuel_label)
 
-        # Switching Table
-        headers = ['Controller Name']
-        for i in range(selected_data[0].nDer):
-            headers.append(selected_data[0].derList[i].energy_type)
-        print(headers)
-
-        table_data = RunningCost.switching(selected_data)
-
-        for i in range(len(selected_data)):
-            table_data[i].insert(0, selected_data[i].controllerName)
-
-        tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER ", window.main_widget)
-        font = QtGui.QFont()
-        font.setBold(True)
-        tl1.setFont(font)
-        switch_table_box.addWidget(tl1)
-        tl2 = QtWidgets.QLabel("If 'Fuel': off: consumption = 0 \n"
-                               "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
-        switch_table_box.addWidget(tl2)
-
-        tm = DataTableModel(table_data, headers, self.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 100)
-        for i in range(1, len(headers)):
-            tv.setColumnWidth(i, 70)
-
-        v_box.addLayout(switch_table_box)
-
         # Stats Table
         headers = ['Controller Name', 'Fuel Consumption(L)', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
                    'Peak Power\n(Grid Connected) (MW)']
@@ -483,6 +449,39 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         tv.setColumnWidth(4, 120)
 
         v_box.addLayout(stats_table_box)
+
+        tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER ", window.main_widget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        tl1.setFont(font)
+        stats_table_box.addWidget(tl1)
+        tl2 = QtWidgets.QLabel("If 'Fuel': off: consumption = 0 \n"
+                               "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
+        stats_table_box.addWidget(tl2)
+
+        # Table
+        headers = ['Controller Name']
+        for i in range(selected_data[0].nDer):
+            headers.append(selected_data[0].derList[i].energy_type)
+
+        table_data = RunningCost.switching(selected_data)
+
+        for i in range(len(selected_data)):
+            table_data[i].insert(0, selected_data[i].controllerName)
+
+        tm = DataTableModel(table_data, headers, self.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 100)
+        for i in range(1, len(headers)):
+            tv.setColumnWidth(i, 70)
+
+        v_box.addLayout(switch_table_box)
 
     def su(self):
         if not self.data_list:
