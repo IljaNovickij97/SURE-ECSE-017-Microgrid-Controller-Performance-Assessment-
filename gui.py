@@ -359,7 +359,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         selected_data = self.get_selected()
 
         window = NewWindow(parent=self, title='Runnnig Costs')
-        window.setMinimumSize(745, 900)
+        window.setMinimumSize(750, 900)
 
         # Layout
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
@@ -459,7 +459,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                                "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
         stats_table_box.addWidget(tl2)
 
-        # Table
+        # Switch count Table
         headers = ['Controller Name']
         for i in range(selected_data[0].nDer):
             headers.append(selected_data[0].derList[i].energy_type)

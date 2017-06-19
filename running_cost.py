@@ -19,10 +19,6 @@ class RunningCost(object):
         # number of fuel types, int
         global num_fuel
 
-        # list of total generation capacity for each fuel type
-        # note the capacity is a SYSTEM property, indep. of controller
-        global cap_list
-
         fuel_types = []
         for i in range(data_list[0].nDer):
             if 'Fuel' in data_list[0].derList[i].energy_type:
@@ -33,6 +29,10 @@ class RunningCost(object):
 
         # 3D list of fuel consumption per type per sample
         global fuels
+
+        # list of total generation capacity for each fuel type
+        # note the capacity is a SYSTEM property, indep. of controller
+        global cap_list
 
         fuels = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
         cap_list = [0.0]*num_fuel
@@ -82,26 +82,27 @@ class RunningCost(object):
     """ This method plots (fuel) power generation over time"""
     @staticmethod
     def pwrGen(data_list, ftype, canvas):
-        line_styles = ['-', '--', '-.', '_', ':']
+
+        # each fuel type has a different line style
+        line_styles = ['--', '-.', '_', ':']
         if len(line_styles) < num_fuel:
             line_styles.extend(line_styles)
-        colors = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
+
+        # each controller has one colour for all its plots
+        colours = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
+
+        # plot total generation, or...
         for i in range(len(data_list)):
             if ftype == 0:
-                if np.all(total_gen_list[i] == 0):
-                    canvas.axes.plot(t, [0]*len(t), linewidth=2, linestyle=None, color=colors[i],
-                                     label=(data_list[i].controllerName + 'Total Fuel Consumption'))
-                elif not np.all(total_gen_list[i] == 0):
-                    canvas.axes.plot(t, total_gen_list[i], linewidth=2, linestyle=None, color=colors[i],
-                                     label=(data_list[i].controllerName + ': Total Fuel Consumption'))
+                canvas.axes.plot(t, total_gen_list[i], linewidth=2, linestyle=None, color=colours[i],
+                                 label=(data_list[i].controllerName + ': Total Fuel Consumption'))
+            # ...plot one type of fuel generation and the capacity for that fuel type
             else:
-                if np.all(fuel_gen[i][ftype-1] == 0):
-                    canvas.axes.plot(t, [0]*len(t), linestyle=line_styles[ftype-1], color=colors[i], label=(data_list[i].controllerName))
-                elif not np.all(fuel_gen[i][ftype-1] == 0):
-                    canvas.axes.plot(t, fuels[i][ftype-1], linestyle=line_styles[ftype-1], color=colors[i], label=(data_list[i].controllerName))
+                canvas.axes.plot(t, fuels[i][ftype-1], linestyle=line_styles[ftype-1], color=colours[i],
+                                 label=(data_list[i].controllerName))
         if ftype != 0:
             canvas.axes.plot(t, [cap_list[ftype-1]*0.3]*len(t), linestyle=line_styles[ftype-1], color='red',
-                            label='Gen. Threshold (30% cap)')
+                             label='Gen. Threshold (30% cap)')
 
         # todo: add user input/data input to decide what % of capacity the threshold should be, to max efficiency
 
@@ -111,7 +112,6 @@ class RunningCost(object):
         canvas.axes.set_title('Time Plot of Fuel-Powered Generation')
 
     """ Plot (fuel consumption/power out) vs power out to find most efficient operating point (in terms of fuel use)"""
-    # todo: add minpoint recognition to plot
     @staticmethod
     def fuelUse(data_list, ftype, canvas):
         # power out needs to match fuel consumption: ie per source per sample
@@ -130,36 +130,35 @@ class RunningCost(object):
             for j in range(num_fuel):
                 y_tot[i] += y[i][j]
 
-        line_styles = ['-', '--', '-.', '_', ':']
-        colors = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
+        line_styles = ['--', '-.', '_', ':']
         if len(line_styles) < num_fuel:
             line_styles.extend(line_styles)
+        colours = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
 
+        # todo: add minpoint recognition to plot
         if ftype == 0:
             for i in range(len(data_list)):
-                canvas.axes.plot(total_gen_list[i], y_tot[i], linewidth=2, linestyle=None, color=colors[i],
+                canvas.axes.plot(total_gen_list[i], y_tot[i], linewidth=2, linestyle=None, color=colours[i],
                                  label=(data_list[i].controllerName, "Total Gen"))
         else:
             for i in range(len(data_list)):
-                if np.all(fuel_gen[i][ftype-1] == 0):
-                    canvas.axes.plot([0]*len(t), y[i][ftype-1], linestyle=line_styles[ftype-1], color=colors[i],
-                                     label=fuel_types[ftype-1])
-                elif not np.all(fuel_gen[i][ftype-1] == 0):
-                    canvas.axes.plot(fuel_gen[i][ftype-1], y[i][ftype-1], linestyle=line_styles[ftype-1], color=colors[i],
-                                     label=fuel_types[ftype-1])
-                    # # add an arrow to indicate min point
-                    # x = 10
-                    # canvas.axes.annotate('min. pt.: Fuel consumption: L', xy=(x, min(y[i][ftype-1])), xytext=(x+5, min(y[i][ftype-1])-2),
-                    #                      color=colors[i], arrowprops=dict(facecolor='black', shrink=0.05), )
+                # add min point recognition to plot
+                y_min = min(y[i][ftype - 1])
+                x_min = [fuel_gen[i][ftype - 1][np.where(y[i][ftype-1] == y_min)]]
+                min_fuel = fuels[i][ftype - 1][np.where(y[i][ftype-1] == y_min)]
 
-        #canvas.axes.legend(loc='lower left', fontsize=7)
+                canvas.axes.plot(fuel_gen[i][ftype-1], y[i][ftype-1], linestyle=line_styles[ftype-1], color=colours[i],
+                                 label=('efficient fuel level: %s L' % min_fuel))
+                canvas.axes.plot(x_min, y_min, '-rx')
+
+        canvas.axes.legend(loc='upper right', fontsize=7)
         canvas.axes.set_xlabel('Power Output')
         canvas.axes.set_ylabel('Fuel Consumption/Power Output')
         canvas.axes.set_title('Fuel Consumption/Power Output vs. Power Output \n Efficient Fuel Use Operating Point')
 
     @staticmethod
     def ramping(data_list):
-    # use d(P_gen)/dt vs t (gradient) to show ramping
+        # use d(P_gen)/dt vs t (gradient) to show ramping
         fuel_diff = np.array([[0.0]*len(t) for i in range(len(data_list))])
         for i in range(len(data_list)):
             fuel_diff[i] = np.gradient(total_gen_list[i])
@@ -190,17 +189,18 @@ class RunningCost(object):
             for j in range(data_list[0].nDer):
                 switching = 0
                 if 'Fuel' in data_list[i].derList[j].energy_type:
+                    # for fuel generation, 'off' is when consumption = 0
                     for k in range(len(t) - 1):
                         if (data_list[i].derList[j].consumption[k] != 0) and (data_list[i].derList[j].consumption[k + 1] == 0):
                             switching += 1
                 elif 'Ren' in data_list[i].derList[j].energy_type:
+                    # for renewable generation, 'off' is when generation is < 5% capacity
                     for k in range(len(t) - 1):
                         cap = data_list[i].derList[j].capacity
                         if (data_list[i].derList[j].output[k] > cap*0.05) and (data_list[i].derList[j].output[k + 1] < cap*0.05):
                             switching += 1
                 switch_list[i][j] = switching
 
-        print(switch_list)
         return switch_list
 
     """ This method calculates various statistics for displaying in a table in the GUI"""
