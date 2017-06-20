@@ -1,0 +1,11 @@
+BUS
+Voltage (V-bus#-unit) e.g. (V-bus1-pu)
+Frequency (F-bus#-unit) e.g. (F-bus1-Hz)
+
+DER
+Power Output (Po-der#-type-capacity-unit) e.g. (Po-der1-Fuel_Hydro-1000-kW)
+Consumption (C-der#-unit) e.g. (C-der1-L)
+State of Charge (SOC-der#) e.g (SOC-der1)
+
+LOAD
+Power Demand (Pd-load#-type-unit) e.g. (Pd-load1-Priority-kW)
