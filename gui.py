@@ -302,8 +302,13 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         canvas_list = []
         for i in range(n_pies):
             canvas_list.append(Canvas(window.main_widget, width=3.5))
-            Renewables.renewable_pie(selected_data[i], canvas_list[i])
-            pie_box.addWidget(canvas_list[i])
+            # if program returns -1, no data has been found. Do stuff so program doesn't crash:
+            if Renewables.renewable_pie(selected_data[i], canvas_list[i]) == -1:
+                canvas_list[i].axes.text(1, 1, 'Error: No Data Found in Sample')
+                pie_box.addWidget(canvas_list[i])
+            else:
+                Renewables.renewable_pie(selected_data[i], canvas_list[i])
+                pie_box.addWidget(canvas_list[i])
 
         # Normalize pie chart button
         norm_button = QtWidgets.QPushButton('Normalize Pie Chart', window)
@@ -311,26 +316,35 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         norm_button.setFixedSize(150, 20)
 
         def switch_pie():
-            if norm_button.isChecked():
-                for j in range(n_pies):
-                    canvas_list[j].axes.clear()
-                    Renewables.renewable_norm_pie(selected_data[j], canvas_list[j])
+                if norm_button.isChecked():
+                    for j in range(n_pies):
+                        if Renewables.renewable_norm(selected_data[j], canvas_list[j]) != -1:
+                            canvas_list[j].axes.clear()
+                            Renewables.renewable_norm_pie(selected_data[j], canvas_list[j])
+                            canvas_list[j].draw()
+                else:
+                    for j in range(n_pies):
+                        if Renewables.renewable_pie(selected_data[j], canvas_list[j]) != -1:
+                            canvas_list[j].axes.clear()
+                            Renewables.renewable_pie(selected_data[j], canvas_list[j])
+                            canvas_list[j].draw()
 
-                    canvas_list[j].draw()
-            else:
-                for j in range(n_pies):
-                    canvas_list[j].axes.clear()
-                    Renewables.renewable_pie(selected_data[j], canvas_list[j])
-                    canvas_list[j].draw()
         norm_button.clicked.connect(switch_pie)
 
         # Table
         table_data = []
         for i in range(len(selected_data)):
-            num_gen, stats, headers = Renewables.renewable_stats(selected_data[i])
-            current_data = stats
-            current_data.insert(0, selected_data[i].controllerName)
-            table_data.append(current_data)
+            if Renewables.renewable_stats(selected_data[i]) == -1:
+                num_gen = 0
+                headers = []
+                current_data = []
+                current_data.insert(0, selected_data[i].controllerName)
+                table_data.append(current_data)
+            else:
+                num_gen, stats, headers = Renewables.renewable_stats(selected_data[i])
+                current_data = stats
+                current_data.insert(0, selected_data[i].controllerName)
+                table_data.append(current_data)
 
         headers.insert(0, 'Controller Name')
 
@@ -372,116 +386,130 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         fuel_use = Canvas(window.main_widget)
         toolbar = NavigationToolbar(pwr_out, window, coordinates=False)
         toolbar_layout.addWidget(toolbar)
+        v_box.addLayout(toolbar_layout)
 
         fuel_types = RunningCost.basic_calc(selected_data)
-        RunningCost.pwrGen(selected_data, 0, pwr_out)
-        RunningCost.fuelUse(selected_data, 0, fuel_use)
-        v_box.addLayout(toolbar_layout)
-        v_box.addWidget(pwr_out)
-        v_box.addWidget(fuel_use)
-        graph_list = [pwr_out, fuel_use]
+        # if program returns -1, no data has been found. Do stuff so program doesn't crash.
+        if RunningCost.basic_calc(selected_data) == -1:
+            display_text = QtWidgets.QLabel('Error: No Data Found in Sample', window.main_widget)
+            font = QtGui.QFont()
+            font.setBold(True)
+            font.setPointSize(15)
+            display_text.setFont(font)
+            display_text.setAlignment(QtCore.Qt.AlignCenter)
+            v_box.addWidget(display_text)
+            v_box.addWidget(pwr_out)
+            v_box.addWidget(fuel_use)
 
-        # Toolbar switching setup
-        def update_hist(event):
-            pwr_out.set_toolbar_active(graph_list, toolbar)
+        else:
+            RunningCost.pwrGen(selected_data, 0, pwr_out)
+            RunningCost.fuelUse(selected_data, 0, fuel_use)
 
-        def update_time_plot(event):
-            fuel_use.set_toolbar_active(graph_list, toolbar)
+            v_box.addWidget(pwr_out)
+            v_box.addWidget(fuel_use)
+            graph_list = [pwr_out, fuel_use]
 
-        pwr_out.mouseDoubleClickEvent = update_hist
-        fuel_use.mouseDoubleClickEvent = update_time_plot
-        pwr_out.fig.set_facecolor('lightsteelblue')
+            # Toolbar switching setup
+            def update_hist(event):
+                pwr_out.set_toolbar_active(graph_list, toolbar)
 
-        # Button for rotating between fuel types
-        button_list = []
-        button_list.insert(0, 'Total Fuel')
-        for each in fuel_types:
-            button_list.append(each)
-        type = 0
+            def update_time_plot(event):
+                fuel_use.set_toolbar_active(graph_list, toolbar)
 
-        def switch_fuel_type():
-            nonlocal type
-            if type < (len(button_list)-1):
-                type += 1
-            else:
-                type = 0
+            pwr_out.mouseDoubleClickEvent = update_hist
+            fuel_use.mouseDoubleClickEvent = update_time_plot
+            pwr_out.fig.set_facecolor('lightsteelblue')
 
-            pwr_out.axes.clear()
-            fuel_use.axes.clear()
-            RunningCost.pwrGen(selected_data, type, pwr_out)
-            RunningCost.fuelUse(selected_data, type, fuel_use)
-            label = button_list[type]
-            fuel_label.setText(label)
-            pwr_out.draw()
-            fuel_use.draw()
+            # Button for rotating between fuel types
+            button_list = []
+            button_list.insert(0, 'Total Fuel')
+            for each in fuel_types:
+                button_list.append(each)
+            type = 0
 
-            # todo: include variable table data if needed
+            def switch_fuel_type():
+                nonlocal type
+                if type < (len(button_list)-1):
+                    type += 1
+                else:
+                    type = 0
 
-        fuel_button = QtWidgets.QPushButton('Change Fuel Type', window.main_widget)
-        fuel_button.setFixedSize(150, 20)
-        fuel_button.clicked.connect(switch_fuel_type)
-        fuel_label = QtWidgets.QLabel('Total Fuel', window.main_widget)
-        toolbar_layout.addStretch()
-        toolbar_layout.addWidget(fuel_button)
-        toolbar_layout.addWidget(fuel_label)
+                pwr_out.axes.clear()
+                fuel_use.axes.clear()
+                RunningCost.pwrGen(selected_data, type, pwr_out)
+                RunningCost.fuelUse(selected_data, type, fuel_use)
+                label = button_list[type]
+                fuel_label.setText(label)
+                pwr_out.draw()
+                fuel_use.draw()
 
-        # Stats Table
-        headers = ['Controller Name', 'Fuel Consumption(L)', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
-                   'Peak Power\n(Grid Connected) (MW)']
-        RunningCost.ramping(selected_data)
-        table_data = RunningCost.rcStats(selected_data)
+                # todo: include variable table data if needed
 
-        for i in range(len(selected_data)):
-            table_data[i].insert(0, selected_data[i].controllerName)
+            fuel_button = QtWidgets.QPushButton('Change Fuel Type', window.main_widget)
+            fuel_button.setFixedSize(150, 20)
+            fuel_button.clicked.connect(switch_fuel_type)
+            fuel_label = QtWidgets.QLabel('Total Fuel', window.main_widget)
+            toolbar_layout.addStretch()
+            toolbar_layout.addWidget(fuel_button)
+            toolbar_layout.addWidget(fuel_label)
 
-        tm = DataTableModel(table_data, headers, self.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 100)
-        tv.setColumnWidth(1, 120)
-        tv.setColumnWidth(2, 120)
-        tv.setColumnWidth(3, 120)
-        tv.setColumnWidth(4, 120)
+            # Stats Table
+            headers = ['Controller Name', 'Fuel Consumption(L)', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
+                       'Peak Power\n(Grid Connected) (MW)']
+            RunningCost.ramping(selected_data)
+            table_data = RunningCost.rcStats(selected_data)
 
-        v_box.addLayout(stats_table_box)
+            for i in range(len(selected_data)):
+                table_data[i].insert(0, selected_data[i].controllerName)
 
-        tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER ", window.main_widget)
-        font = QtGui.QFont()
-        font.setBold(True)
-        tl1.setFont(font)
-        stats_table_box.addWidget(tl1)
-        tl2 = QtWidgets.QLabel("If 'Fuel': off: consumption = 0 \n"
-                               "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
-        stats_table_box.addWidget(tl2)
+            tm = DataTableModel(table_data, headers, self.main_widget)
+            tv = QtWidgets.QTableView()
+            tv.setModel(tm)
+            hh = tv.horizontalHeader()
+            hh.setStretchLastSection(True)
+            vh = tv.verticalHeader()
+            vh.setVisible(False)
+            v_box.addWidget(tv)
+            tv.setColumnWidth(0, 100)
+            tv.setColumnWidth(1, 120)
+            tv.setColumnWidth(2, 120)
+            tv.setColumnWidth(3, 120)
+            tv.setColumnWidth(4, 120)
 
-        # Switch count Table
-        headers = ['Controller Name']
-        for i in range(selected_data[0].nDer):
-            headers.append(selected_data[0].derList[i].energy_type)
+            v_box.addLayout(stats_table_box)
 
-        table_data = RunningCost.switching(selected_data)
+            tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER ", window.main_widget)
+            font = QtGui.QFont()
+            font.setBold(True)
+            tl1.setFont(font)
+            stats_table_box.addWidget(tl1)
+            tl2 = QtWidgets.QLabel("If 'Fuel': off: consumption = 0 \n"
+                                   "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
+            stats_table_box.addWidget(tl2)
 
-        for i in range(len(selected_data)):
-            table_data[i].insert(0, selected_data[i].controllerName)
+            # Switch count Table
+            headers = ['Controller Name']
+            for i in range(selected_data[0].nDer):
+                headers.append(selected_data[0].derList[i].energy_type)
 
-        tm = DataTableModel(table_data, headers, self.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 100)
-        for i in range(1, len(headers)):
-            tv.setColumnWidth(i, 70)
+            table_data = RunningCost.switching(selected_data)
 
-        v_box.addLayout(switch_table_box)
+            for i in range(len(selected_data)):
+                table_data[i].insert(0, selected_data[i].controllerName)
+
+            tm = DataTableModel(table_data, headers, self.main_widget)
+            tv = QtWidgets.QTableView()
+            tv.setModel(tm)
+            hh = tv.horizontalHeader()
+            hh.setStretchLastSection(True)
+            vh = tv.verticalHeader()
+            vh.setVisible(False)
+            v_box.addWidget(tv)
+            tv.setColumnWidth(0, 100)
+            for i in range(1, len(headers)):
+                tv.setColumnWidth(i, 70)
+
+            v_box.addLayout(switch_table_box)
 
     def su(self):
         if not self.data_list:

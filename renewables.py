@@ -17,9 +17,9 @@ class Renewables(object):
 
         gen_types = list(set(gen_types))
 
-        # if no data found, return 0 for robustness
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
         if not gen_types:
-            return 0
+            return -1
 
         num_gen = len(gen_types)
         gen_list = np.array([[0.0]*len(t) for j in range(num_gen)])
@@ -70,6 +70,10 @@ class Renewables(object):
                 gen_types.append(data.derList[i].energy_type)
 
         gen_types = list(set(gen_types))
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
+        if not gen_types:
+            return -1
+
         num_gen = len(gen_types)
         gen_list = np.array([[0.0] * len(t) for j in range(num_gen)])
         cap_list = [0]*num_gen
@@ -113,40 +117,40 @@ class Renewables(object):
         canvas.axes.pie(chart_list, explode=explode, labels=labels, colors=colours, autopct='%1.1f%%', startangle=90)
 
     # The below method is currently unused. If used, DER types need to be adjusted.
-    @staticmethod
-    def renewable_time(data, canvas):
-        #  todo: fix timescale to match units
-        #       adjust power units
-        t = data.timeList
-        wind = np.array([0.0]*len(data.timeList))
-        hydro = np.array([0.0]*len(data.timeList))
-        pv = np.array([0.0]*len(data.timeList))
-
-        for i in range(0, data.nDer):
-            if data.derList[i].energy_type == 'Wind':
-                wind += np.array(data.derList[i].output)
-            if data.derList[i].energy_type == 'Hydro':
-                hydro += np.array(data.derList[i].output)
-            if data.derList[i].energy_type == 'PV':
-                pv += np.array(data.derList[i].output)
-
-        total = wind + hydro + pv
-
-        if not np.all(wind == 0):
-            canvas.axes.plot(t, wind, label="Wind Gen")
-        if not np.all(hydro == 0):
-            canvas.axes.plot(t, hydro, label="Hydro Gen")
-        if not np.all(pv == 0):
-            canvas.axes.plot(t, pv, label="Solar Gen")
-        if np.all(total == 0):
-            canvas.axes.plot(t, []*len(data.timeList), label="Total Renewable Gen")
-        elif not np.all(total == 0):
-            canvas.axes.plot(t, total, label="Total Renewable Gen")
-        canvas.axes.legend(loc='upper left')
-        canvas.axes.set_xlabel('Time (s)')
-        canvas.axes.set_ylabel('Power Generation (MW)')
-        canvas.axes.set_title('Time Plot of Renewable Power Gen.')
-        canvas.draw()
+    # @staticmethod
+    # def renewable_time(data, canvas):
+    #     #  todo: fix timescale to match units
+    #     #       adjust power units
+    #     t = data.timeList
+    #     wind = np.array([0.0]*len(data.timeList))
+    #     hydro = np.array([0.0]*len(data.timeList))
+    #     pv = np.array([0.0]*len(data.timeList))
+    #
+    #     for i in range(0, data.nDer):
+    #         if data.derList[i].energy_type == 'Wind':
+    #             wind += np.array(data.derList[i].output)
+    #         if data.derList[i].energy_type == 'Hydro':
+    #             hydro += np.array(data.derList[i].output)
+    #         if data.derList[i].energy_type == 'PV':
+    #             pv += np.array(data.derList[i].output)
+    #
+    #     total = wind + hydro + pv
+    #
+    #     if not np.all(wind == 0):
+    #         canvas.axes.plot(t, wind, label="Wind Gen")
+    #     if not np.all(hydro == 0):
+    #         canvas.axes.plot(t, hydro, label="Hydro Gen")
+    #     if not np.all(pv == 0):
+    #         canvas.axes.plot(t, pv, label="Solar Gen")
+    #     if np.all(total == 0):
+    #         canvas.axes.plot(t, []*len(data.timeList), label="Total Renewable Gen")
+    #     elif not np.all(total == 0):
+    #         canvas.axes.plot(t, total, label="Total Renewable Gen")
+    #     canvas.axes.legend(loc='upper left')
+    #     canvas.axes.set_xlabel('Time (s)')
+    #     canvas.axes.set_ylabel('Power Generation (MW)')
+    #     canvas.axes.set_title('Time Plot of Renewable Power Gen.')
+    #     canvas.draw()
 
     @staticmethod
     def renewable_stats(data):
@@ -160,9 +164,9 @@ class Renewables(object):
 
         gen_types = list(set(gen_types))
 
-        # if no data found, return 0 for robustness
+        # if no data found, return -1 for robustness
         if not gen_types:
-            return 0
+            return -1
 
         num_gen = len(gen_types)
         gen_list = np.array([[0.0] * len(t) for j in range(num_gen)])
