@@ -28,8 +28,9 @@ class RunningCost(object):
         num_fuel = len(fuel_types)
 
         # if no data found, return -1 and do stuff in GUI so program doesn't crash
-        if not fuel_types:
-            return -1
+        for i in range(len(data_list)):
+            if data_list[i].nDer == 0:
+                return -1
 
         # 3D list of fuel consumption per type per sample
         global fuels

@@ -258,28 +258,35 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Graphs
         time_plot = Canvas(window.main_widget)
         toolbar = NavigationToolbar(time_plot, window, coordinates=False)
-        GenerationRejection.dump_time_plot(selected_data, time_plot)
-        v_box.addWidget(toolbar)
-        v_box.addWidget(time_plot)
+        if GenerationRejection.dump_time_plot(selected_data, time_plot) == -1:
+            v_box.addWidget(toolbar)
+            time_plot.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
+                              horizontalalignment='center', verticalalignment='center')
+            v_box.addWidget(time_plot)
 
-        # Table
-        table_data = []
-        for i in range(len(selected_data)):
-            stats = GenerationRejection.dump_stats(selected_data[i])
-            current_data = [selected_data[i].controllerName, "%.5f" % stats[0]]
-            table_data.append(current_data)
+        else:
+            GenerationRejection.dump_time_plot(selected_data, time_plot)
+            v_box.addWidget(toolbar)
+            v_box.addWidget(time_plot)
 
-        headers = ['Controller Name', 'Total Dumped (MWh)']
-        tm = DataTableModel(table_data, headers, window.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 300)
-        tv.setColumnWidth(1, 100)
+            # Table
+            table_data = []
+            for i in range(len(selected_data)):
+                stats = GenerationRejection.dump_stats(selected_data[i])
+                current_data = [selected_data[i].controllerName, "%.5f" % stats[0]]
+                table_data.append(current_data)
+
+            headers = ['Controller Name', 'Total Dumped (MWh)']
+            tm = DataTableModel(table_data, headers, window.main_widget)
+            tv = QtWidgets.QTableView()
+            tv.setModel(tm)
+            hh = tv.horizontalHeader()
+            hh.setStretchLastSection(True)
+            vh = tv.verticalHeader()
+            vh.setVisible(False)
+            v_box.addWidget(tv)
+            tv.setColumnWidth(0, 300)
+            tv.setColumnWidth(1, 100)
 
     def rei(self):
 
@@ -304,7 +311,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             canvas_list.append(Canvas(window.main_widget, width=3.5))
             # if program returns -1, no data has been found. Do stuff so program doesn't crash:
             if Renewables.renewable_pie(selected_data[i], canvas_list[i]) == -1:
-                canvas_list[i].axes.text(1, 1, 'Error: No Data Found in Sample')
+                canvas_list[i].axes.axis([0, 0.8, 0, 1])
+                canvas_list[i].axes.set_title(selected_data[i].controllerName)
+                canvas_list[i].axes.text(0.1, 0.5, 'Error: No Data Found in Sample')
                 pie_box.addWidget(canvas_list[i])
             else:
                 Renewables.renewable_pie(selected_data[i], canvas_list[i])
@@ -318,7 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         def switch_pie():
                 if norm_button.isChecked():
                     for j in range(n_pies):
-                        if Renewables.renewable_norm(selected_data[j], canvas_list[j]) != -1:
+                        if Renewables.renewable_pie(selected_data[j], canvas_list[j]) != -1:
                             canvas_list[j].axes.clear()
                             Renewables.renewable_norm_pie(selected_data[j], canvas_list[j])
                             canvas_list[j].draw()
@@ -333,13 +342,17 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Table
         table_data = []
+        num_gen = 0
         for i in range(len(selected_data)):
             if Renewables.renewable_stats(selected_data[i]) == -1:
-                num_gen = 0
-                headers = []
-                current_data = []
-                current_data.insert(0, selected_data[i].controllerName)
+                current_data = [selected_data[i].controllerName]
+                if num_gen != 0:
+                    for j in range(num_gen+2):
+                        current_data.append('no data')
+                else:
+                    headers = []
                 table_data.append(current_data)
+
             else:
                 num_gen, stats, headers = Renewables.renewable_stats(selected_data[i])
                 current_data = stats
@@ -391,13 +404,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         fuel_types = RunningCost.basic_calc(selected_data)
         # if program returns -1, no data has been found. Do stuff so program doesn't crash.
         if RunningCost.basic_calc(selected_data) == -1:
-            display_text = QtWidgets.QLabel('Error: No Data Found in Sample', window.main_widget)
-            font = QtGui.QFont()
-            font.setBold(True)
-            font.setPointSize(15)
-            display_text.setFont(font)
-            display_text.setAlignment(QtCore.Qt.AlignCenter)
-            v_box.addWidget(display_text)
+            pwr_out.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
+                              horizontalalignment='center', verticalalignment='center')
+            fuel_use.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
+                              horizontalalignment='center', verticalalignment='center')
             v_box.addWidget(pwr_out)
             v_box.addWidget(fuel_use)
 
@@ -530,76 +540,89 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # Graphs
         charge_hist = Canvas(window.main_widget)
-        storage_use.charge_hist(selected_data, charge_hist, width)
         charge_time_plot = Canvas(window.main_widget)
         toolbar = NavigationToolbar(charge_hist, window, coordinates=False)
-        storage_use.charge_time_plot(selected_data, charge_time_plot)
         toolbar_layout.addWidget(toolbar)
-        v_box.addLayout(toolbar_layout)
-        v_box.addWidget(charge_hist)
-        v_box.addWidget(charge_time_plot)
-        graph_list = [charge_hist, charge_time_plot]
 
-        # Toolbar switching setup
-        def update_hist(event):
-            charge_hist.set_toolbar_active(graph_list, toolbar)
+        # if program returns -1, there was no data found. the following if condition handles this
+        if storage_use.charge_hist(selected_data, charge_hist, width) == -1:
+            print("here")
+            charge_hist.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
+                              horizontalalignment='center', verticalalignment='center')
+            charge_time_plot.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
+                              horizontalalignment='center', verticalalignment='center')
+            v_box.addLayout(toolbar_layout)
+            v_box.addWidget(charge_hist)
+            v_box.addWidget(charge_time_plot)
 
-        def update_time_plot(event):
-            charge_time_plot.set_toolbar_active(graph_list, toolbar)
-
-        charge_hist.mouseDoubleClickEvent = update_hist
-        charge_time_plot.mouseDoubleClickEvent = update_time_plot
-        charge_hist.fig.set_facecolor('lightsteelblue')
-
-        # Table
-        table_data = []
-        for i in range(len(selected_data)):
-            stats = storage_use.charge_stats(selected_data)
-            current_data = [selected_data[i].controllerName, "%.0f" % stats[0][i], "%.0f" % stats[1][i],
-                            "%.0f" % stats[2][i]]
-            table_data.append(current_data)
-
-        # Storage switching
-
-        def switch_storage():
-            label = 'Storage: ' + str(storage_use.next_storage() + 1)
-            storage_label.setText(label)
-            charge_time_plot.axes.clear()
-            charge_hist.axes.clear()
-            storage_use.charge_time_plot(selected_data, charge_time_plot)
+        else:
             storage_use.charge_hist(selected_data, charge_hist, width)
-            charge_time_plot.draw()
-            charge_hist.draw()
+            storage_use.charge_time_plot(selected_data, charge_time_plot)
+            v_box.addLayout(toolbar_layout)
+            v_box.addWidget(charge_hist)
+            v_box.addWidget(charge_time_plot)
+            graph_list = [charge_hist, charge_time_plot]
+
+            # Toolbar switching setup
+            def update_hist(event):
+                charge_hist.set_toolbar_active(graph_list, toolbar)
+
+            def update_time_plot(event):
+                charge_time_plot.set_toolbar_active(graph_list, toolbar)
+
+            charge_hist.mouseDoubleClickEvent = update_hist
+            charge_time_plot.mouseDoubleClickEvent = update_time_plot
+            charge_hist.fig.set_facecolor('lightsteelblue')
+
+            # Table
             table_data = []
             for i in range(len(selected_data)):
                 stats = storage_use.charge_stats(selected_data)
                 current_data = [selected_data[i].controllerName, "%.0f" % stats[0][i], "%.0f" % stats[1][i],
                                 "%.0f" % stats[2][i]]
                 table_data.append(current_data)
+
+            # Storage switching
+
+            def switch_storage():
+                label = 'Storage: ' + str(storage_use.next_storage() + 1)
+                storage_label.setText(label)
+                charge_time_plot.axes.clear()
+                charge_hist.axes.clear()
+                storage_use.charge_time_plot(selected_data, charge_time_plot)
+                storage_use.charge_hist(selected_data, charge_hist, width)
+                charge_time_plot.draw()
+                charge_hist.draw()
+                table_data = []
+                for i in range(len(selected_data)):
+                    stats = storage_use.charge_stats(selected_data)
+                    current_data = [selected_data[i].controllerName, "%.0f" % stats[0][i], "%.0f" % stats[1][i],
+                                    "%.0f" % stats[2][i]]
+                    table_data.append(current_data)
+                tm = DataTableModel(table_data, headers, window.main_widget)
+                tv.setModel(tm)
+
+            storage_button = QtWidgets.QPushButton('Next Storage', window.main_widget)
+            storage_button.setFixedSize(150, 20)
+            storage_button.clicked.connect(switch_storage)
+            storage_label = QtWidgets.QLabel('Storage: 1', window.main_widget)
+            toolbar_layout.addStretch()
+            toolbar_layout.addWidget(storage_button)
+            toolbar_layout.addWidget(storage_label)
+
+            headers = ['Controller Name', 'Time Charging (s)', 'Time Discharging (s)', 'Time Idle (s)']
             tm = DataTableModel(table_data, headers, window.main_widget)
+            tv = QtWidgets.QTableView()
             tv.setModel(tm)
-
-        storage_button = QtWidgets.QPushButton('Next Storage', window.main_widget)
-        storage_button.setFixedSize(150, 20)
-        storage_button.clicked.connect(switch_storage)
-        storage_label = QtWidgets.QLabel('Storage: 1', window.main_widget)
-        toolbar_layout.addStretch()
-        toolbar_layout.addWidget(storage_button)
-        toolbar_layout.addWidget(storage_label)
-
-        headers = ['Controller Name', 'Time Charging (s)', 'Time Discharging (s)', 'Time Idle (s)']
-        tm = DataTableModel(table_data, headers, window.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
-        hh = tv.horizontalHeader()
-        hh.setStretchLastSection(True)
-        vh = tv.verticalHeader()
-        vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 100)
-        tv.setColumnWidth(1, 120)
-        tv.setColumnWidth(2, 120)
-        tv.setColumnWidth(3, 120)
+            hh = tv.horizontalHeader()
+            hh.setStretchLastSection(True)
+            vh = tv.verticalHeader()
+            vh.setVisible(False)
+            v_box.addWidget(tv)
+            tv.setColumnWidth(0, 100)
+            tv.setColumnWidth(1, 120)
+            tv.setColumnWidth(2, 120)
+            tv.setColumnWidth(3, 120)
 
     def open_file(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')

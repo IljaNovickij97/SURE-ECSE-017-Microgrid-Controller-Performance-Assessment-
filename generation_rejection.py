@@ -1,4 +1,3 @@
-import data
 import numpy as np
 
 
@@ -13,6 +12,11 @@ class GenerationRejection(object):
             for j in range(0, data_list[i].nLoad):
                 if data_list[i].loadList[j].load_type == 'Dump':
                     dump_loads.append(data_list[i].loadList[j])
+
+            # if no data found, return -1 and do stuff in GUI so program doesn't crash
+            if not dump_loads:
+                return -1
+
             for j in range(len(dump_loads)):
                     dump_load_use += dump_loads[j].demand
             canvas.axes.plot(data_list[i].timeList, dump_load_use, label=data_list[i].controllerName, linewidth=1.0)

@@ -17,6 +17,16 @@ class StorageUse(object):
 
     def charge_hist(self, data_list, canvas, step):
         bounds = ['<20%', '20%-40%', '40%-60%', '60%-80%', '>80%']
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
+        for i in range(len(data_list)):
+            temp = 0
+            for j in range(data_list[i].nDer):
+                if data_list[i].derList[j].energy_type == 'Storage':
+                    temp += 1
+                    continue
+            if temp != 0:
+                return -1
+
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
         for i in range(len(data_list)):
             for j in range(len(pos)):
