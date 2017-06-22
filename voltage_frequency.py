@@ -5,11 +5,16 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def voltage_time_plot(data_list, canvas, busNo):
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
+        for i in range(len(data_list)):
+            if data_list[i].nBus == 0:
+                return -1
+
         voltage_list = data_list[0].busList[busNo].voltage
         time_list = np.linspace(0, len(voltage_list) - 1, len(voltage_list))
 
         if not voltage_list:
-            return 0
+            return -1
 
         for i in range(len(data_list)):
             voltage_list = data_list[i].busList[busNo].voltage
@@ -48,11 +53,13 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def frequency_time_plot(data_list, canvas, bus_no):
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
+        for i in range(len(data_list)):
+            if data_list[i].nBus == 0:
+                return -1
+
         frequency_list = data_list[0].busList[bus_no].frequency
         time_list = np.linspace(0, len(frequency_list) - 1, len(frequency_list))
-
-        if not frequency_list:
-            return 0
 
         for i in range(len(data_list)):
             frequency_list = data_list[i].busList[bus_no].frequency

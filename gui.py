@@ -119,57 +119,80 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # VOLTAGE
         # Graphs
-        VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
-        VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
-        v_box_left.addWidget(hist_left)
-        v_box_left.addWidget(time_plot_left)
+        if VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0) == -1:
+            print("-1")
+            time_plot_left.axes.text(0.5, 0.5, 'Error: No voltage data found in at least one sample \n '
+                                     'Try selecting one sample at a time.', horizontalalignment='center',
+                                     verticalalignment='center')
+            hist_left.axes.text(0.5, 0.5, 'Error: No voltage data found in at least one sample \n '
+                                               'Try selecting one sample at a time.', horizontalalignment='center',
+                                     verticalalignment='center')
+            v_box_left.addWidget(hist_left)
+            v_box_left.addWidget(time_plot_left)
 
-        # Table
-        headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        table_data_left = []
-        for i in range(len(selected_data)):
-            stats = VoltageAndFrequency.voltage_stats(selected_data[i], 0)
-            current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
-            table_data_left.append(current_data)
+        else:
+            VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
+            #VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
+            v_box_left.addWidget(hist_left)
+            v_box_left.addWidget(time_plot_left)
 
-        tm_left = DataTableModel(table_data_left, headers, window.main_widget)
-        tv_left = QtWidgets.QTableView()
-        tv_left.setModel(tm_left)
-        hh_left = tv_left.horizontalHeader()
-        hh_left.setStretchLastSection(True)
-        vh_left = tv_left.verticalHeader()
-        vh_left.setVisible(False)
-        v_box_left.addWidget(tv_left)
-        tv_left.setColumnWidth(0, 300)
-        tv_left.setColumnWidth(1, 100)
-        tv_left.setColumnWidth(2, 100)
+            # Table
+            headers = ['Controller Name', 'Std. Deviation', 'Mean']
+            table_data_left = []
+            for i in range(len(selected_data)):
+                stats = VoltageAndFrequency.voltage_stats(selected_data[i], 0)
+                current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+                table_data_left.append(current_data)
+
+            tm_left = DataTableModel(table_data_left, headers, window.main_widget)
+            tv_left = QtWidgets.QTableView()
+            tv_left.setModel(tm_left)
+            hh_left = tv_left.horizontalHeader()
+            hh_left.setStretchLastSection(True)
+            vh_left = tv_left.verticalHeader()
+            vh_left.setVisible(False)
+            v_box_left.addWidget(tv_left)
+            tv_left.setColumnWidth(0, 300)
+            tv_left.setColumnWidth(1, 100)
+            tv_left.setColumnWidth(2, 100)
 
         # FREQUENCY
         # Graphs
-        VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
-        VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
-        v_box_right.addWidget(hist_right)
-        v_box_right.addWidget(time_plot_right)
+        if VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0) == -1:
+            time_plot_right.axes.text(0.5, 0.5, 'Error: No frequency data found in at least one sample \n '
+                                              'Try selecting one sample at a time.', horizontalalignment='center',
+                                    verticalalignment='center')
+            hist_right.axes.text(0.5, 0.5, 'Error: No frequency data found in at least one sample \n '
+                                                'Try selecting one sample at a time.', horizontalalignment='center',
+                                      verticalalignment='center')
+            v_box_right.addWidget(hist_right)
+            v_box_right.addWidget(time_plot_right)
 
-        # Table
-        headers = ['Controller Name', 'Std. Deviation', 'Mean']
-        table_data_right = []
-        for i in range(len(selected_data)):
-            stats = VoltageAndFrequency.frequency_stats(selected_data[i], 0)
-            current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
-            table_data_right.append(current_data)
+        else:
+            VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
+            #VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
+            v_box_right.addWidget(hist_right)
+            v_box_right.addWidget(time_plot_right)
 
-        tm_right = DataTableModel(table_data_right, headers, window.main_widget)
-        tv_right = QtWidgets.QTableView()
-        tv_right.setModel(tm_right)
-        hh_right = tv_right.horizontalHeader()
-        hh_right.setStretchLastSection(True)
-        vh_right = tv_right.verticalHeader()
-        vh_right.setVisible(False)
-        v_box_right.addWidget(tv_right)
-        tv_right.setColumnWidth(0, 300)
-        tv_right.setColumnWidth(1, 100)
-        tv_right.setColumnWidth(2, 100)
+            # Table
+            headers = ['Controller Name', 'Std. Deviation', 'Mean']
+            table_data_right = []
+            for i in range(len(selected_data)):
+                stats = VoltageAndFrequency.frequency_stats(selected_data[i], 0)
+                current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+                table_data_right.append(current_data)
+
+            tm_right = DataTableModel(table_data_right, headers, window.main_widget)
+            tv_right = QtWidgets.QTableView()
+            tv_right.setModel(tm_right)
+            hh_right = tv_right.horizontalHeader()
+            hh_right.setStretchLastSection(True)
+            vh_right = tv_right.verticalHeader()
+            vh_right.setVisible(False)
+            v_box_right.addWidget(tv_right)
+            tv_right.setColumnWidth(0, 300)
+            tv_right.setColumnWidth(1, 100)
+            tv_right.setColumnWidth(2, 100)
 
         # Toolbar switching
         def update_hist_left(event):
@@ -191,50 +214,52 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         canvas_list = [time_plot_right, time_plot_left, hist_right, hist_left]
 
         # Bus switching
-        n_bus = []
-        for i in range(len(selected_data)):
-            n_bus.append(selected_data[i].nBus)
-        n_bus = min(n_bus)
-        bus_current = 0
-
-        def switch_bus():
-            nonlocal bus_current
-            if bus_current < (n_bus - 1):
-                bus_current += 1
-            else:
-                bus_current = 0
-            for j in range(0, len(canvas_list)):
-                canvas_list[j].axes.clear()
-            VoltageAndFrequency.voltage_hist(selected_data, hist_left, bus_current, width)
-            VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, bus_current)
-            VoltageAndFrequency.frequency_hist(selected_data, hist_right, bus_current, width)
-            VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, bus_current)
-            label = "Bus: " + ("%d" % (bus_current + 1))
-            bus_label.setText(label)
-            for j in range(0, len(canvas_list)):
-                canvas_list[j].draw()
-
-            nonlocal table_data_right, table_data_left, tv_right, tv_left
-            table_data_right, table_data_left = [], []
+        if (VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0) and
+                VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_left, 0)) != -1:
+            n_bus = []
             for i in range(len(selected_data)):
-                stats = VoltageAndFrequency.voltage_stats(selected_data[i], bus_current)
-                current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
-                table_data_left.append(current_data)
-                stats = VoltageAndFrequency.frequency_stats(selected_data[i], bus_current)
-                current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
-                table_data_right.append(current_data)
-            tm = DataTableModel(table_data_left, headers, self.main_widget)
-            tv_left.setModel(tm)
-            tm = DataTableModel(table_data_right, headers, self.main_widget)
-            tv_right.setModel(tm)
+                n_bus.append(selected_data[i].nBus)
+            n_bus = min(n_bus)
+            bus_current = 0
 
-        bus_button = QtWidgets.QPushButton('Next Bus', window.main_widget)
-        bus_button.setFixedSize(150, 20)
-        bus_button.clicked.connect(switch_bus)
-        bus_label = QtWidgets.QLabel('Bus: 1', window.main_widget)
-        toolbar_layout.addStretch()
-        toolbar_layout.addWidget(bus_button)
-        toolbar_layout.addWidget(bus_label)
+            def switch_bus():
+                nonlocal bus_current
+                if bus_current < (n_bus - 1):
+                    bus_current += 1
+                else:
+                    bus_current = 0
+                for j in range(0, len(canvas_list)):
+                    canvas_list[j].axes.clear()
+                VoltageAndFrequency.voltage_hist(selected_data, hist_left, bus_current, width)
+                VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, bus_current)
+                VoltageAndFrequency.frequency_hist(selected_data, hist_right, bus_current, width)
+                VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, bus_current)
+                label = "Bus: " + ("%d" % (bus_current + 1))
+                bus_label.setText(label)
+                for j in range(0, len(canvas_list)):
+                    canvas_list[j].draw()
+
+                nonlocal table_data_right, table_data_left, tv_right, tv_left
+                table_data_right, table_data_left = [], []
+                for i in range(len(selected_data)):
+                    stats = VoltageAndFrequency.voltage_stats(selected_data[i], bus_current)
+                    current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+                    table_data_left.append(current_data)
+                    stats = VoltageAndFrequency.frequency_stats(selected_data[i], bus_current)
+                    current_data = [selected_data[i].controllerName, "%.2f" % stats[0], "%.2f" % stats[1]]
+                    table_data_right.append(current_data)
+                tm = DataTableModel(table_data_left, headers, self.main_widget)
+                tv_left.setModel(tm)
+                tm = DataTableModel(table_data_right, headers, self.main_widget)
+                tv_right.setModel(tm)
+
+            bus_button = QtWidgets.QPushButton('Next Bus', window.main_widget)
+            bus_button.setFixedSize(150, 20)
+            bus_button.clicked.connect(switch_bus)
+            bus_label = QtWidgets.QLabel('Bus: 1', window.main_widget)
+            toolbar_layout.addStretch()
+            toolbar_layout.addWidget(bus_button)
+            toolbar_layout.addWidget(bus_label)
 
         # Layout finalization
         v_box.addLayout(toolbar_layout)
@@ -543,24 +568,22 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         charge_time_plot = Canvas(window.main_widget)
         toolbar = NavigationToolbar(charge_hist, window, coordinates=False)
         toolbar_layout.addWidget(toolbar)
+        v_box.addLayout(toolbar_layout)
 
         # if program returns -1, there was no data found. the following if condition handles this
         if storage_use.charge_hist(selected_data, charge_hist, width) == -1:
-            print("here")
             charge_hist.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
                               horizontalalignment='center', verticalalignment='center')
             charge_time_plot.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n Try selecting one sample at a time.',
                               horizontalalignment='center', verticalalignment='center')
-            v_box.addLayout(toolbar_layout)
             v_box.addWidget(charge_hist)
             v_box.addWidget(charge_time_plot)
 
         else:
-            storage_use.charge_hist(selected_data, charge_hist, width)
             storage_use.charge_time_plot(selected_data, charge_time_plot)
-            v_box.addLayout(toolbar_layout)
             v_box.addWidget(charge_hist)
             v_box.addWidget(charge_time_plot)
+
             graph_list = [charge_hist, charge_time_plot]
 
             # Toolbar switching setup

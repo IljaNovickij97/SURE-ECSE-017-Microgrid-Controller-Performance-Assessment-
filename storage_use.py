@@ -24,7 +24,7 @@ class StorageUse(object):
                 if data_list[i].derList[j].energy_type == 'Storage':
                     temp += 1
                     continue
-            if temp != 0:
+            if temp == 0:
                 return -1
 
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]

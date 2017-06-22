@@ -124,6 +124,9 @@ class Data(object):
     @staticmethod
     def read_values(f):             # Method used to read in an array of values and convert them to floats
         string = f.readline()
+        if string == ('\n' or ' \n'):
+            return
+
         string = string.split(' ')
 
         for i in range(len(string)):
