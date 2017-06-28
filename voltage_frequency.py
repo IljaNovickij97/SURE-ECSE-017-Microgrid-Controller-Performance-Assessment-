@@ -20,6 +20,7 @@ class VoltageAndFrequency(object):
                 return i
 
         for i in range(len(data_list)):
+
             canvas.axes.plot(time_list, voltage_list[i], linewidth=1.0)
             canvas.axes.axis([0, max(time_list) + 1, min(voltage_list[i]) - 1, max(voltage_list[i]) + 1])
 
