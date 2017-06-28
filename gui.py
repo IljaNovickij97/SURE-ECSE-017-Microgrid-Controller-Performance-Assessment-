@@ -119,20 +119,31 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         # VOLTAGE
         # Graphs
-        if VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0) == -1:
+        vo = VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
+        if vo == -1:
             print("-1")
-            time_plot_left.axes.text(0.5, 0.5, 'Error: No voltage data found in at least one sample \n '
+            time_plot_left.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n '
                                      'Try selecting one sample at a time.', horizontalalignment='center',
                                      verticalalignment='center')
-            hist_left.axes.text(0.5, 0.5, 'Error: No voltage data found in at least one sample \n '
+            hist_left.axes.text(0.5, 0.5, 'Error: No data found in at least one sample \n '
+                                'Try selecting one sample at a time.', horizontalalignment='center',
+                                verticalalignment='center')
+            v_box_left.addWidget(hist_left)
+            v_box_left.addWidget(time_plot_left)
+
+        elif vo is not None:
+            print("here")
+            time_plot_left.axes.text(0.5, 0.5, 'Error: Voltage data missing from at least one sample \n '
                                                'Try selecting one sample at a time.', horizontalalignment='center',
                                      verticalalignment='center')
+            hist_left.axes.text(0.5, 0.5, 'Error:  Voltage data missing from at least one sample \n '
+                                          'Try selecting one sample at a time.', horizontalalignment='center',
+                                verticalalignment='center')
             v_box_left.addWidget(hist_left)
             v_box_left.addWidget(time_plot_left)
 
         else:
             VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
-            #VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
             v_box_left.addWidget(hist_left)
             v_box_left.addWidget(time_plot_left)
 
@@ -290,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             v_box.addWidget(time_plot)
 
         else:
-            GenerationRejection.dump_time_plot(selected_data, time_plot)
+            # GenerationRejection.dump_time_plot(selected_data, time_plot) -- comment out or plotted twice
             v_box.addWidget(toolbar)
             v_box.addWidget(time_plot)
 
@@ -388,6 +399,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         tm = DataTableModel(table_data, headers, window.main_widget)
         tv = QtWidgets.QTableView()
+        tv.setWindowTitle("title")
         tv.setModel(tm)
         hh = tv.horizontalHeader()
         hh.setStretchLastSection(True)
@@ -489,6 +501,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             toolbar_layout.addWidget(fuel_label)
 
             # Stats Table
+            tl = QtWidgets.QLabel("Stats affecting Running Cost \n", window.main_widget)
+            font = QtGui.QFont()
+            font.setBold(True)
+            tl.setFont(font)
+            stats_table_box.addWidget(tl)
             headers = ['Controller Name', 'Fuel Consumption(L)', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
                        'Peak Power\n(Grid Connected) (MW)']
             RunningCost.ramping(selected_data)
@@ -504,6 +521,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             hh.setStretchLastSection(True)
             vh = tv.verticalHeader()
             vh.setVisible(False)
+            v_box.addLayout(stats_table_box)
             v_box.addWidget(tv)
             tv.setColumnWidth(0, 100)
             tv.setColumnWidth(1, 120)
@@ -511,18 +529,16 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             tv.setColumnWidth(3, 120)
             tv.setColumnWidth(4, 120)
 
-            v_box.addLayout(stats_table_box)
-
-            tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER ", window.main_widget)
+            # Switch count Table
+            tl1 = QtWidgets.QLabel("Occurrences of On/Off Switching per DER \n", window.main_widget)
             font = QtGui.QFont()
             font.setBold(True)
             tl1.setFont(font)
-            stats_table_box.addWidget(tl1)
+            switch_table_box.addWidget(tl1)
             tl2 = QtWidgets.QLabel("If 'Fuel': off: consumption = 0 \n"
                                    "If 'Renewable': off: generation < 5% Cacpacity", window.main_widget)
-            stats_table_box.addWidget(tl2)
+            switch_table_box.addWidget(tl2)
 
-            # Switch count Table
             headers = ['Controller Name']
             for i in range(selected_data[0].nDer):
                 headers.append(selected_data[0].derList[i].energy_type)
@@ -539,6 +555,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             hh.setStretchLastSection(True)
             vh = tv.verticalHeader()
             vh.setVisible(False)
+            v_box.addLayout(switch_table_box)
             v_box.addWidget(tv)
             tv.setColumnWidth(0, 100)
             for i in range(1, len(headers)):

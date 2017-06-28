@@ -1,7 +1,13 @@
-Controller No data
+Controller No data sample
 Sampling Rate 1
 Sampling Period 20
 ### System info
-Bus No. 0
+Bus No. 2
 DER No. 0
 Load No. 0
+### Bus Info
+Voltage
+Frequency 60 61 62 60 61 59 59.5 62 60 61 60 61 59 59.5 57 60 61 59 59.5 62 59.5 62 60 61 59
+# next bus
+Voltage 220 212 235 221 232 233 250 212 222 192 231 219 220 221 223 226 231 209 225 235
+Frequency 60 61 62 60 61 59 59.5 62 60 61 60 61 59 59.5 62 60 61 59 59.5 62 59.5 62 60 61 59
