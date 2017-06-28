@@ -11,9 +11,7 @@ class VoltageAndFrequency(object):
             if data_list[i].nBus == 0:
                 return -1
 
-        voltage_list = data_list[0].busList[busNo].voltage
         time_list = data_list[0].timeList
-            #np.linspace(0, len(voltage_list) - 1, len(voltage_list))
 
         voltage_list = []
         for i in range(len(data_list)):
