@@ -9,7 +9,7 @@ class StorageUse(object):
         for i in range(len(data_list)):
             index = []
             for j in range(data_list[i].nDer):
-                if data_list[i].derList[j].energy_type == 'Storage':
+                if 'Storage' in data_list[i].derList[j].energy_type:
                     index.append(j)
             self.storage_index.append(index)
         self.n_storage = len(self.storage_index[0])
@@ -22,7 +22,7 @@ class StorageUse(object):
             for j in range(len(pos)):
                 pos[j] += step
             charge_state = data_list[i].derList[self.storage_index[i][self.current_index]].consumption
-            bins = sort_bin(charge_state, 0.2, 0.4, 0.6, 0.8)
+            bins = sort_bin(charge_state, 20, 40, 60, 80)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):
@@ -37,14 +37,11 @@ class StorageUse(object):
     def charge_time_plot(self, data_list, canvas):
         for i in range(len(data_list)):
             charge_state = data_list[i].derList[self.storage_index[i][self.current_index]].consumption
-            charge_state_percent = [0.0] * len(charge_state)
-            for k in range(len(charge_state)):
-                charge_state_percent[k] = charge_state[k]*100.0
-            canvas.axes.plot(data_list[i].timeList, charge_state_percent, linewidth=1.0)
+            canvas.axes.plot(data_list[i].timeList, charge_state, linewidth=1.0)
 
         canvas.axes.set_xlabel("Time (s)")
         canvas.axes.set_ylabel("State of Charge (%)")
-        canvas.axes.set_xlim([0, len(data_list[i].timeList) - 1])
+        canvas.axes.set_xlim([0, data_list[i].timeList[-1]])
 
     def charge_stats(self, data_list):
         time_spent_charging = []

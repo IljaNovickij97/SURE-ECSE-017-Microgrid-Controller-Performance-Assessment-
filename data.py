@@ -22,6 +22,10 @@ class Data(object):
         elif filename[-3:] == 'mat':
             self.read_mat_data()
 
+        if self.timeList == []:
+            self.timeList = self.busList[0].voltage_time
+            print(self.timeList)
+
     def read_text_data(self):            # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
                                     # the file is correct. Might be worth adding redundancy later on.
@@ -128,18 +132,23 @@ class Data(object):
     @staticmethod
     def read_text_values(f):             # Method used to read in an array of values and convert them to floats
         string = f.readline()
+        if string == ' ':
+            return
         string = string.split(' ')
 
         for i in range(len(string)):
             string[i] = float(string[i])
         return string
 
-    def read_mat_data(self):
+    def read_mat_data(self):            # Method used to read in data from a .mat file
         f = h5py.File(self.filename, 'r')
+
+        # Get references for data id and label locations
         data_ref = np.array(f.get('SDIDescriptor/Signals/DataID'))
         label_ref = np.array(f.get('SDIDescriptor/Signals/SignalLabel'))
 
         for i in range(len(data_ref)):
+            # Read in the label and store it in a string
             current_label = f[label_ref[i][0]]
             label = []
             for j in range(len(current_label)):
@@ -147,7 +156,7 @@ class Data(object):
             label = "".join(label)
 
             if 'V-bus' in label:
-                current_bus = int(self.get_type(label, 1)[3:])
+                current_bus = int(self.get_word(label, 1)[3:])
                 while current_bus > self.nBus:
                     self.nBus += 1
                     self.busList.append(Bus())
@@ -157,10 +166,10 @@ class Data(object):
                 string2 = 's' + str(current_signal[0][0]) + '/TimeValues'
                 self.busList[current_bus - 1].voltage = np.array(f.get(string1))[0]
                 self.busList[current_bus - 1].voltage_time = np.transpose(np.array(f.get(string2)))[0]
-                self.busList[current_bus - 1].voltage_unit = self.get_type(label, 2)
+                self.busList[current_bus - 1].voltage_unit = self.get_word(label, 2)
 
             elif 'F-bus' in label:
-                current_bus = int(self.get_type(label, 1)[3:])
+                current_bus = int(self.get_word(label, 1)[3:])
                 while current_bus > self.nBus:
                     self.nBus += 1
                     self.busList.append(Bus())
@@ -170,10 +179,10 @@ class Data(object):
                 string2 = 's' + str(current_signal[0][0]) + '/TimeValues'
                 self.busList[current_bus - 1].frequency = np.array(f.get(string1))[0]
                 self.busList[current_bus - 1].frequency_time = np.transpose(np.array(f.get(string2)))[0]
-                self.busList[current_bus - 1].frequency_unit = self.get_type(label, 2)
+                self.busList[current_bus - 1].frequency_unit = self.get_word(label, 2)
 
             elif 'Po-der' in label:
-                current_der = int(self.get_type(label, 1)[3:])
+                current_der = int(self.get_word(label, 1)[3:])
                 while current_der > self.nDer:
                     self.nDer += 1
                     self.derList.append(Der())
@@ -183,12 +192,12 @@ class Data(object):
                 string2 = 's' + str(current_signal[0][0]) + '/TimeValues'
                 self.derList[current_der - 1].output = np.array(f.get(string1))[0]
                 self.derList[current_der - 1].time = np.transpose(np.array(f.get(string2)))[0]
-                self.derList[current_der - 1].energy_type = self.get_type(label, 2)
-                self.derList[current_der - 1].capacity = int(self.get_type(label, 3))
-                self.derList[current_der - 1].output_unit = self.get_type(label, 4)
+                self.derList[current_der - 1].energy_type = self.get_word(label, 2)
+                self.derList[current_der - 1].capacity = int(self.get_word(label, 3))
+                self.derList[current_der - 1].output_unit = self.get_word(label, 4)
 
             elif 'C-der' in label:
-                current_der = int(self.get_type(label, 1)[3:])
+                current_der = int(self.get_word(label, 1)[3:])
                 while current_der > self.nDer:
                     self.nDer += 1
                     self.derList.append(Der())
@@ -196,10 +205,10 @@ class Data(object):
                 current_signal = f[data_ref[i][0]]
                 string1 = 's' + str(current_signal[0][0]) + '/DataValues'
                 self.derList[current_der - 1].consumption = np.array(f.get(string1))[0]
-                self.derList[current_der - 1].consumpion_unit = self.get_type(label, 2)
+                self.derList[current_der - 1].consumpion_unit = self.get_word(label, 2)
 
             elif 'SOC-der' in label:
-                current_der = int(self.get_type(label, 1)[3:])
+                current_der = int(self.get_word(label, 1)[3:])
                 while current_der > self.nDer:
                     self.nDer += 1
                     self.derList.append(Der())
@@ -209,7 +218,7 @@ class Data(object):
                 self.derList[current_der - 1].consumption = np.array(f.get(string1))[0]
 
             elif 'Pd-load' in label:
-                current_load = int(self.get_type(label, 1)[4:])
+                current_load = int(self.get_word(label, 1)[4:])
                 while current_load > self.nLoad:
                     self.nLoad += 1
                     self.loadList.append(Load())
@@ -219,16 +228,14 @@ class Data(object):
                 string2 = 's' + str(current_signal[0][0]) + '/TimeValues'
                 self.loadList[current_load - 1].demand = np.array(f.get(string1))[0]
                 self.loadList[current_load - 1].time = np.transpose(np.array(f.get(string2)))[0]
-                self.loadList[current_load - 1].load_type = self.get_type(label, 2)
-                self.loadList[current_load - 1].unit = self.get_type(label, 3)
+                self.loadList[current_load - 1].load_type = self.get_word(label, 2)
+                self.loadList[current_load - 1].unit = self.get_word(label, 3)
 
             else:
                 continue
 
-        self.print_all()
-
     @staticmethod
-    def get_type(label, start):
+    def get_word(label, start):             # Method used to get a specific word from a label
         flag = 0
         label_type = []
         for i in range(len(label)):
@@ -242,7 +249,7 @@ class Data(object):
         label_type = "".join(label_type)
         return label_type
 
-    def print_all(self):
+    def print_all(self):                    # Used to debug data
         for i in range(len(self.busList)):
             label = "Bus: " + str(i + 1)
             print(label)

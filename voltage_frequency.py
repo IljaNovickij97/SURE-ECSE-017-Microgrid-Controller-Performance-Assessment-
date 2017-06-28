@@ -5,20 +5,31 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def voltage_time_plot(data_list, canvas, busNo):
-        voltage_list = data_list[0].busList[busNo].voltage
-        time_list = np.linspace(0, len(voltage_list) - 1, len(voltage_list))
 
-        if not voltage_list:
-            return 0
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
+        for i in range(len(data_list)):
+            if data_list[i].nBus == 0:
+                return -1
+
+        voltage_list = data_list[0].busList[busNo].voltage
+        time_list = data_list[0].timeList
+            #np.linspace(0, len(voltage_list) - 1, len(voltage_list))
+
+        voltage_list = []
+        for i in range(len(data_list)):
+            voltage_list.append(data_list[i].busList[busNo].voltage)
+            if voltage_list[i] is None:
+                return i
 
         for i in range(len(data_list)):
-            voltage_list = data_list[i].busList[busNo].voltage
-            canvas.axes.plot(time_list, voltage_list, linewidth=1.0)
-            canvas.axes.axis([0, max(time_list) + 1, min(voltage_list) - 1, max(voltage_list) + 1])
+            canvas.axes.plot(time_list, voltage_list[i], linewidth=1.0)
+            canvas.axes.axis([0, max(time_list) + 1, min(voltage_list[i]) - 1, max(voltage_list[i]) + 1])
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Voltage (V)')
         canvas.axes.set_xlim([0, len(time_list) - 1])
+
+        return
 
     @staticmethod
     def voltage_hist(data_list, canvas, busNo, step):
@@ -48,11 +59,13 @@ class VoltageAndFrequency(object):
 
     @staticmethod
     def frequency_time_plot(data_list, canvas, bus_no):
+        # if no data found, return -1 and do stuff in GUI so program doesn't crash
+        for i in range(len(data_list)):
+            if data_list[i].nBus == 0:
+                return -1
+
         frequency_list = data_list[0].busList[bus_no].frequency
         time_list = np.linspace(0, len(frequency_list) - 1, len(frequency_list))
-
-        if not frequency_list:
-            return 0
 
         for i in range(len(data_list)):
             frequency_list = data_list[i].busList[bus_no].frequency
