@@ -21,10 +21,8 @@ class Data(object):
             self.read_text_data()
         elif filename[-3:] == 'mat':
             self.read_mat_data()
-
         if self.timeList == []:
             self.timeList = self.busList[0].voltage_time
-            print(self.timeList)
 
     def read_text_data(self):            # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
@@ -278,6 +276,68 @@ class Data(object):
             print(self.loadList[i].time)
             print(self.loadList[i].unit)
             print(self.loadList[i].load_type)
+
+    def check_vf(self):
+        if self.nBus == 0:
+            return False
+        for i in range(self.nBus):
+            if self.busList[i].voltage == None:
+                return False
+            elif self.busList[i].voltage_time == None:
+                return False
+            elif self.busList[i].frequency == None:
+                return False
+            elif self.busList[i].frequency_time == None:
+                return False
+
+        return True
+
+    def check_gr(self):
+        if self.nLoad == 0:
+            return False
+        for i in range(self.nLoad):
+            if 'Dump' in self.loadList[i].load_type:
+                return True
+
+        return False
+
+    def check_rei(self):
+        if self.nDer == 0:
+            return False
+        else:
+            return True
+
+    def check_rc(self):
+        fuel_index = []
+        for i in range(self.nDer):
+            if 'Fuel' in self.derList[i].energy_type:
+                fuel_index.append(i)
+
+        if len(fuel_index) == 0:
+            return False
+
+        for i in range(len(fuel_index)):
+            if self.derList[fuel_index[i]].output == None:
+                return False
+            elif self.derList[fuel_index[i]].consumption == None:
+                return False
+
+        return True
+
+    def check_su(self):
+        storage_index = []
+        for i in range(self.nDer):
+            if 'Storage' in self.derList[i].energy_type:
+                storage_index.append(i)
+
+        if len(storage_index) == 0:
+            return False
+
+        for i in range(len(storage_index)):
+            if self.derList[storage_index[i]].consumption == None:
+                return False
+
+        return True
 
 
 class Bus(object):

@@ -6,39 +6,23 @@ class VoltageAndFrequency(object):
     @staticmethod
     def voltage_time_plot(data_list, canvas, busNo):
 
-        # if no data found, return -1 and do stuff in GUI so program doesn't crash
         for i in range(len(data_list)):
-            if data_list[i].nBus == 0:
-                return -1
-
-        time_list = data_list[0].timeList
-
-        voltage_list = []
-        for i in range(len(data_list)):
-            voltage_list.append(data_list[i].busList[busNo].voltage)
-            if voltage_list[i] is None:
-                return i
-
-        for i in range(len(data_list)):
-            canvas.axes.plot(time_list, voltage_list[i], linewidth=1.0)
-            canvas.axes.axis([0, max(time_list) + 1, min(voltage_list[i]) - 1, max(voltage_list[i]) + 1])
+            canvas.axes.plot(data_list[i].busList[busNo].voltage_time,
+                             data_list[i].busList[busNo].voltage, linewidth=1.0)
 
         canvas.axes.set_xlabel('Time (s)')
-        canvas.axes.set_ylabel('Voltage (V)')
-        canvas.axes.set_xlim([0, len(time_list) - 1])
-
-        return
+        canvas.axes.set_ylabel('Voltage (pu)')
 
     @staticmethod
     def voltage_hist(data_list, canvas, busNo, step):
-        bounds = ['<120', '120-180', '180-220', '220-260', '>260']
+        bounds = ['<0.94', '0.94-0.98', '0.98-1.02', '1.02-1.06', '>1.06']
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
             voltage_list = data_list[i].busList[busNo].voltage
             for j in range(len(pos)):
                 pos[j] += step
-            bins = sort_bin(voltage_list, 120, 180, 220, 260)
+            bins = sort_bin(voltage_list, 0.94, 0.98, 1.02, 1.06)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):
@@ -46,7 +30,7 @@ class VoltageAndFrequency(object):
 
         canvas.axes.set_xticklabels(bounds)
         canvas.axes.set_xticks(pos)
-        canvas.axes.set_xlabel('Voltage (V)')
+        canvas.axes.set_xlabel('Voltage (pu)')
         canvas.axes.set_ylabel('Number of Occurrences')
         canvas.axes.legend(loc='upper right')
 
@@ -56,23 +40,14 @@ class VoltageAndFrequency(object):
         return stats
 
     @staticmethod
-    def frequency_time_plot(data_list, canvas, bus_no):
-        # if no data found, return -1 and do stuff in GUI so program doesn't crash
-        for i in range(len(data_list)):
-            if data_list[i].nBus == 0:
-                return -1
-
-        frequency_list = data_list[0].busList[bus_no].frequency
-        time_list = np.linspace(0, len(frequency_list) - 1, len(frequency_list))
+    def frequency_time_plot(data_list, canvas, busNo):
 
         for i in range(len(data_list)):
-            frequency_list = data_list[i].busList[bus_no].frequency
-            canvas.axes.plot(time_list, frequency_list, linewidth=1.0)
-            canvas.axes.axis([0, max(time_list) + 1, min(frequency_list) - 1, max(frequency_list) + 1])
+            canvas.axes.plot(data_list[i].busList[busNo].frequency_time,
+                              data_list[i].busList[busNo].frequency, linewidth=1.0)
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Frequency (Hz)')
-        canvas.axes.set_xlim([0, len(time_list) - 1])
 
     @staticmethod
     def frequency_hist(data_list, canvas, bus_no, step):
