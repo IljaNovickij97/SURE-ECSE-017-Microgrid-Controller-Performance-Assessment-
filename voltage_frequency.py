@@ -7,10 +7,8 @@ class VoltageAndFrequency(object):
     def voltage_time_plot(data_list, canvas, busNo):
 
         for i in range(len(data_list)):
-<<<<<<< HEAD
             canvas.axes.plot(data_list[i].busList[busNo].voltage_time,
                              data_list[i].busList[busNo].voltage, linewidth=1.0)
-=======
             if data_list[i].nBus == 0:
                 return -1
 
@@ -26,7 +24,6 @@ class VoltageAndFrequency(object):
 
             canvas.axes.plot(time_list, voltage_list[i], linewidth=1.0)
             canvas.axes.axis([0, max(time_list) + 1, min(voltage_list[i]) - 1, max(voltage_list[i]) + 1])
->>>>>>> origin/master
 
         canvas.axes.set_xlabel('Time (s)')
         canvas.axes.set_ylabel('Voltage (pu)')
