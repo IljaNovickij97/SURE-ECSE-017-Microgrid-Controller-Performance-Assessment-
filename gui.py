@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
+import sys
 from renewables import *
 from voltage_frequency import *
 from running_cost import *
 from data import *
 from gui_backend import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from generation_rejection import *
 
 from running_cost import *
@@ -49,6 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         # Generation Rejection button
         gr_button = QtWidgets.QPushButton('Generation\n Rejection')
         gr_button.setFixedSize(100, 100)
+        gr_button.clicked.connect(self.warning)
         gr_button.clicked.connect(self.gr)
         h_box.addWidget(gr_button)
 
@@ -318,7 +323,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                 canvas_list[i].axes.text(0.1, 0.5, 'Error: No Data Found in Sample')
                 pie_box.addWidget(canvas_list[i])
             else:
-                Renewables.renewable_pie(selected_data[i], canvas_list[i])
+                #Renewables.renewable_pie(selected_data[i], canvas_list[i])
                 pie_box.addWidget(canvas_list[i])
 
         # Normalize pie chart button
@@ -670,3 +675,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                     selected_data.append(self.data_list[i])
 
         return selected_data
+
+    def warning(self):
+        error = QMessageBox.warning(self, "Error", "Data missing in at least one sample. "
+                                                   "\nTry selecting one sample at a time \nor check data for errors",
+                                    QMessageBox.Ok)

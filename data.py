@@ -24,6 +24,8 @@ class Data(object):
         if self.timeList == []:
             self.timeList = self.busList[0].voltage_time
 
+
+
     def read_text_data(self):            # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
                                     # the file is correct. Might be worth adding redundancy later on.
