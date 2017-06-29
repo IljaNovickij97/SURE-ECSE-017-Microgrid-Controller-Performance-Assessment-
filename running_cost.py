@@ -27,11 +27,6 @@ class RunningCost(object):
         fuel_types = list(set(fuel_types))
         num_fuel = len(fuel_types)
 
-        # if no data found, return -1 and do stuff in GUI so program doesn't crash
-        for i in range(len(data_list)):
-            if data_list[i].nDer == 0:
-                return -1
-
         # 3D list of fuel consumption per type per sample
         global fuels
 
@@ -140,7 +135,6 @@ class RunningCost(object):
             line_styles.extend(line_styles)
         colours = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
 
-        # todo: add minpoint recognition to plot
         if ftype == 0:
             for i in range(len(data_list)):
                 canvas.axes.plot(total_gen_list[i], y_tot[i], linewidth=2, linestyle=None, color=colours[i],
@@ -230,8 +224,7 @@ class RunningCost(object):
             for i in range(data_list[0].nLoad):
                 if data_list[a].loadList[i].load_type != 'Dump':
                     for j in range(len(t)):
-                        if (data_list[a].loadList[i].demand[j] > peak_pwr):
+                        if data_list[a].loadList[i].demand[j] > peak_pwr:
                             peak_pwr = data_list[a].loadList[i].demand[j]
             stats[a].append('%.2f' % peak_pwr)
-
         return stats

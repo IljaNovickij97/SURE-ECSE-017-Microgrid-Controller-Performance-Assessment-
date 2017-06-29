@@ -17,10 +17,6 @@ class Renewables(object):
 
         gen_types = list(set(gen_types))
 
-        # if no data found, return 0 for robustness
-        if not gen_types:
-            return 0
-
         num_gen = len(gen_types)
         gen_list = np.array([[0.0]*len(t) for j in range(num_gen)])
 
@@ -160,10 +156,6 @@ class Renewables(object):
 
         gen_types = list(set(gen_types))
 
-        # if no data found, return 0 for robustness
-        if not gen_types:
-            return 0
-
         num_gen = len(gen_types)
         gen_list = np.array([[0.0] * len(t) for j in range(num_gen)])
 
@@ -210,5 +202,3 @@ class Renewables(object):
         stats.append(total)
 
         return num_gen, stats, labels
-
-
