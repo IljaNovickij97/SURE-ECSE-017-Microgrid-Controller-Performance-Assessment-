@@ -404,7 +404,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
         else:
 
-            window = NewWindow(parent=self, title='Runnnig Costs')
+            window = NewWindow(parent=self, title='Runnig Costs')
             window.setMinimumSize(750, 900)
 
             # Layout
