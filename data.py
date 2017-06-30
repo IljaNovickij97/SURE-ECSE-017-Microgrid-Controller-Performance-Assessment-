@@ -21,6 +21,7 @@ class Data(object):
             self.read_text_data()
         elif filename[-3:] == 'mat':
             self.read_mat_data()
+
         if self.timeList == []:
             self.timeList = self.busList[0].voltage_time
 
@@ -283,7 +284,7 @@ class Data(object):
         for i in range(self.nBus):
             if self.busList[i].voltage == None:
                 return False
-            elif self.busList[i].voltage_time == None:
+            elif self.busList[i].voltage_time  == None:
                 return False
             elif self.busList[i].frequency == None:
                 return False

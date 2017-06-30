@@ -638,7 +638,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             tv.setColumnWidth(3, 120)
 
     def open_file(self):
-        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '*.mat; *.txt')
         if filename[0] == '':
             return
         self.data_list.append(Data(filename[0]))
