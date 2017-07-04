@@ -347,6 +347,7 @@ class Data(object):
             if self.derList[storage_index[i]].consumption == None:
                 return False
 
+        return True
 
 class Bus(object):
     def __init__(self, voltage=None, frequency=None):
