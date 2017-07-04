@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 import h5py
+from PyQt5.QtWidgets import *
 
 
 class Data(object):
@@ -78,6 +79,14 @@ class Data(object):
 
         # Very simple placeholder for timeList. Will have to be modified later.
         self.timeList = np.linspace(0, self.samplingPeriod, int(self.samplingPeriod / self.samplingRate))
+
+        for i in range(self.nBus):
+            if self.busList[i].voltage_time == None or self.busList[i].frequency_time == None:
+                self.busList[i].voltage_time, self.busList[i].frequency_time, self.timeList = [], [], []
+                for j in range(self.samplingPeriod * self.samplingRate):
+                    self.busList[i].voltage_time.append(j / self.samplingRate)
+                    self.busList[i].frequency_time.append(j / self.samplingRate)
+                    self.timeList.append(j / self.samplingRate)
 
         f.close()
 

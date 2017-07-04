@@ -689,6 +689,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         return selected_data
 
     def warning(self):
-        error = QMessageBox.warning(self, "Error", "Data missing in at least one sample. "
-                                                   "\nTry selecting one sample at a time \nor check data for errors",
+        error = QMessageBox.warning(self, "Error", "Data missing in at least one sample. \nCheck data for errors",
                                     QMessageBox.Ok)
+
+    def data_warning(self):
+        print("data warning")
+        error = QMessageBox.warning(self, "Error", "Incompatible data formatting", QMessageBox.Ok)
