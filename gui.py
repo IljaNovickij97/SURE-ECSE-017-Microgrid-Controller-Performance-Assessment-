@@ -1,15 +1,12 @@
 from __future__ import unicode_literals
-from renewables import *
 from voltage_frequency import *
+from renewables import *
 from running_cost import *
+from storage_use import *
+from generation_rejection import *
 from data import *
 from gui_backend import *
 from PyQt5.QtWidgets import *
-from generation_rejection import *
-
-from running_cost import *
-
-from storage_use import *
 
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
@@ -641,8 +638,12 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '*.mat; *.txt')
         if filename[0] == '':
             return
-        self.data_list.append(Data(filename[0]))
-        self.update_table()
+        try:
+            self.data_list.append(Data(filename[0]))
+        except:
+            self.data_warning()
+        else:
+            self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
 
     def update_table(self):
@@ -689,9 +690,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         return selected_data
 
     def warning(self):
-        error = QMessageBox.warning(self, "Error", "Data missing in at least one sample. \nCheck data for errors",
+        error = QMessageBox.warning(self, "Error", "Data missing in at least 1 sample. \nCheck data for errors",
                                     QMessageBox.Ok)
 
     def data_warning(self):
-        print("data warning")
         error = QMessageBox.warning(self, "Error", "Incompatible data formatting", QMessageBox.Ok)
