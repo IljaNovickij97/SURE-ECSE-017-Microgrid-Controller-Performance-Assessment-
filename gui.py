@@ -694,4 +694,4 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                                     QMessageBox.Ok)
 
     def data_warning(self):
-        error = QMessageBox.warning(self, "Error", "Incompatible data formatting", QMessageBox.Ok)
+        error = QMessageBox.critical(self, "Error", "Incompatible data formatting", QMessageBox.Ok)
