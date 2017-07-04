@@ -643,7 +643,10 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         except:
             self.data_warning()
         else:
-            self.update_table()
+            if not self.data_list[-1].done_flag:
+                self.sort_data()
+            else:
+                self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
 
     def update_table(self):
@@ -695,3 +698,25 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
     def data_warning(self):
         error = QMessageBox.critical(self, "Error", "Incompatible data formatting", QMessageBox.Ok)
+
+    def sort_data(self):
+        window = NewWindow(parent=self, title='Data Sorter')
+        window.setMinimumSize(750, 900)
+        v_box = QtWidgets.QVBoxLayout(window.main_widget)
+
+        table_data = []
+
+        for i in range(len(self.data_list[-1].temp_label_list)):
+            current_data = [self.data_list[-1].temp_label_list[i]]
+            table_data.append(current_data)
+
+        headers = ['Label']
+        tm = DataTableModel(table_data, headers, window.main_widget)
+        tv = QtWidgets.QTableView()
+        tv.setModel(tm)
+        hh = tv.horizontalHeader()
+        hh.setStretchLastSection(True)
+        vh = tv.verticalHeader()
+        vh.setVisible(False)
+        v_box.addWidget(tv)
+        tv.setColumnWidth(0, 100)

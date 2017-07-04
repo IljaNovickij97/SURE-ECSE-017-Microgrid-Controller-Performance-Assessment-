@@ -17,14 +17,18 @@ class Data(object):
         self.nBus = 0               # Number of buses in the system
         self.nDer = 0               # Number of DERs in the system
         self.nLoad = 0              # Number of loads in the system
+        self.temp_label_list = []   # List of labels for when mat data needs to be sorted
+        self.done_flag = False      # Flag used to tell gui.py whether data is fully sorted and loaded
 
         if filename[-3:] == 'txt':
             self.read_text_data()
         elif filename[-3:] == 'mat':
-            self.read_mat_data()
-
-        if self.timeList == []:
-            self.timeList = self.busList[0].voltage_time
+            try:
+                self.read_labelled_mat_data()
+            except TypeError:
+                self.read_unlabelled_mat_data()
+            except OSError:
+                print('File is using an old unsupported file format')
 
     def read_text_data(self):       # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
@@ -89,6 +93,7 @@ class Data(object):
                     self.timeList.append(j / self.samplingRate)
 
         f.close()
+        self.done_flag = True
 
     def read_text_bus(self, f):          # Method used to read in all the necessary values for a bus
         # Skips Voltage identifier
@@ -148,7 +153,7 @@ class Data(object):
             string[i] = float(string[i])
         return string
 
-    def read_mat_data(self):            # Method used to read in data from a .mat file
+    def read_labelled_mat_data(self):            # Method used to read in data from a .mat file
         f = h5py.File(self.filename, 'r')
 
         # Get references for data id and label locations
@@ -241,6 +246,19 @@ class Data(object):
 
             else:
                 continue
+
+        self.done_flag = True
+
+    def read_unlabelled_mat_data(self):
+        f = h5py.File(self.filename, 'r')
+
+        def all(name):
+            self.temp_label_list.append(name)
+            return None
+
+        f.visit(all)
+        print(self.temp_label_list)
+
 
     @staticmethod
     def get_word(label, start):             # Method used to get a specific word from a label
@@ -348,6 +366,18 @@ class Data(object):
                 return False
 
         return True
+
+    # Method used to turn matrix rows into vectors for use in data selection
+    @staticmethod
+    def disassemble_matrix(matrix):
+        vector_list = []
+
+        for i in range(np.shape(matrix)[1]):
+            vector = matrix[:, i]
+            vector_list.append(vector)
+
+        return vector_list
+
 
 class Bus(object):
     def __init__(self, voltage=None, frequency=None):
