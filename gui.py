@@ -642,9 +642,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.data_list.append(Data(filename[0]))
         except:
             self.data_warning()
+            return
         else:
             if not self.data_list[-1].done_flag:
                 self.sort_data()
+                self.update_table()
             else:
                 self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
@@ -701,22 +703,68 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
     def sort_data(self):
         window = NewWindow(parent=self, title='Data Sorter')
-        window.setMinimumSize(750, 900)
+        window.setMinimumSize(500, 700)
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
 
-        table_data = []
-
-        for i in range(len(self.data_list[-1].temp_label_list)):
-            current_data = [self.data_list[-1].temp_label_list[i]]
-            table_data.append(current_data)
-
-        headers = ['Label']
-        tm = DataTableModel(table_data, headers, window.main_widget)
-        tv = QtWidgets.QTableView()
-        tv.setModel(tm)
+        # OLD STYLE TABLE
+        # table_data = []
+        #
+        # for i in range(len(self.data_list[-1].temp_label_list)):
+        #     current_data = [self.data_list[-1].temp_label_list[i]]
+        #     table_data.append(current_data)
+        #
+        # headers = ['Label']
+        # tm = DataTableModel(table_data, headers, window.main_widget)
+        # tv = QtWidgets.QTableView()
+        # tv.setModel(tm)
+        # hh = tv.horizontalHeader()
+        # hh.setStretchLastSection(True)
+        # vh = tv.verticalHeader()
+        # vh.setVisible(False)
+        # v_box.addWidget(tv)
+        # tv.setColumnWidth(0, 100)
+        table_data = self.data_list[-1].temp_label_list
+        tv = QtWidgets.QTableWidget(len(table_data), 2, window.main_widget)
+        v_box.addWidget(tv)
         hh = tv.horizontalHeader()
         hh.setStretchLastSection(True)
         vh = tv.verticalHeader()
         vh.setVisible(False)
-        v_box.addWidget(tv)
-        tv.setColumnWidth(0, 100)
+        tv.setColumnWidth(0, 150)
+        tv.setHorizontalHeaderLabels(['Variable Name', 'Label'])
+        line_edit_list = []
+        for i in range(len(table_data)):
+            tv.setItem(i, 0, QTableWidgetItem(table_data[i]))
+            line_edit_list.append(QLineEdit(window.main_widget))
+            tv.setCellWidget(i, 1, line_edit_list[i])
+
+        description = QLabel( "BUS\n"
+                              "Voltage (V-bus#-unit) e.g. (V-bus1-pu)\n"
+                              "Frequency (F-bus#-unit) e.g. (F-bus1-Hz)\n\n"
+                              "DER\n"
+                              "Power Output (Po-der#-type-capacity-unit) e.g. (Po-der1-Fuel_Hydro-1000-kW)\n"
+                              "Consumption (C-der#-unit) e.g. (C-der1-L)\n"
+                              "State of Charge (SOC-der#) e.g (SOC-der1)\n\n"
+                              "LOAD\n"
+                              "Power Demand (Pd-load#-type-unit) e.g. (Pd-load1-Priority-kW)")
+        v_box.addWidget(description)
+
+        def assign_labels():
+            temp_label_list = []
+            k = 0
+            for i in range(len(self.data_list[-1].temp_index)):
+                current_list = []
+                for j in self.data_list[-1].temp_index[i]:
+                    current_list.append(line_edit_list[k].text())
+                    k += 1
+                temp_label_list.append(current_list)
+
+            self.data_list[-1].temp_label_list = temp_label_list
+            print(temp_label_list)
+            window.close()
+            self.data_list[-1].sort_labelled_data()
+
+        done_button = QPushButton('Done')
+        done_button.setMaximumWidth(120)
+        done_button.clicked.connect(assign_labels)
+        v_box.addWidget(done_button)

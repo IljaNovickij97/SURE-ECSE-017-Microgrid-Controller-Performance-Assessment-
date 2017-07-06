@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import *
 class Data(object):
     def __init__(self, filename):
         self.filename = filename
+        self.f = None               # File handle
         self.busList = []           # Contains the bus objects
         self.derList = []           # Contains the DER objects
         self.loadList = []          # Contains the load objects
@@ -18,6 +19,8 @@ class Data(object):
         self.nDer = 0               # Number of DERs in the system
         self.nLoad = 0              # Number of loads in the system
         self.temp_label_list = []   # List of labels for when mat data needs to be sorted
+        self.temp_index = []        # Index used to find and sort unlabelled mat data
+        self.main_label_list = []
         self.done_flag = False      # Flag used to tell gui.py whether data is fully sorted and loaded
 
         if filename[-3:] == 'txt':
@@ -28,7 +31,7 @@ class Data(object):
             except TypeError:
                 self.read_unlabelled_mat_data()
             except OSError:
-                print('File is using an old unsupported file format')
+                raise OSError
 
     def read_text_data(self):       # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
@@ -250,15 +253,112 @@ class Data(object):
         self.done_flag = True
 
     def read_unlabelled_mat_data(self):
-        f = h5py.File(self.filename, 'r')
+        self.f = h5py.File(self.filename, 'r')
 
         def all(name):
-            self.temp_label_list.append(name)
+            self.main_label_list.append(name)
             return None
+        self.f.visit(all)
 
-        f.visit(all)
-        print(self.temp_label_list)
+        for i in range(len(self.main_label_list)):
+            current_data = self.f['/' + self.main_label_list[i]]
+            if current_data.shape[1] > 1:
+                index = []
+                for j in range(current_data.shape[1]):
+                    self.temp_label_list.append(self.main_label_list[i] + ' Row ' + str(j + 1))
+                    index.append(j)
+                self.temp_index.append(index)
+            else:
+                self.temp_label_list.append(self.main_label_list[i])
+                self.temp_index.append([0])
 
+    def sort_labelled_data(self):
+        for i in range(len(self.main_label_list)):
+            current_data = np.array(self.f.get('/' + self.main_label_list[i]))
+            for j in self.temp_index[i]:
+                current_signal = current_data[:, j]
+                label = self.temp_label_list[i][j]
+
+                if 'T' in label:
+                    self.timeList = current_signal
+                    self.samplingPeriod = self.timeList[-1]
+
+                elif 'V-bus' in label:
+                    current_bus = int(self.get_word(label, 1)[3:])
+                    while current_bus > self.nBus:
+                        self.nBus += 1
+                        self.busList.append(Bus())
+
+                    self.busList[current_bus - 1].voltage = current_signal
+                    self.busList[current_bus - 1].voltage_unit = self.get_word(label, 2)
+
+                elif 'F-bus' in label:
+                    current_bus = int(self.get_word(label, 1)[3:])
+                    while current_bus > self.nBus:
+                        self.nBus += 1
+                        self.busList.append(Bus())
+
+                    self.busList[current_bus - 1].frequency = current_signal
+                    self.busList[current_bus - 1].frequency_unit = self.get_word(label, 2)
+
+                elif 'Po-der' in label:
+                    current_der = int(self.get_word(label, 1)[3:])
+                    while current_der > self.nDer:
+                        self.nDer += 1
+                        self.derList.append(Der())
+
+                    self.derList[current_der - 1].output = current_signal
+                    self.derList[current_der - 1].energy_type = self.get_word(label, 2)
+                    self.derList[current_der - 1].capacity = int(self.get_word(label, 3))
+                    self.derList[current_der - 1].output_unit = self.get_word(label, 4)
+
+                elif 'C-der' in label:
+                    current_der = int(self.get_word(label, 1)[3:])
+                    while current_der > self.nDer:
+                        self.nDer += 1
+                        self.derList.append(Der())
+
+                    self.derList[current_der - 1].consumption = current_signal
+                    self.derList[current_der - 1].consumpion_unit = self.get_word(label, 2)
+
+                elif 'SOC-der' in label:
+                    current_der = int(self.get_word(label, 1)[3:])
+                    while current_der > self.nDer:
+                        self.nDer += 1
+                        self.derList.append(Der())
+
+                    self.derList[current_der - 1].consumption = current_signal
+
+                elif 'Pd-load' in label:
+                    current_load = int(self.get_word(label, 1)[4:])
+                    while current_load > self.nLoad:
+                        self.nLoad += 1
+                        self.loadList.append(Load())
+
+                    self.loadList[current_load - 1].demand = current_signal
+                    self.loadList[current_load - 1].load_type = self.get_word(label, 2)
+                    self.loadList[current_load - 1].unit = self.get_word(label, 3)
+
+                else:
+                    continue
+        self.fill_time_lists()
+        self.print_all()
+        self.done_flag = True
+
+    def fill_time_lists(self):
+        for i in range(self.nBus):
+            if self.busList[i].voltage_time == None and not self.busList[i].frequency == None:
+                self.busList[i].voltage_time = np.linspace(0, self.samplingPeriod, len(self.busList[i].voltage))
+            if self.busList[i].frequency_time == None and not self.busList[i].frequency == None:
+                self.busList[i].frequency_time = np.linspace(0, self.samplingPeriod, len(self.busList[i].frequency))
+
+        for i in range(self.nDer):
+            if self.derList[i].time == None and not self.derList[i].output == None:
+                self.derList[i].time = np.linspace(0, self.samplingPeriod, len(self.derList[i].output))
+
+        for i in range(self.nLoad):
+            if self.loadList[i].time == None and not self.derList[i].demand == None:
+                self.derList[i].time = np.linspace(0, self.samplingPeriod, len(self.loadList[i].demand))
 
     @staticmethod
     def get_word(label, start):             # Method used to get a specific word from a label
