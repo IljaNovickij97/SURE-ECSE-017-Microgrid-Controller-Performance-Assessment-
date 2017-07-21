@@ -14,15 +14,16 @@ class VoltageAndFrequency(object):
         canvas.axes.set_ylabel('Voltage (pu)')
 
     @staticmethod
-    def voltage_hist(data_list, canvas, busNo, step):
-        bounds = ['<0.94', '0.94-0.98', '0.98-1.02', '1.02-1.06', '>1.06']
+    def voltage_hist(data_list, canvas, busNo, step, lower=0.94, middle_left=0.98, middle_right=1.02, upper=1.06):
+        bounds = ['<' + str(lower), str(lower) + '-' + str(middle_left), str(middle_left) + '-' + str(middle_right),
+                  str(middle_right) + '-' + str(upper), '>' + str(upper)]
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
             voltage_list = data_list[i].busList[busNo].voltage
             for j in range(len(pos)):
                 pos[j] += step
-            bins = sort_bin(voltage_list, 0.94, 0.98, 1.02, 1.06)
+            bins = sort_bin(voltage_list, lower, middle_left, middle_right, upper)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):
@@ -50,16 +51,19 @@ class VoltageAndFrequency(object):
         canvas.axes.set_ylabel('Frequency (Hz)')
 
     @staticmethod
-    def frequency_hist(data_list, canvas, bus_no, step):
+    def frequency_hist(data_list, canvas, bus_no, step, lower=58.5, middle_left=59.5, middle_right=60.5, upper=61.5):
 
-        bounds = ['<58.5', '58.5-59.5', '59.5-60.5', '60.5-61.5', '>61.5']
+        if data_list[0].busList[bus_no].frequency_unit == 'pu':
+            lower, middle_left, middle_right, upper = 0.94, 0.98, 1.02, 1.06
+        bounds = ['<' + str(lower), str(lower)+'-'+str(middle_left), str(middle_left)+'-'+str(middle_right),
+                  str(middle_right)+'-'+str(upper), '>'+str(upper)]
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
 
         for i in range(len(data_list)):
             frequency_list = data_list[i].busList[bus_no].frequency
             for j in range(len(pos)):
                 pos[j] += step
-            bins = sort_bin(frequency_list, 58.5, 59.5, 60.5, 61.5)
+            bins = sort_bin(frequency_list, lower, middle_left, middle_right, upper)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):
@@ -67,7 +71,7 @@ class VoltageAndFrequency(object):
 
         canvas.axes.set_xticklabels(bounds)
         canvas.axes.set_xticks(pos)
-        canvas.axes.set_xlabel('Frequency (Hz)')
+        canvas.axes.set_xlabel('Frequency (' + data_list[0].busList[bus_no].frequency_unit + ')')
         canvas.axes.set_ylabel('Number of Occurrences')
         canvas.axes.legend(loc='upper right')
 

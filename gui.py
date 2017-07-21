@@ -127,9 +127,39 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
             # VOLTAGE
             # Graphs
-            VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
             VoltageAndFrequency.voltage_hist(selected_data, hist_left, 0, width)
+            VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, 0)
             v_box_left.addWidget(hist_left)
+            bin_edit_left = QHBoxLayout(window.main_widget)
+            edit_left = []
+
+            def update_left_bins():
+                hist_left.axes.clear()
+                try:
+                    lower = float(edit_left[0].text())
+                    middle_left = float(edit_left[1].text())
+                    middle_right = float(edit_left[2].text())
+                    upper = float(edit_left[3].text())
+                except ValueError:
+                    VoltageAndFrequency.voltage_hist(selected_data, hist_left, bus_current, width)
+                else:
+                    VoltageAndFrequency.voltage_hist(selected_data, hist_left, bus_current, width,
+                                                     lower, middle_left, middle_right, upper)
+                hist_left.draw()
+
+            for i in range(4):
+                edit_left.append(QLineEdit(window.main_widget))
+                edit_left[i].setMaximumWidth(80)
+                edit_left[i].setMaximumHeight(25)
+                bin_edit_left.addWidget(edit_left[i])
+
+            bin_apply_left = QPushButton('Apply', window.main_widget)
+            bin_apply_left.setMaximumWidth(80)
+            bin_apply_left.setMaximumHeight(80)
+            bin_apply_left.clicked.connect(update_left_bins)
+            bin_edit_left.addWidget(bin_apply_left)
+
+            v_box_left.addLayout(bin_edit_left)
             v_box_left.addWidget(time_plot_left)
 
             # Table
@@ -157,6 +187,37 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             VoltageAndFrequency.frequency_hist(selected_data, hist_right, 0, width)
             VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, 0)
             v_box_right.addWidget(hist_right)
+
+            bin_edit_right = QHBoxLayout(window.main_widget)
+            edit_right = []
+
+            def update_right_bins():
+                hist_right.axes.clear()
+                try:
+                    lower = float(edit_right[0].text())
+                    middle_left = float(edit_right[1].text())
+                    middle_right = float(edit_right[2].text())
+                    upper = float(edit_right[3].text())
+                except ValueError:
+                    VoltageAndFrequency.frequency_hist(selected_data, hist_right, bus_current, width)
+                else:
+                    VoltageAndFrequency.frequency_hist(selected_data, hist_right, bus_current, width,
+                                                     lower, middle_left, middle_right, upper)
+                hist_right.draw()
+
+            for i in range(4):
+                edit_right.append(QLineEdit(window.main_widget))
+                edit_right[i].setMaximumWidth(80)
+                edit_right[i].setMaximumHeight(25)
+                bin_edit_right.addWidget(edit_right[i])
+
+            bin_apply_right = QPushButton('Apply', window.main_widget)
+            bin_apply_right.setMaximumWidth(80)
+            bin_apply_right.setMaximumHeight(80)
+            bin_apply_right.clicked.connect(update_right_bins)
+            bin_edit_right.addWidget(bin_apply_right)
+            v_box_right.addLayout(bin_edit_right)
+
             v_box_right.addWidget(time_plot_right)
 
             # Table
@@ -646,9 +707,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         else:
             if not self.data_list[-1].done_flag:
                 self.sort_data()
-                self.update_table()
-            else:
-                self.update_table()
+        self.update_table()
         self.statusBar().showMessage("Data loaded.", 1000)
 
     def update_table(self):
@@ -705,24 +764,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         window = NewWindow(parent=self, title='Data Sorter')
         window.setMinimumSize(500, 700)
         v_box = QtWidgets.QVBoxLayout(window.main_widget)
-
-        # OLD STYLE TABLE
-        # table_data = []
-        #
-        # for i in range(len(self.data_list[-1].temp_label_list)):
-        #     current_data = [self.data_list[-1].temp_label_list[i]]
-        #     table_data.append(current_data)
-        #
-        # headers = ['Label']
-        # tm = DataTableModel(table_data, headers, window.main_widget)
-        # tv = QtWidgets.QTableView()
-        # tv.setModel(tm)
-        # hh = tv.horizontalHeader()
-        # hh.setStretchLastSection(True)
-        # vh = tv.verticalHeader()
-        # vh.setVisible(False)
-        # v_box.addWidget(tv)
-        # tv.setColumnWidth(0, 100)
         table_data = self.data_list[-1].temp_label_list
         tv = QtWidgets.QTableWidget(len(table_data), 2, window.main_widget)
         v_box.addWidget(tv)
@@ -737,6 +778,15 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             tv.setItem(i, 0, QTableWidgetItem(table_data[i]))
             line_edit_list.append(QLineEdit(window.main_widget))
             tv.setCellWidget(i, 1, line_edit_list[i])
+
+        h_box = QHBoxLayout(window.main_widget)
+        controller_prompt = QLabel("Enter controller/data set name: ")
+        controller_name_edit = QLineEdit(window.main_widget)
+        controller_name_edit.setMaximumWidth(200)
+        h_box.addWidget(controller_prompt)
+        h_box.addWidget(controller_name_edit)
+        h_box.addStretch()
+        v_box.addLayout(h_box)
 
         description = QLabel( "BUS\n"
                               "Voltage (V-bus#-unit) e.g. (V-bus1-pu)\n"
@@ -760,9 +810,11 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                 temp_label_list.append(current_list)
 
             self.data_list[-1].temp_label_list = temp_label_list
+            self.data_list[-1].controllerName = controller_name_edit.text()
             print(temp_label_list)
             window.close()
             self.data_list[-1].sort_labelled_data()
+            self.update_table()
 
         done_button = QPushButton('Done')
         done_button.setMaximumWidth(120)
