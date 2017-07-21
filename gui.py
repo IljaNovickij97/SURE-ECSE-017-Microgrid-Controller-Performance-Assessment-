@@ -276,9 +276,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                     bus_current = 0
                 for j in range(0, len(canvas_list)):
                     canvas_list[j].axes.clear()
-                VoltageAndFrequency.voltage_hist(selected_data, hist_left, bus_current, width)
                 VoltageAndFrequency.voltage_time_plot(selected_data, time_plot_left, bus_current)
-                VoltageAndFrequency.frequency_hist(selected_data, hist_right, bus_current, width)
                 VoltageAndFrequency.frequency_time_plot(selected_data, time_plot_right, bus_current)
                 label = "Bus: " + ("%d" % (bus_current + 1))
                 bus_label.setText(label)
@@ -298,6 +296,9 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                 tv_left.setModel(tm)
                 tm = DataTableModel(table_data_right, headers, self.main_widget)
                 tv_right.setModel(tm)
+
+                update_left_bins()
+                update_right_bins()
 
             bus_button = QtWidgets.QPushButton('Next Bus', window.main_widget)
             bus_button.setFixedSize(150, 20)
