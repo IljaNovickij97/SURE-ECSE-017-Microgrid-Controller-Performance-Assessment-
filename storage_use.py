@@ -15,14 +15,15 @@ class StorageUse(object):
         self.n_storage = len(self.storage_index[0])
         self.current_index = 0
 
-    def charge_hist(self, data_list, canvas, step):
-        bounds = ['<20%', '20%-40%', '40%-60%', '60%-80%', '>80%']
+    def charge_hist(self, data_list, canvas, step, lower=20, middle_left=40, middle_right=60, upper=80):
+        bounds = ['<' + str(lower) + '%', str(lower) + '%' + '-' + str(middle_left) + '%', str(middle_left) + '%' + '-' + str(middle_right) + '%',
+                  str(middle_right) + '%' + '-' + str(upper) + '%', '>' + str(upper) + '%']
         pos = [0.0, 1.0, 2.0, 3.0, 4.0]
         for i in range(len(data_list)):
             for j in range(len(pos)):
                 pos[j] += step
             charge_state = data_list[i].derList[self.storage_index[i][self.current_index]].consumption
-            bins = sort_bin(charge_state, 20, 40, 60, 80)
+            bins = sort_bin(charge_state, lower, middle_left, middle_right, upper)
             canvas.axes.bar(pos, bins, align='center', width=step, label=data_list[i].controllerName)
 
         for j in range(len(pos)):

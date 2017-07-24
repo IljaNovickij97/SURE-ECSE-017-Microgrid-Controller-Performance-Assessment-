@@ -630,7 +630,38 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             v_box.addLayout(toolbar_layout)
             storage_use.charge_hist(selected_data, charge_hist, width)
             storage_use.charge_time_plot(selected_data, charge_time_plot)
+
+            bin_edit = QHBoxLayout(window.main_widget)
+            edit = []
+
+            def update_bins():
+                charge_hist.axes.clear()
+                try:
+                    lower = int(edit[0].text())
+                    middle_left = int(edit[1].text())
+                    middle_right = int(edit[2].text())
+                    upper = int(edit[3].text())
+                except ValueError:
+                    storage_use.charge_hist(selected_data, charge_hist, width)
+                else:
+                    storage_use.charge_hist(selected_data, charge_hist, width,
+                                                       lower, middle_left, middle_right, upper)
+                charge_hist.draw()
+
+            for i in range(4):
+                edit.append(QLineEdit(window.main_widget))
+                edit[i].setMaximumWidth(80)
+                edit[i].setMaximumHeight(25)
+                bin_edit.addWidget(edit[i])
+
+            bin_apply = QPushButton('Apply', window.main_widget)
+            bin_apply.setMaximumWidth(80)
+            bin_apply.setMaximumHeight(80)
+            bin_apply.clicked.connect(update_bins)
+            bin_edit.addWidget(bin_apply)
+
             v_box.addWidget(charge_hist)
+            v_box.addLayout(bin_edit)
             v_box.addWidget(charge_time_plot)
 
             graph_list = [charge_hist, charge_time_plot]
@@ -662,7 +693,6 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                 charge_time_plot.axes.clear()
                 charge_hist.axes.clear()
                 storage_use.charge_time_plot(selected_data, charge_time_plot)
-                storage_use.charge_hist(selected_data, charge_hist, width)
                 charge_time_plot.draw()
                 charge_hist.draw()
                 table_data = []
@@ -673,6 +703,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
                     table_data.append(current_data)
                 tm = DataTableModel(table_data, headers, window.main_widget)
                 tv.setModel(tm)
+
+                update_bins()
 
             storage_button = QtWidgets.QPushButton('Next Storage', window.main_widget)
             storage_button.setFixedSize(150, 20)
@@ -789,7 +821,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         h_box.addStretch()
         v_box.addLayout(h_box)
 
-        description = QLabel( "BUS\n"
+        description = QLabel( "TIME (T)\n\n"
+                              "BUS\n"
                               "Voltage (V-bus#-unit) e.g. (V-bus1-pu)\n"
                               "Frequency (F-bus#-unit) e.g. (F-bus1-Hz)\n\n"
                               "DER\n"
