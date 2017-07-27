@@ -137,7 +137,7 @@ class RunningCost(object):
 
         if ftype == 0:
             for i in range(len(data_list)):
-                canvas.axes.scatter(total_gen_list[i], y_tot[i], color=colours[i],
+                canvas.axes.scatter(total_gen_list[i], y_tot[i], color=colours[i], s=15,
                                     label=(data_list[i].controllerName + ': Total Fuel'))
         else:
             for i in range(len(data_list)):
@@ -146,7 +146,7 @@ class RunningCost(object):
                 x_min = [fuel_gen[i][ftype - 1][np.where(y[i][ftype-1] == y_min)]]
                 min_fuel = fuels[i][ftype - 1][np.where(y[i][ftype-1] == y_min)]
 
-                canvas.axes.scatter(fuel_gen[i][ftype-1], y[i][ftype-1], color=colours[i],
+                canvas.axes.scatter(fuel_gen[i][ftype-1], y[i][ftype-1], color=colours[i], s=15,
                                     label=(fuel_types[ftype-1][5:] + ' efficient fuel level: %s L' % min_fuel))
                 canvas.axes.plot(x_min, y_min, '-rx')
 
