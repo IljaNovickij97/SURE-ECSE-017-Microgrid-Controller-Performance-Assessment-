@@ -123,9 +123,9 @@ class RunningCost(object):
             for j in range(num_fuel):
                 for k in range(len(t)):
                     if fuel_gen[i][j][k] != 0:
-                        y[i][j][k] = (fuels[i][j][k]/fuel_gen[i][j][k])
+                        y[i][j][k] = float((fuels[i][j][k]/fuel_gen[i][j][k]))
                     else:
-                        y[i][j][k] = max(fuel_gen[i][j])
+                        y[i][j][k] = 0
 
         # total (fuel consumption/power output)
         y_tot = np.array([[0.0]*len(t) for i in range(len(data_list))])
@@ -133,15 +133,12 @@ class RunningCost(object):
             for j in range(num_fuel):
                 y_tot[i] += y[i][j]
 
-        line_styles = ['--', '-.', '_', ':']
-        if len(line_styles) < num_fuel:
-            line_styles.extend(line_styles)
         colours = ['b', 'g', 'm', 'y', 'c', 'deepskyblue', 'limegreen', 'blueviolet']
 
         if ftype == 0:
             for i in range(len(data_list)):
-                canvas.axes.plot(total_gen_list[i], y_tot[i], linewidth=2, linestyle=None, color=colours[i],
-                                 label=(data_list[i].controllerName + ': Total Fuel'))
+                canvas.axes.scatter(total_gen_list[i], y_tot[i], color=colours[i],
+                                    label=(data_list[i].controllerName + ': Total Fuel'))
         else:
             for i in range(len(data_list)):
                 # add min point recognition to plot
@@ -149,8 +146,8 @@ class RunningCost(object):
                 x_min = [fuel_gen[i][ftype - 1][np.where(y[i][ftype-1] == y_min)]]
                 min_fuel = fuels[i][ftype - 1][np.where(y[i][ftype-1] == y_min)]
 
-                canvas.axes.plot(fuel_gen[i][ftype-1], y[i][ftype-1], linestyle=line_styles[ftype-1], color=colours[i],
-                                 label=(fuel_types[ftype-1][5:] + ' efficient fuel level: %s L' % min_fuel))
+                canvas.axes.scatter(fuel_gen[i][ftype-1], y[i][ftype-1], color=colours[i],
+                                    label=(fuel_types[ftype-1][5:] + ' efficient fuel level: %s L' % min_fuel))
                 canvas.axes.plot(x_min, y_min, '-rx')
 
         canvas.axes.legend(loc='upper right', fontsize=7)
