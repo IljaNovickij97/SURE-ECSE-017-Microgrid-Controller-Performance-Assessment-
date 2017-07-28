@@ -81,7 +81,7 @@ class RunningCost(object):
 
     """ This method plots (fuel) power generation over time"""
     @staticmethod
-    def pwrGen(data_list, ftype, canvas):
+    def pwr_gen_time(data_list, ftype, canvas):
 
         # each fuel type has a different line style
         line_styles = ['--', '-.', '_', ':']
@@ -114,8 +114,9 @@ class RunningCost(object):
         canvas.axes.set_title('Time Plot of Fuel-Powered Generation')
 
     """ Plot (fuel consumption/power out) vs power out to find most efficient operating point in terms of fuel use"""
+    """ Scatter plot"""
     @staticmethod
-    def fuelUse(data_list, ftype, canvas):
+    def fuel_use(data_list, ftype, canvas):
         # power out needs to match fuel consumption: ie per source per sample
         # y is a 3D array of fuel use/ pwr out
         y = np.array([[[0.0]*len(t) for j in range(num_fuel)] for i in range(len(data_list))])
@@ -123,7 +124,7 @@ class RunningCost(object):
             for j in range(num_fuel):
                 for k in range(len(t)):
                     if fuel_gen[i][j][k] != 0:
-                        y[i][j][k] = float((fuels[i][j][k]/fuel_gen[i][j][k]))
+                        y[i][j][k] = (fuels[i][j][k]/fuel_gen[i][j][k])
                     else:
                         y[i][j][k] = 0
 
@@ -190,21 +191,23 @@ class RunningCost(object):
                 if 'Fuel' in data_list[i].derList[j].energy_type:
                     # for fuel generation, 'off' is when consumption = 0
                     for k in range(len(t) - 1):
-                        if (data_list[i].derList[j].consumption[k] != 0) and (data_list[i].derList[j].consumption[k + 1] == 0):
+                        if (data_list[i].derList[j].consumption[k] != 0) and \
+                                (data_list[i].derList[j].consumption[k + 1] == 0):
                             switching += 1
                 elif 'Ren' in data_list[i].derList[j].energy_type:
                     # for renewable generation, 'off' is when generation is < 5% capacity
                     for k in range(len(t) - 1):
                         cap = data_list[i].derList[j].capacity
-                        if (data_list[i].derList[j].output[k] > cap*0.05) and (data_list[i].derList[j].output[k + 1] < cap*0.05):
+                        if (data_list[i].derList[j].output[k] > cap*0.05) and \
+                                (data_list[i].derList[j].output[k + 1] < cap*0.05):
                             switching += 1
                 switch_list[i][j] = switching
 
         return switch_list
 
-    """ This method calculates various statistics for displaying in a table in the GUI"""
+    """ This method calculates various statistics related to rc"""
     @staticmethod
-    def rcStats(data_list):
+    def rc_stats(data_list):
         # 2D list for storing statistics for each controller
         stats = [[] for i in range(len(data_list))]
 

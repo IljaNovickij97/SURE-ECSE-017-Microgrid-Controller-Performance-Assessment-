@@ -1,7 +1,6 @@
 from __future__ import division
 import numpy as np
 import h5py
-from PyQt5.QtWidgets import *
 
 
 class Data(object):
@@ -32,7 +31,6 @@ class Data(object):
                 raise OSError
             except:
                 self.read_unlabelled_mat_data()
-
 
     def read_text_data(self):       # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
@@ -88,8 +86,9 @@ class Data(object):
         # Very simple placeholder for timeList. Will have to be modified later.
         self.timeList = np.linspace(0, self.samplingPeriod, int(self.samplingPeriod / self.samplingRate))
 
+        # more realistic/robust timeList, unless already provided
         for i in range(self.nBus):
-            if self.busList[i].voltage_time == None or self.busList[i].frequency_time == None:
+            if (self.busList[i].voltage_time is None) or (self.busList[i].frequency_time is None):
                 self.busList[i].voltage_time, self.busList[i].frequency_time, self.timeList = [], [], []
                 for j in range(self.samplingPeriod * self.samplingRate):
                     self.busList[i].voltage_time.append(j / self.samplingRate)
@@ -360,13 +359,13 @@ class Data(object):
             if self.busList[i].frequency_time == None and not self.busList[i].frequency == None:
                 self.busList[i].frequency_time = np.linspace(0, self.samplingPeriod, len(self.busList[i].frequency))
 
-        for i in range(self.nDer):
-            if self.derList[i].time == None and not self.derList[i].output == None:
-                self.derList[i].time = np.linspace(0, self.samplingPeriod, len(self.derList[i].output))
+            for i in range(self.nDer):
+                if self.derList[i].time == None and not self.derList[i].output == None:
+                    self.derList[i].time = np.linspace(0, self.samplingPeriod, len(self.derList[i].output))
 
-        for i in range(self.nLoad):
-            if self.loadList[i].time == None and not self.derList[i].demand == None:
-                self.derList[i].time = np.linspace(0, self.samplingPeriod, len(self.loadList[i].demand))
+            for i in range(self.nLoad):
+                if self.loadList[i].time == None and not self.derList[i].demand == None:
+                    self.derList[i].time = np.linspace(0, self.samplingPeriod, len(self.loadList[i].demand))
 
     @staticmethod
     def get_word(label, start):             # Method used to get a specific word from a label
@@ -419,7 +418,7 @@ class Data(object):
         for i in range(self.nBus):
             if self.busList[i].voltage == None:
                 return False
-            elif self.busList[i].voltage_time  == None:
+            elif self.busList[i].voltage_time == None:
                 return False
             elif self.busList[i].frequency == None:
                 return False
@@ -453,9 +452,9 @@ class Data(object):
             return False
 
         for i in range(len(fuel_index)):
-            if self.derList[fuel_index[i]].output == None:
+            if self.derList[fuel_index[i]].output is None:
                 return False
-            elif self.derList[fuel_index[i]].consumption == None:
+            elif self.derList[fuel_index[i]].consumption is None:
                 return False
 
         return True
@@ -470,7 +469,7 @@ class Data(object):
             return False
 
         for i in range(len(storage_index)):
-            if self.derList[storage_index[i]].consumption == None:
+            if self.derList[storage_index[i]].consumption is None:
                 return False
 
         return True
@@ -514,4 +513,3 @@ class Load(object):
         self.demand = demand
         self.time = None
         self.unit = None
-
