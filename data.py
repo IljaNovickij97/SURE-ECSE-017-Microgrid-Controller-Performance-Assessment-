@@ -28,10 +28,11 @@ class Data(object):
         elif filename[-3:] == 'mat':
             try:
                 self.read_labelled_mat_data()
-            except TypeError:
-                self.read_unlabelled_mat_data()
             except OSError:
                 raise OSError
+            except:
+                self.read_unlabelled_mat_data()
+
 
     def read_text_data(self):       # This method parses the file and arranges the data.
                                     # At the moment the parsing is very simplistic. Relies heavily on making sure that
@@ -162,6 +163,13 @@ class Data(object):
         # Get references for data id and label locations
         data_ref = np.array(f.get('SDIDescriptor/Signals/DataID'))
         label_ref = np.array(f.get('SDIDescriptor/Signals/SignalLabel'))
+        name_ref = f['SDIDescriptor/Runs/RunName'].value
+        self.controllerName = []
+        for i in range(len(name_ref)):
+            self.controllerName.append(chr(name_ref[i][0]))
+
+        self.controllerName = ''.join(self.controllerName)
+        print(self.controllerName)
 
         for i in range(len(data_ref)):
             # Read in the label and store it in a string
