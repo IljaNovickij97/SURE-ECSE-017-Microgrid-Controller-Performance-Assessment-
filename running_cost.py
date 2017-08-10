@@ -150,12 +150,17 @@ class RunningCost(object):
                 canvas.axes.scatter(fuel_gen[i][ftype-1], y[i][ftype-1], color=colours[i], s=15,
                                     label=(fuel_types[ftype-1][5:] + ' efficient fuel level: %s L' % min_fuel))
                 canvas.axes.plot(x_min, y_min, '-rx')
+                # add line of best fit to plot
+                x = np.sort(fuel_gen[i][ftype-1])
+                a, b, c = np.polyfit(x, y[i][ftype-1], 2)
+                canvas.axes.plot(x, a*x**2 + b*x + c, linestyle='-', color=colours[i])
 
         canvas.axes.legend(loc='upper right', fontsize=7)
         canvas.axes.set_xlabel('Power Output')
         canvas.axes.set_ylabel('Fuel Consumption/Power Output')
         canvas.axes.set_title('Fuel Consumption/Power Output vs. Power Output')
 
+    """ This method calculates switching metrics"""
     @staticmethod
     def ramping(data_list):
         # use d(P_gen)/dt vs t (gradient) to show ramping
