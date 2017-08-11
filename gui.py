@@ -464,7 +464,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         else:
 
             window = NewWindow(parent=self, title='Running Costs')
-            window.setMinimumSize(750, 900)
+            window.setMinimumSize(750, 950)
 
             # Layout
             v_box = QtWidgets.QVBoxLayout(window.main_widget)
@@ -613,7 +613,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         else:
             storage_use = StorageUse(selected_data)
             window = NewWindow(parent=self, title='Storage Use')
-            window.setMinimumSize(650, 700)
+            window.setMinimumSize(650, 750)
 
             # Layout
             v_box = QtWidgets.QVBoxLayout(window.main_widget)
