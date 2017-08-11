@@ -480,8 +480,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             v_box.addLayout(toolbar_layout)
 
             fuel_types = RunningCost.basic_calc(selected_data)
-            RunningCost.pwrGen(selected_data, 0, pwr_out)
-            RunningCost.fuelUse(selected_data, 0, fuel_use)
+            RunningCost.pwr_gen_time(selected_data, 0, pwr_out)
+            RunningCost.fuel_use(selected_data, 0, fuel_use)
 
             v_box.addWidget(pwr_out)
             v_box.addWidget(fuel_use)
@@ -514,8 +514,8 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
 
                 pwr_out.axes.clear()
                 fuel_use.axes.clear()
-                RunningCost.pwrGen(selected_data, type, pwr_out)
-                RunningCost.fuelUse(selected_data, type, fuel_use)
+                RunningCost.pwr_gen_time(selected_data, type, pwr_out)
+                RunningCost.fuel_use(selected_data, type, fuel_use)
                 label = button_list[type]
                 fuel_label.setText(label)
                 pwr_out.draw()
@@ -540,7 +540,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             headers = ['Controller Name', 'Fuel Consumption(L)', 'Average Ramping\n(MW/s)', 'Max Ramping\n(MW/s)',
                        'Peak Power\n(Grid Connected) (MW)']
             RunningCost.ramping(selected_data)
-            table_data = RunningCost.rcStats(selected_data)
+            table_data = RunningCost.rc_stats(selected_data)
 
             for i in range(len(selected_data)):
                 table_data[i].insert(0, selected_data[i].controllerName)

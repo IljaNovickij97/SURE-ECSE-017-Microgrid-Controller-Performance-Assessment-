@@ -15,9 +15,11 @@ class Renewables(object):
             if 'Storage' not in data.derList[i].energy_type:
                 gen_types.append(data.derList[i].energy_type)
 
+        # set removes repetition
         gen_types = list(set(gen_types))
-
         num_gen = len(gen_types)
+
+        # 2D list of generation per source
         gen_list = np.array([[0.0]*len(t) for j in range(num_gen)])
 
         for i in range(num_gen):
@@ -41,8 +43,8 @@ class Renewables(object):
             elif 'Ren' in gen_types[i]:
                 explode.append(0.1)
 
-        colors = ['magenta', 'lightskyblue', 'gold', 'lime', 'cyan', 'yellowgreen', 'lightcoral', 'deeppink']
-        colors = colors[:num_gen]
+        colours = ['magenta', 'lightskyblue', 'gold', 'lime', 'cyan', 'yellowgreen', 'lightcoral', 'deeppink']
+        colours = colours[:num_gen]         # only hold as many elements as needed
 
         labels = []
         for i in range(num_gen):
@@ -53,7 +55,7 @@ class Renewables(object):
 
         title = data.controllerName + ' Absolute Energy Distribution'
         canvas.axes.set_title(title)
-        canvas.axes.pie(chart_list, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+        canvas.axes.pie(chart_list, explode=explode, labels=labels, colors=colours, autopct='%1.1f%%', startangle=90)
 
     @staticmethod
     def renewable_norm_pie(data, canvas):
@@ -108,42 +110,6 @@ class Renewables(object):
         canvas.axes.set_title(title)
         canvas.axes.pie(chart_list, explode=explode, labels=labels, colors=colours, autopct='%1.1f%%', startangle=90)
 
-    # The below method is currently unused. If used, DER types need to be adjusted.
-    @staticmethod
-    def renewable_time(data, canvas):
-        #  todo: fix timescale to match units
-        #       adjust power units
-        t = data.timeList
-        wind = np.array([0.0]*len(data.timeList))
-        hydro = np.array([0.0]*len(data.timeList))
-        pv = np.array([0.0]*len(data.timeList))
-
-        for i in range(0, data.nDer):
-            if data.derList[i].energy_type == 'Wind':
-                wind += np.array(data.derList[i].output)
-            if data.derList[i].energy_type == 'Hydro':
-                hydro += np.array(data.derList[i].output)
-            if data.derList[i].energy_type == 'PV':
-                pv += np.array(data.derList[i].output)
-
-        total = wind + hydro + pv
-
-        if not np.all(wind == 0):
-            canvas.axes.plot(t, wind, label="Wind Gen")
-        if not np.all(hydro == 0):
-            canvas.axes.plot(t, hydro, label="Hydro Gen")
-        if not np.all(pv == 0):
-            canvas.axes.plot(t, pv, label="Solar Gen")
-        if np.all(total == 0):
-            canvas.axes.plot(t, []*len(data.timeList), label="Total Renewable Gen")
-        elif not np.all(total == 0):
-            canvas.axes.plot(t, total, label="Total Renewable Gen")
-        canvas.axes.legend(loc='upper left')
-        canvas.axes.set_xlabel('Time (s)')
-        canvas.axes.set_ylabel('Power Generation (MW)')
-        canvas.axes.set_title('Time Plot of Renewable Power Gen.')
-        canvas.draw()
-
     @staticmethod
     def renewable_stats(data):
         t = data.timeList
@@ -169,12 +135,12 @@ class Renewables(object):
 
         total_gen_list = [0]*num_gen
 
+        # total power output per type
         for i in range(num_gen):
             total_gen_list[i] = sum(gen_list[i])
-            # convert to MWh
+            total_gen_list[i] /= (len(t)*60*60)         # convert to MWh
 
-            total_gen_list[i] /= (len(t)*60*60)
-
+        # total power output for all types (and all renewables) for a single sample
         total_ren = 0
         total = 0
         for i in range(num_gen):
@@ -182,6 +148,7 @@ class Renewables(object):
             if 'Ren' in gen_types[i]:
                 total_ren += total_gen_list[i]
 
+        # used for table headers
         labels = []
         for i in range(num_gen):
             if 'Fuel' in gen_types[i]:
