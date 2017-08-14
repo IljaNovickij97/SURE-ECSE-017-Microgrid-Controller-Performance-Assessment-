@@ -8,6 +8,8 @@ from data import *
 from gui_backend import *
 from PyQt5.QtWidgets import *
 
+# This file handles all elements of the GUI. The MainWindow class has methods that setup the dashboard UI and each of
+# the metric's UI.
 
 class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
     def __init__(self):
@@ -86,6 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
         self.statusBar()
 
     def vf(self):
+        # Check if data is properly loaded
         if not self.data_list:
             self.statusBar().showMessage("No data loaded.", 1000)
             return
@@ -102,6 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):    # Main window of the gui.
             self.warning()
 
         else:
+            # Data is properly loaded. Set up the UI.
             window = NewWindow(parent=self, title='Voltage and Frequency')
             window.setMinimumSize(1080, 700)
 

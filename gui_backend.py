@@ -3,8 +3,11 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
+# This file contains misc. classes that are often called in gui.py
 
-class Canvas(FigureCanvas):         # Class used to contain graphs as widget in the PyQt framework
+
+# Class used to contain graphs as widget in the PyQt 5 framework
+class Canvas(FigureCanvas):
     def __init__(self, parent=None, width=4, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi, tight_layout=True)
         FigureCanvas.__init__(self, self.fig)
@@ -27,6 +30,7 @@ class Canvas(FigureCanvas):         # Class used to contain graphs as widget in 
             return
 
 
+# Class used to setup a new separate window
 class NewWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None, title='New Window'):
         super(NewWindow, self).__init__(parent)
@@ -39,6 +43,7 @@ class NewWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.main_widget)
 
 
+# Model for a table used to display information
 class DataTableModel(QtCore.QAbstractTableModel):
     def __init__(self, datain, headerdata, parent=None):
         super().__init__(parent)
