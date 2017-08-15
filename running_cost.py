@@ -151,8 +151,8 @@ class RunningCost(object):
                                     label=(fuel_types[ftype-1][5:] + ' efficient fuel level: %s L' % min_fuel))
                 canvas.axes.plot(x_min, y_min, '-rx')
                 # add line of best fit to plot
-                x = np.sort(fuel_gen[i][ftype-1])
-                a, b, c = np.polyfit(x, y[i][ftype-1], 2)
+                a, b, c = np.polyfit(fuel_gen[i][ftype - 1], y[i][ftype-1], 2)
+                x = np.sort(fuel_gen[i][ftype - 1])
                 canvas.axes.plot(x, a*x**2 + b*x + c, linestyle='-', color=colours[i])
 
         canvas.axes.legend(loc='upper right', fontsize=7)
